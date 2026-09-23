@@ -304,7 +304,7 @@ const DEFAULT_USERS = [
   {
     phone: '0899999999',
     password: 'admin1234',
-    realName: 'ผู้ดูแลระบบ FitPulse',
+    realName: 'ผู้ดูแลระบบ fitจัง',
     nickname: 'แอดมิน',
     role: 'admin',
     createdAt: '2025-01-01T08:00:00.000Z'
@@ -2116,7 +2116,7 @@ class FitPulseApp {
     if (!this.currentUser) {
       container.innerHTML = `
         <div class="auth-btn-group">
-          <button type="button" class="btn btn-login-top btn-sm" onclick="app.openAuthModal(false, 'login')" title="เข้าสู่ระบบ FitPulse">
+          <button type="button" class="btn btn-login-top btn-sm" onclick="app.openAuthModal(false, 'login')" title="เข้าสู่ระบบ fitจัง">
             🔑 เข้าสู่ระบบ (Login)
           </button>
           <button type="button" class="btn btn-signup-top btn-sm" onclick="app.openAuthModal(false, 'signup')" title="สมัครสมาชิกใหม่">
