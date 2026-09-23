@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FitPulse - คำนวณสารอาหาร สุ่มออกกำลังกาย & ประวัติสถิติ</title>
+  <!-- Google Fonts: Prompt & Kanit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>FitPulse</h1>
+          <p>คำนวณสารอาหาร สุ่มออกกำลังกาย & บันทึกสถิติย้อนหลัง</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Auth Status Box (Login / Logout / User Name - Top Right) -->
+        <div id="authStatusContainer" class="auth-status-container">
+          <div class="auth-btn-group">
+            <button type="button" class="btn btn-login-top btn-sm" onclick="app.openAuthModal(false, 'login')" title="เข้าสู่ระบบ FitPulse">
+              🔑 เข้าสู่ระบบ (Login)
+            </button>
+            <button type="button" class="btn btn-signup-top btn-sm" onclick="app.openAuthModal(false, 'signup')" title="สมัครสมาชิกใหม่">
+              📝 สมัครสมาชิก
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    
+    <!-- Date Navigator Bar -->
+    <div class="date-navigator-card">
+      <div class="date-nav-controls">
+        <button type="button" class="date-nav-btn" onclick="app.shiftDate(-1)" title="วันก่อนหน้า">
+          ◀
+        </button>
+        <div class="date-display-group">
+          <input type="date" id="activeDateInput" onchange="app.onDateInputChange(this.value)" class="hidden-date-input">
+          <label for="activeDateInput" class="date-picker-label" title="คลิกเพื่อเลือกวันที่">
+            📅 <span id="activeDateFormatted">วันนี้</span>
+            <span class="date-tag-badge" id="dateTagBadge">วันนี้</span>
+          </label>
+        </div>
+        <button type="button" class="date-nav-btn" onclick="app.shiftDate(1)" title="วันถัดไป">
+          ▶
+        </button>
+      </div>
+      <div class="date-nav-actions">
+        <button type="button" class="btn btn-sm btn-outline" onclick="app.goToToday()">
+          🎯 กลับมาวันนี้
+        </button>
+        <button type="button" class="btn btn-sm btn-success" onclick="app.saveCurrentDaySummary()">
+          💾 บันทึกลงประวัติ
+        </button>
+      </div>
+    </div>
+
+    <!-- Top Summary Banner -->
+    <section class="summary-card" id="topSummaryCard">
+      <div class="summary-metric">
+        <span class="metric-label">เป้าหมายพลังงานต่อวัน (TDEE)</span>
+        <div class="metric-value">
+          <span id="displayTdee">0</span> <span class="unit">kcal</span>
+        </div>
+        <span class="metric-sub" id="displayBmrSub">BMR: 0 kcal</span>
+      </div>
+
+      <div class="summary-metric">
+        <span class="metric-label">พลังงานที่กินไปแล้ว</span>
+        <div class="metric-value text-primary">
+          <span id="displayIntake">0</span> <span class="unit">kcal</span>
+        </div>
+        <span class="metric-sub" id="displayMealCount">0 มื้อที่บันทึก</span>
+      </div>
+
+      <div class="summary-metric highlight">
+        <span class="metric-label">สถานะพลังงาน (Balance)</span>
+        <div class="metric-value" id="displayBalanceValue">
+          <span id="displayDiff">0</span> <span class="unit">kcal</span>
+        </div>
+        <span class="metric-badge" id="displayStatusBadge">ยังไม่ได้คำนวณ</span>
+      </div>
+
+      <div class="summary-metric">
+        <span class="metric-label">ค่าดัชนีมวลกาย (BMI)</span>
+        <div class="metric-value text-accent">
+          <span id="displayBmi">0.0</span>
+        </div>
+        <span class="metric-badge" id="displayBmiCategory">-</span>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs (Desktop & Tablet) -->
+    <nav class="app-tabs">
+      <button class="tab-btn active" data-tab="tab-profile">
+        <span class="tab-icon">👤</span> 1. ร่างกาย & BMI
+      </button>
+      <button class="tab-btn" data-tab="tab-meals">
+        <span class="tab-icon">🍽️</span> 2. บันทึกอาหาร (g)
+      </button>
+      <button class="tab-btn" data-tab="tab-analysis">
+        <span class="tab-icon">📊</span> 3. สรุปสมดุล Cal
+      </button>
+      <button class="tab-btn" data-tab="tab-workout" id="tabWorkoutBtn">
+        <span class="tab-icon">🎡</span> 4. สุ่มออกกำลังกาย <span class="tab-badge warning" id="surplusBadge">0 kcal</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-recommend" id="tabRecommendBtn">
+        <span class="tab-icon">🥗</span> 5. แนะนำอาหารเสริม <span class="tab-badge info" id="deficitBadge">0 kcal</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-history" id="tabHistoryBtn">
+        <span class="tab-icon">📅</span> 6. สถิติ & ประวัติ
+      </button>
+    </nav>
+
+    <!-- Tab 1: Profile & BMI/TDEE -->
+    <section id="tab-profile" class="tab-content active">
+      <div class="grid-profile-showcase">
+        <!-- Input Form -->
+        <div class="card">
+          <div class="card-header">
+            <h2>⚙️ ข้อมูลส่วนบุคคล (เพื่อคำนวณ BMI & Cal ต่อวัน)</h2>
+            <p class="card-sub">คำนวณพลังงานที่ร่างกายต้องการตามเกณฑ์มาตรฐาน Mifflin-St Jeor & WHO Asian Criteria</p>
+          </div>
+          <form id="profileForm" class="profile-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>เพศ</label>
+                <div class="gender-selector">
+                  <label class="gender-pill">
+                    <input type="radio" name="gender" value="male" checked>
+                    <span>👨 ชาย</span>
+                  </label>
+                  <label class="gender-pill">
+                    <input type="radio" name="gender" value="female">
+                    <span>👩 หญิง</span>
+                  </label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inputAge">อายุ (ปี)</label>
+                <input type="number" id="inputAge" min="10" max="100" value="25" required inputmode="numeric">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="inputWeight">น้ำหนัก (กิโลกรัม)</label>
+                <input type="number" id="inputWeight" min="25" max="250" step="0.1" value="68" required inputmode="decimal">
+              </div>
+              <div class="form-group">
+                <label for="inputHeight">ส่วนสูง (เซนติเมตร)</label>
+                <input type="number" id="inputHeight" min="100" max="230" step="0.5" value="172" required inputmode="decimal">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="inputActivity">ระดับกิจกรรมประจำวัน</label>
+              <select id="inputActivity" required>
+                <option value="1.2">ไม่ออกกำลังกายเลย / นั่งทำงานทั้งวัน (× 1.2)</option>
+                <option value="1.375" selected>ออกกำลังกายเบาๆ 1-3 วัน/สัปดาห์ (× 1.375)</option>
+                <option value="1.55">ออกกำลังกายปานกลาง 3-5 วัน/สัปดาห์ (× 1.55)</option>
+                <option value="1.725">ออกกำลังกายหนัก 6-7 วัน/สัปดาห์ (× 1.725)</option>
+                <option value="1.9">ออกกำลังกายหนักมาก / นักกีฬาซ้อม 2 เวลา (× 1.9)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="inputGoal">เป้าหมายสุขภาพ</label>
+              <select id="inputGoal">
+                <option value="maintain" selected>รักษาน้ำหนักและสุขภาพ (ตรงตาม TDEE 100%)</option>
+                <option value="cut">ลดไขมัน / ควบคุมน้ำหนัก (ลดแคลอรี -400 kcal)</option>
+                <option value="bulk">สร้างกล้ามเนื้อ / เพิ่มน้ำหนัก (เพิ่มแคลอรี +350 kcal)</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+              💾 คำนวณและบันทึกข้อมูลร่างกาย
+            </button>
+          </form>
+        </div>
+
+        <!-- 3D Interactive Body Avatar Card -->
+        <div class="card avatar-3d-card" id="avatar3dCard">
+          <div class="card-header flex-header">
+            <div>
+              <h2>🪞 รูปร่าง 3D จำลองของคุณ</h2>
+              <p class="card-sub">โมเดล 3D ปรับสัดส่วนตามส่วนสูง น้ำหนัก และเพศแบบเรียลไทม์</p>
+            </div>
+            <div class="avatar-live-tags">
+              <span id="avatar3dGenderVal" class="avatar-pill-tag">👨 ชาย</span>
+              <span id="avatar3dHeightVal" class="avatar-pill-tag">172 ซม.</span>
+              <span id="avatar3dWeightVal" class="avatar-pill-tag">68 กก.</span>
+              <span id="avatar3dBmiVal" class="avatar-pill-tag highlight">BMI 23.0</span>
+              <button type="button" id="btnToggleCharacterModel" class="avatar-pill-tag highlight clickable" onclick="app.toggle3DAvatarModel()" title="คลิกเพื่อสลับระหว่างตัวละคร ชาย (อเล็กซ์) และ หญิง (มิเชล)">
+                🔄 สลับโมเดล
+              </button>
+              <button type="button" class="btn-avatar-studio-trigger" onclick="app.openAvatarStudio()" title="ตกแต่งหน้าตา ทรงผม และชุดตัวละคร">
+                🎨 ตกแต่งตัวละคร
+              </button>
+            </div>
+          </div>
+
+          <!-- 3D Viewport Box -->
+          <div class="avatar-viewport-box">
+            <div id="avatar3dContainer" class="avatar-canvas-container"></div>
+            
+            <!-- Quick Angle Controls Overlay -->
+            <div class="avatar-overlay-controls">
+              <button type="button" class="btn-overlay-angle" onclick="app.body3d?.setCameraAngle('front')" title="มุมมองด้านหน้า">หน้า</button>
+              <button type="button" class="btn-overlay-angle" onclick="app.body3d?.setCameraAngle('threequarter')" title="มุมมอง 45 องศา">45°</button>
+              <button type="button" class="btn-overlay-angle" onclick="app.body3d?.setCameraAngle('side')" title="มุมมองด้านข้าง">ข้าง</button>
+              <button type="button" class="btn-overlay-angle" onclick="app.body3d?.setCameraAngle('back')" title="มุมมองด้านหลัง">หลัง</button>
+              <button type="button" id="btnAvatarAutoRotate" class="btn-overlay-angle active" onclick="app.body3d?.toggleAutoRotate()" title="เปิด/ปิดหมุนอัตโนมัติ">🔄 หมุนออโต้</button>
+            </div>
+
+            <div class="avatar-hint-badge">
+              <span>👆 แตะ/ลากเพื่อหมุน 360° | เลื่อนล้อเมาส์เพื่อซูม</span>
+            </div>
+          </div>
+
+          <!-- Pose & Action Bar -->
+          <div class="avatar-actions-bar">
+            <span class="actions-label">เลือกท่าทางแอนิเมชัน 3D:</span>
+            <div class="pose-chips-group">
+              <button type="button" class="pose-chip active" data-pose="idle" onclick="app.body3d?.setPose('idle')">
+                🧘 ยืนหายใจ (Idle)
+              </button>
+              <button type="button" class="pose-chip" data-pose="wave" onclick="app.body3d?.setPose('wave')">
+                👋 โบกมือทักทาย (Wave)
+              </button>
+              <button type="button" class="pose-chip" data-pose="flex" onclick="app.body3d?.setPose('flex')">
+                💪 เบ่งกล้าม (Flex)
+              </button>
+              <button type="button" class="pose-chip" data-pose="jog" onclick="app.body3d?.setPose('jog')">
+                🏃 วิ่งจ๊อกกิ้ง (Jog)
+              </button>
+              <button type="button" class="pose-chip" data-pose="dance" onclick="app.body3d?.setPose('dance')">
+                💃 เต้นดีใจ (Dance)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result & BMI Gauge Card -->
+        <div class="card result-card">
+          <div class="card-header">
+            <h2>📈 ผลการวิเคราะห์ร่างกายของคุณ</h2>
+          </div>
+          <div class="bmi-display-box">
+            <div class="bmi-number-wrapper">
+              <span class="bmi-title">BMI ของคุณ</span>
+              <span id="bmiNumberLarge" class="bmi-number-large">22.98</span>
+              <span id="bmiTagLarge" class="bmi-tag normal">สมส่วน / ปกติ</span>
+            </div>
+            <!-- BMI Visual Range Bar -->
+            <div class="bmi-range-container">
+              <div class="bmi-range-bar">
+                <div class="segment under" title="ผอม (<18.5)">ผอม</div>
+                <div class="segment normal" title="สมส่วน (18.5-22.9)">ปกติ</div>
+                <div class="segment overweight" title="ท้วม (23-24.9)">ท้วม</div>
+                <div class="segment obese1" title="อ้วนระดับ 1 (25-29.9)">อ้วน 1</div>
+                <div class="segment obese2" title="อ้วนระดับ 2 (≥30)">อ้วน 2</div>
+              </div>
+              <div id="bmiIndicatorArrow" class="bmi-indicator-arrow" style="left: 45%;">▲</div>
+            </div>
+            <p id="bmiAdviceText" class="bmi-advice">น้ำหนักของคุณอยู่ในเกณฑ์มาตรฐาน สุขภาพดี ควรรักษาความสมดุลนี้ไว้</p>
+          </div>
+
+          <div class="energy-breakdown-list">
+            <div class="energy-row">
+              <span class="label">🔥 BMR (เผาผลาญพื้นฐาน):</span>
+              <span class="val" id="resBmr">1,620 kcal</span>
+            </div>
+            <div class="energy-row">
+              <span class="label">⚡ TDEE (เผาผลาญรวมกิจกรรม):</span>
+              <span class="val" id="resTdee">2,228 kcal</span>
+            </div>
+            <div class="energy-row highlight-target">
+              <span class="label">🎯 เป้าหมายแคลอรีต่อวัน:</span>
+              <span class="val font-bold" id="resTarget">2,228 kcal</span>
+            </div>
+            <div class="energy-row">
+              <span class="label">⚖️ ช่วงน้ำหนักตัวที่เหมาะสม:</span>
+              <span class="val" id="resIdealWeight">54.7 - 67.8 กก.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Meal Recording with Grams (g) -> Cal & % -->
+    <section id="tab-meals" class="tab-content">
+      <div class="meals-header">
+        <div>
+          <h2>🍽️ บันทึกอาหารแต่ละมื้อ (ระบุน้ำหนักกรัม)</h2>
+          <p>กรอกน้ำหนัก <strong>แป้ง, โปรตีน, ไฟเบอร์ (g)</strong> ระบบจะคำนวณ Cal และเปอร์เซ็นต์รวม 100% ให้อัตโนมัติ</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <button id="resetDayBtn" class="btn btn-outline-danger btn-sm" title="รีเซ็ตข้อมูลมื้ออาหารของวันที่เลือก">
+            🔄 ล้างมื้อวันนี้
+          </button>
+          <div class="healthy-plate-tip">
+            <span class="tip-badge">💡 สัดส่วนพลังงาน</span>
+            <span>แป้ง (4 kcal/g) | โปรตีน (4 kcal/g) | ไฟเบอร์ (2 kcal/g)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meal Cards Grid -->
+      <div class="meals-grid">
+        
+        <!-- Breakfast Card -->
+        <div class="meal-card" data-meal="breakfast">
+          <div class="meal-card-header">
+            <div class="meal-title-group">
+              <span class="meal-icon">🌅</span>
+              <div>
+                <h3>มื้อเช้า</h3>
+                <span class="meal-status" id="breakfastStatus">ยังไม่บันทึก</span>
+              </div>
+            </div>
+            <div class="meal-cal-badge-box">
+              <div class="meal-cal-badge">
+                <span id="breakfastTotalCal">0</span> kcal
+              </div>
+              <span class="meal-weight-badge" id="breakfastTotalWeight">รวม 0g</span>
+            </div>
+          </div>
+
+          <div class="meal-card-body">
+            <div class="form-group">
+              <label>ชื่อเมนูอาหาร</label>
+              <div class="input-with-preset">
+                <input type="text" id="breakfastName" placeholder="เช่น ข้าวต้มอกไก่ + ไข่ลวก">
+                <button type="button" class="btn-preset-dropdown" onclick="app.showPresets('breakfast')">เมนูด่วน ▼</button>
+              </div>
+            </div>
+
+            <!-- Grams Section -->
+            <div class="grams-section">
+              <div class="grams-section-title">
+                <span>⚖️ น้ำหนักสารอาหาร (กรัม)</span>
+                <span class="auto-calc-label">คำนวณ Cal & % รวม 100%</span>
+              </div>
+
+              <!-- Carb Gram -->
+              <div class="gram-card carb-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🍚</span>
+                    <div>
+                      <strong>แป้ง / คาร์โบไฮเดรต</strong>
+                      <small>4 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="breakfastCarbCal">0 kcal</span>
+                    <span class="calc-pct" id="breakfastCarbPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('breakfast', 'carb', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="breakfastCarbGram" min="0" max="1000" step="5" value="70" inputmode="numeric" oninput="app.onGramInputChange('breakfast')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('breakfast', 'carb', 10)">+10</button>
+                </div>
+                <div class="quick-chip-row">
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'carb', 40)">40g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'carb', 70)">70g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'carb', 100)">100g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'carb', 150)">150g</button>
+                </div>
+              </div>
+
+              <!-- Protein Gram -->
+              <div class="gram-card protein-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🍗</span>
+                    <div>
+                      <strong>โปรตีน</strong>
+                      <small>4 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="breakfastProteinCal">0 kcal</span>
+                    <span class="calc-pct" id="breakfastProteinPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('breakfast', 'protein', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="breakfastProteinGram" min="0" max="1000" step="5" value="45" inputmode="numeric" oninput="app.onGramInputChange('breakfast')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('breakfast', 'protein', 10)">+10</button>
+                </div>
+                <div class="quick-chip-row">
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'protein', 25)">25g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'protein', 45)">45g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'protein', 70)">70g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'protein', 100)">100g</button>
+                </div>
+              </div>
+
+              <!-- Fiber Gram -->
+              <div class="gram-card fiber-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🥦</span>
+                    <div>
+                      <strong>ไฟเบอร์ / ผักผลไม้</strong>
+                      <small>2 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="breakfastFiberCal">0 kcal</span>
+                    <span class="calc-pct" id="breakfastFiberPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('breakfast', 'fiber', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="breakfastFiberGram" min="0" max="1000" step="5" value="50" inputmode="numeric" oninput="app.onGramInputChange('breakfast')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('breakfast', 'fiber', 10)">+10</button>
+                </div>
+                <div class="quick-chip-row">
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'fiber', 30)">30g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'fiber', 50)">50g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'fiber', 80)">80g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('breakfast', 'fiber', 120)">120g</button>
+                </div>
+              </div>
+
+              <!-- Visual 100% Plate Bar -->
+              <div class="plate-summary-box">
+                <div class="plate-summary-header">
+                  <span>สัดส่วนพลังงานรวม:</span>
+                  <span class="badge-100 valid" id="breakfastTotalPercent">รวม 100%</span>
+                </div>
+                <div class="mini-plate-bar" id="breakfastPlateBar">
+                  <div class="plate-part carb" style="width: 50%;" title="แป้ง"></div>
+                  <div class="plate-part protein" style="width: 32%;" title="โปรตีน"></div>
+                  <div class="plate-part fiber" style="width: 18%;" title="ไฟเบอร์"></div>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block btn-save-meal" onclick="app.saveMeal('breakfast')">
+              ✅ บันทึกมื้อเช้า (<span id="breakfastBtnCal">0</span> kcal)
+            </button>
+          </div>
+        </div>
+
+        <!-- Lunch Card -->
+        <div class="meal-card" data-meal="lunch">
+          <div class="meal-card-header">
+            <div class="meal-title-group">
+              <span class="meal-icon">☀️</span>
+              <div>
+                <h3>มื้อเที่ยง</h3>
+                <span class="meal-status" id="lunchStatus">ยังไม่บันทึก</span>
+              </div>
+            </div>
+            <div class="meal-cal-badge-box">
+              <div class="meal-cal-badge">
+                <span id="lunchTotalCal">0</span> kcal
+              </div>
+              <span class="meal-weight-badge" id="lunchTotalWeight">รวม 0g</span>
+            </div>
+          </div>
+
+          <div class="meal-card-body">
+            <div class="form-group">
+              <label>ชื่อเมนูอาหาร</label>
+              <div class="input-with-preset">
+                <input type="text" id="lunchName" placeholder="เช่น ข้าวกะเพราอกไก่ + ผัดผักรวม">
+                <button type="button" class="btn-preset-dropdown" onclick="app.showPresets('lunch')">เมนูด่วน ▼</button>
+              </div>
+            </div>
+
+            <!-- Grams Section -->
+            <div class="grams-section">
+              <div class="grams-section-title">
+                <span>⚖️ น้ำหนักสารอาหาร (กรัม)</span>
+                <span class="auto-calc-label">คำนวณ Cal & % รวม 100%</span>
+              </div>
+
+              <!-- Carb Gram -->
+              <div class="gram-card carb-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🍚</span>
+                    <div>
+                      <strong>แป้ง / คาร์โบไฮเดรต</strong>
+                      <small>4 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="lunchCarbCal">0 kcal</span>
+                    <span class="calc-pct" id="lunchCarbPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('lunch', 'carb', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="lunchCarbGram" min="0" max="1000" step="5" value="85" inputmode="numeric" oninput="app.onGramInputChange('lunch')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('lunch', 'carb', 10)">+10</button>
+                </div>
+                <div class="quick-chip-row">
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'carb', 50)">50g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'carb', 85)">85g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'carb', 110)">110g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'carb', 160)">160g</button>
+                </div>
+              </div>
+
+              <!-- Protein Gram -->
+              <div class="gram-card protein-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🍗</span>
+                    <div>
+                      <strong>โปรตีน</strong>
+                      <small>4 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="lunchProteinCal">0 kcal</span>
+                    <span class="calc-pct" id="lunchProteinPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('lunch', 'protein', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="lunchProteinGram" min="0" max="1000" step="5" value="50" inputmode="numeric" oninput="app.onGramInputChange('lunch')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('lunch', 'protein', 10)">+10</button>
+                </div>
+                <div class="quick-chip-row">
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'protein', 30)">30g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'protein', 50)">50g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'protein', 80)">80g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'protein', 120)">120g</button>
+                </div>
+              </div>
+
+              <!-- Fiber Gram -->
+              <div class="gram-card fiber-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🥦</span>
+                    <div>
+                      <strong>ไฟเบอร์ / ผักผลไม้</strong>
+                      <small>2 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="lunchFiberCal">0 kcal</span>
+                    <span class="calc-pct" id="lunchFiberPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('lunch', 'fiber', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="lunchFiberGram" min="0" max="1000" step="5" value="60" inputmode="numeric" oninput="app.onGramInputChange('lunch')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('lunch', 'fiber', 10)">+10</button>
+                </div>
+                <div class="quick-chip-row">
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'fiber', 40)">40g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'fiber', 60)">60g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'fiber', 90)">90g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('lunch', 'fiber', 150)">150g</button>
+                </div>
+              </div>
+
+              <!-- Visual 100% Plate Bar -->
+              <div class="plate-summary-box">
+                <div class="plate-summary-header">
+                  <span>สัดส่วนพลังงานรวม:</span>
+                  <span class="badge-100 valid" id="lunchTotalPercent">รวม 100%</span>
+                </div>
+                <div class="mini-plate-bar" id="lunchPlateBar">
+                  <div class="plate-part carb" style="width: 52%;" title="แป้ง"></div>
+                  <div class="plate-part protein" style="width: 30%;" title="โปรตีน"></div>
+                  <div class="plate-part fiber" style="width: 18%;" title="ไฟเบอร์"></div>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block btn-save-meal" onclick="app.saveMeal('lunch')">
+              ✅ บันทึกมื้อเที่ยง (<span id="lunchBtnCal">0</span> kcal)
+            </button>
+          </div>
+        </div>
+
+        <!-- Dinner Card -->
+        <div class="meal-card" data-meal="dinner">
+          <div class="meal-card-header">
+            <div class="meal-title-group">
+              <span class="meal-icon">🌙</span>
+              <div>
+                <h3>มื้อเย็น</h3>
+                <span class="meal-status" id="dinnerStatus">ยังไม่บันทึก</span>
+              </div>
+            </div>
+            <div class="meal-cal-badge-box">
+              <div class="meal-cal-badge">
+                <span id="dinnerTotalCal">0</span> kcal
+              </div>
+              <span class="meal-weight-badge" id="dinnerTotalWeight">รวม 0g</span>
+            </div>
+          </div>
+
+          <div class="meal-card-body">
+            <div class="form-group">
+              <label>ชื่อเมนูอาหาร</label>
+              <div class="input-with-preset">
+                <input type="text" id="dinnerName" placeholder="เช่น สลัดปลาแซลมอน, สุกี้น้ำ">
+                <button type="button" class="btn-preset-dropdown" onclick="app.showPresets('dinner')">เมนูด่วน ▼</button>
+              </div>
+            </div>
+
+            <!-- Grams Section -->
+            <div class="grams-section">
+              <div class="grams-section-title">
+                <span>⚖️ น้ำหนักสารอาหาร (กรัม)</span>
+                <span class="auto-calc-label">คำนวณ Cal & % รวม 100%</span>
+              </div>
+
+              <!-- Carb Gram -->
+              <div class="gram-card carb-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🍚</span>
+                    <div>
+                      <strong>แป้ง / คาร์โบไฮเดรต</strong>
+                      <small>4 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="dinnerCarbCal">0 kcal</span>
+                    <span class="calc-pct" id="dinnerCarbPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('dinner', 'carb', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="dinnerCarbGram" min="0" max="1000" step="5" value="40" inputmode="numeric" oninput="app.onGramInputChange('dinner')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('dinner', 'carb', 10)">+10</button>
+                </div>
+                <div class="quick-chip-row">
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'carb', 25)">25g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'carb', 40)">40g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'carb', 70)">70g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'carb', 100)">100g</button>
+                </div>
+              </div>
+
+              <!-- Protein Gram -->
+              <div class="gram-card protein-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🍗</span>
+                    <div>
+                      <strong>โปรตีน</strong>
+                      <small>4 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="dinnerProteinCal">0 kcal</span>
+                    <span class="calc-pct" id="dinnerProteinPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('dinner', 'protein', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="dinnerProteinGram" min="0" max="1000" step="5" value="55" inputmode="numeric" oninput="app.onGramInputChange('dinner')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('dinner', 'protein', 10)">+10</button>
+                </div>
+                <div class="quick-chip-row">
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'protein', 30)">30g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'protein', 55)">55g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'protein', 80)">80g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'protein', 110)">110g</button>
+                </div>
+              </div>
+
+              <!-- Fiber Gram -->
+              <div class="gram-card fiber-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🥦</span>
+                    <div>
+                      <strong>ไฟเบอร์ / ผักผลไม้</strong>
+                      <small>2 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="dinnerFiberCal">0 kcal</span>
+                    <span class="calc-pct" id="dinnerFiberPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('dinner', 'fiber', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="dinnerFiberGram" min="0" max="1000" step="5" value="80" inputmode="numeric" oninput="app.onGramInputChange('dinner')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('dinner', 'fiber', 10)">+10</button>
+                </div>
+                <div class="quick-chip-row">
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'fiber', 40)">40g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'fiber', 80)">80g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'fiber', 120)">120g</button>
+                  <button type="button" class="chip-btn" onclick="app.setGram('dinner', 'fiber', 160)">160g</button>
+                </div>
+              </div>
+
+              <!-- Visual 100% Plate Bar -->
+              <div class="plate-summary-box">
+                <div class="plate-summary-header">
+                  <span>สัดส่วนพลังงานรวม:</span>
+                  <span class="badge-100 valid" id="dinnerTotalPercent">รวม 100%</span>
+                </div>
+                <div class="mini-plate-bar" id="dinnerPlateBar">
+                  <div class="plate-part carb" style="width: 30%;" title="แป้ง"></div>
+                  <div class="plate-part protein" style="width: 41%;" title="โปรตีน"></div>
+                  <div class="plate-part fiber" style="width: 29%;" title="ไฟเบอร์"></div>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block btn-save-meal" onclick="app.saveMeal('dinner')">
+              ✅ บันทึกมื้อเย็น (<span id="dinnerBtnCal">0</span> kcal)
+            </button>
+          </div>
+        </div>
+
+        <!-- Snacks Card -->
+        <div class="meal-card" data-meal="snacks">
+          <div class="meal-card-header">
+            <div class="meal-title-group">
+              <span class="meal-icon">🍎</span>
+              <div>
+                <h3>ของว่าง / อาหารเสริม</h3>
+                <span class="meal-status" id="snacksStatus">ยังไม่บันทึก</span>
+              </div>
+            </div>
+            <div class="meal-cal-badge-box">
+              <div class="meal-cal-badge">
+                <span id="snacksTotalCal">0</span> kcal
+              </div>
+              <span class="meal-weight-badge" id="snacksTotalWeight">รวม 0g</span>
+            </div>
+          </div>
+
+          <div class="meal-card-body">
+            <div class="form-group">
+              <label>ชื่อของว่าง (เช่น กล้วยหอม, นมถั่วเหลือง, เวย์)</label>
+              <input type="text" id="snacksName" placeholder="เช่น กล้วยหอม 1 ลูก + ไข่ต้ม">
+            </div>
+
+            <!-- Grams Section -->
+            <div class="grams-section">
+              <div class="grams-section-title">
+                <span>⚖️ น้ำหนักสารอาหาร (กรัม)</span>
+                <span class="auto-calc-label">คำนวณ Cal & % รวม 100%</span>
+              </div>
+
+              <!-- Carb Gram -->
+              <div class="gram-card carb-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🍚</span>
+                    <div>
+                      <strong>แป้ง / คาร์โบไฮเดรต</strong>
+                      <small>4 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="snacksCarbCal">0 kcal</span>
+                    <span class="calc-pct" id="snacksCarbPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('snacks', 'carb', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="snacksCarbGram" min="0" max="1000" step="5" value="25" inputmode="numeric" oninput="app.onGramInputChange('snacks')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('snacks', 'carb', 10)">+10</button>
+                </div>
+              </div>
+
+              <!-- Protein Gram -->
+              <div class="gram-card protein-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🍗</span>
+                    <div>
+                      <strong>โปรตีน</strong>
+                      <small>4 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="snacksProteinCal">0 kcal</span>
+                    <span class="calc-pct" id="snacksProteinPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('snacks', 'protein', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="snacksProteinGram" min="0" max="1000" step="5" value="15" inputmode="numeric" oninput="app.onGramInputChange('snacks')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('snacks', 'protein', 10)">+10</button>
+                </div>
+              </div>
+
+              <!-- Fiber Gram -->
+              <div class="gram-card fiber-theme">
+                <div class="gram-card-header">
+                  <div class="macro-name-group">
+                    <span class="macro-badge-icon">🥦</span>
+                    <div>
+                      <strong>ไฟเบอร์ / ผักผลไม้</strong>
+                      <small>2 kcal / g</small>
+                    </div>
+                  </div>
+                  <div class="macro-calc-display">
+                    <span class="calc-cal" id="snacksFiberCal">0 kcal</span>
+                    <span class="calc-pct" id="snacksFiberPct">0%</span>
+                  </div>
+                </div>
+                <div class="gram-input-stepper">
+                  <button type="button" class="step-btn" onclick="app.stepGram('snacks', 'fiber', -10)">-10</button>
+                  <div class="gram-input-box">
+                    <input type="number" id="snacksFiberGram" min="0" max="1000" step="5" value="20" inputmode="numeric" oninput="app.onGramInputChange('snacks')">
+                    <span class="unit-text">กรัม</span>
+                  </div>
+                  <button type="button" class="step-btn" onclick="app.stepGram('snacks', 'fiber', 10)">+10</button>
+                </div>
+              </div>
+
+              <!-- Visual 100% Plate Bar -->
+              <div class="plate-summary-box">
+                <div class="plate-summary-header">
+                  <span>สัดส่วนพลังงานรวม:</span>
+                  <span class="badge-100 valid" id="snacksTotalPercent">รวม 100%</span>
+                </div>
+                <div class="mini-plate-bar" id="snacksPlateBar">
+                  <div class="plate-part carb" style="width: 50%;"></div>
+                  <div class="plate-part protein" style="width: 30%;"></div>
+                  <div class="plate-part fiber" style="width: 20%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block btn-save-meal" onclick="app.saveMeal('snacks')">
+              ✅ บันทึกของว่าง (<span id="snacksBtnCal">0</span> kcal)
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="meals-summary-action">
+        <button class="btn btn-success btn-lg" onclick="app.switchTab('tab-analysis')">
+          📊 ตรวจสอบผลรวมพลังงานวันนี้ & สเต็ปต่อไป →
+        </button>
+      </div>
+    </section>
+
+    <!-- Tab 3: Calorie Balance Analysis -->
+    <section id="tab-analysis" class="tab-content">
+      <div class="card analysis-card">
+        <div class="analysis-hero" id="analysisHero">
+          <div class="hero-icon" id="heroIcon">⚖️</div>
+          <h2 id="heroTitle">กำลังวิเคราะห์ข้อมูล...</h2>
+          <p id="heroDesc">บันทึกอาหารเพื่อดูผลการเปรียบเทียบกับเกณฑ์ความต้องการของร่างกาย</p>
+          <div class="hero-action-btn-box" id="heroActionBox">
+            <!-- Dynamically populated button -->
+          </div>
+        </div>
+
+        <div class="analysis-stats-grid">
+          <div class="stat-box">
+            <span class="stat-title">เป้าหมายพลังงานต่อวัน</span>
+            <span class="stat-value" id="statTarget">0 kcal</span>
+            <span class="stat-desc">ตามสูตร BMR + กิจกรรม</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-title">พลังงานที่กินรวมวันนี้</span>
+            <span class="stat-value" id="statActual">0 kcal</span>
+            <span class="stat-desc" id="statMealBreakdown">เช้า 0 | เที่ยง 0 | เย็น 0</span>
+          </div>
+          <div class="stat-box highlight" id="statDiffBox">
+            <span class="stat-title">ผลลัพธ์ส่วนต่าง</span>
+            <span class="stat-value" id="statDiff">0 kcal</span>
+            <span class="stat-desc" id="statVerdict">อยู่ในเกณฑ์</span>
+          </div>
+        </div>
+
+        <!-- Macro breakdown across all meals -->
+        <div class="daily-macro-overview">
+          <h3>สัดส่วนสารอาหารรวมทั้งวัน</h3>
+          <div class="macro-bar-container">
+            <div class="macro-stacked-bar">
+              <div class="bar-segment carb" id="dailyCarbBar" style="width: 33%;">แป้ง 33%</div>
+              <div class="bar-segment protein" id="dailyProteinBar" style="width: 33%;">โปรตีน 33%</div>
+              <div class="bar-segment fiber" id="dailyFiberBar" style="width: 34%;">ไฟเบอร์ 34%</div>
+            </div>
+          </div>
+          <div class="macro-legend-row">
+            <div class="legend-item"><span class="color-dot carb"></span> แป้ง: <strong id="dailyCarbTotal">0 kcal</strong> (<span id="dailyCarbPct">0%</span>)</div>
+            <div class="legend-item"><span class="color-dot protein"></span> โปรตีน: <strong id="dailyProteinTotal">0 kcal</strong> (<span id="dailyProteinPct">0%</span>)</div>
+            <div class="legend-item"><span class="color-dot fiber"></span> ไฟเบอร์/ผัก: <strong id="dailyFiberTotal">0 kcal</strong> (<span id="dailyFiberPct">0%</span>)</div>
+          </div>
+        </div>
+
+        <!-- Conditional CTA Cards -->
+        <div class="next-step-cards">
+          <!-- Card for Surplus -->
+          <div class="cta-card surplus-theme" id="ctaSurplusCard">
+            <div class="cta-icon">🔥</div>
+            <div class="cta-content">
+              <h3>กินพลังงานเกินเกณฑ์ <span id="ctaSurplusVal">0</span> kcal</h3>
+              <p>พลังงานส่วนเกินอาจสะสมเป็นไขมันได้ มาเผาผลาญออกด้วยการออกกำลังกายสนุกๆ กันเถอะ!</p>
+              <button class="btn btn-warning" onclick="app.switchTab('tab-workout')">
+                🎡 หมุนวงล้อสุ่มการออกกำลังกายทันที
+              </button>
+            </div>
+          </div>
+
+          <!-- Card for Deficit -->
+          <div class="cta-card deficit-theme" id="ctaDeficitCard">
+            <div class="cta-icon">🥗</div>
+            <div class="cta-content">
+              <h3>กินพลังงานยังไม่ถึงเกณฑ์ ขาดอีก <span id="ctaDeficitVal">0</span> kcal</h3>
+              <p>ร่างกายต้องการพลังงานและสารอาหารให้เพียงพอเพื่อซ่อมแซมและรักษาระบบเผาผลาญ ดูเมนูแนะนำได้เลย!</p>
+              <button class="btn btn-info" onclick="app.switchTab('tab-recommend')">
+                🍲 ดูเมนูแนะนำเติมเต็มสารอาหาร
+              </button>
+            </div>
+          </div>
+
+          <!-- Card for Balanced -->
+          <div class="cta-card balanced-theme" id="ctaBalancedCard">
+            <div class="cta-icon">🎉</div>
+            <div class="cta-content">
+              <h3>ยอดเยี่ยมมาก! พลังงานสมดุลพอดีตามเกณฑ์</h3>
+              <p>คุณกินอาหารได้ใกล้เคียงกับที่ร่างกายต้องการอย่างสมบูรณ์แบบ แนะนำให้ยืดเหยียดเบาๆ หรือจิบน้ำให้เพียงพอนะครับ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Exercise Roulette / Randomizer (เมื่อพลังงานเกิน) -->
+    <section id="tab-workout" class="tab-content">
+      <div class="workout-dashboard">
+        
+        <!-- Left Side: Wheel & Controls -->
+        <div class="card roulette-card">
+          <div class="card-header text-center">
+            <h2>🎡 วงล้อสุ่มการออกกำลังกายเผาผลาญส่วนเกิน</h2>
+            <p class="surplus-announce">
+              พลังงานส่วนเกินของคุณ: <span class="highlight-fire" id="workoutSurplusTarget">0 kcal</span>
+            </p>
+            <p class="wheel-tip">ระบบจะคำนวณเวลา (นาที) ที่ต้องเล่นจริงตามน้ำหนักตัวของคุณเพื่อเผาผลาญแคลอรีส่วนเกินนี้ออกให้หมด!</p>
+          </div>
+
+          <div class="wheel-outer-wrapper">
+            <div class="wheel-pointer">▼</div>
+            <canvas id="wheelCanvas" width="360" height="360"></canvas>
+            <button id="spinBtn" class="spin-center-btn" onclick="app.spinWheel()">
+              <span>หมุนเลย!</span>
+              <small>SPIN</small>
+            </button>
+          </div>
+
+          <div class="roulette-actions">
+            <button class="btn btn-warning btn-lg btn-block" onclick="app.spinWheel()" id="spinBtnLarge">
+              🎲 สุ่มท่าออกกำลังกายใหม่
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Side: Workout Result & Live Workout Timer -->
+        <div class="card workout-result-card" id="workoutResultCard">
+          <div class="card-header">
+            <h2>⏱️ แผนการออกกำลังกายของคุณ</h2>
+          </div>
+
+          <div id="noWorkoutYet" class="empty-state">
+            <div class="empty-icon">🎯</div>
+            <h3>ยังไม่ได้สุ่มการออกกำลังกาย</h3>
+            <p>กดปุ่ม <strong>"หมุนเลย!"</strong> ที่วงล้อด้านซ้าย เพื่อค้นหากิจกรรมที่เหมาะกับการเผาผลาญแคลอรีส่วนเกินของคุณ</p>
+          </div>
+
+          <div id="workoutPlanDetails" class="workout-plan-details" style="display: none;">
+            <div class="workout-badge-row">
+              <span class="activity-type-tag" id="activityTag">คาร์ดิโอ</span>
+              <span class="burn-rate-tag" id="burnRateTag">ความหนัก: สูง (MET 11.0)</span>
+            </div>
+
+            <div class="chosen-workout-header">
+              <div class="chosen-icon" id="chosenIcon">🪢</div>
+              <div>
+                <h3 id="chosenName">กระโดดเชือก (Jump Rope)</h3>
+                <p id="chosenDescription">การเผาผลาญพลังงานแบบเข้มข้น ช่วยฝึกความคล่องตัวและกล้ามเนื้อหัวใจ</p>
+              </div>
+            </div>
+
+            <div class="workout-calculation-highlight">
+              <div class="calc-row">
+                <span>พลังงานส่วนเกินที่ต้องเบิร์น:</span>
+                <strong id="calcExcessCal">350 kcal</strong>
+              </div>
+              <div class="calc-row">
+                <span>น้ำหนักตัวของคุณ:</span>
+                <strong id="calcUserWeight">68 กก.</strong>
+              </div>
+              <div class="calc-row big-result">
+                <span>เวลาที่ต้องออกกำลังกาย:</span>
+                <span class="required-minutes" id="calcMinutes">28 นาที</span>
+              </div>
+            </div>
+
+            <!-- Workout Countdown Timer -->
+            <div class="timer-box">
+              <h4>นาฬิกาจับเวลาออกกำลังกาย (Workout Timer)</h4>
+              <div class="timer-display" id="timerDisplay">28:00</div>
+              <div class="timer-progress-bar">
+                <div class="timer-progress-fill" id="timerProgressFill" style="width: 0%;"></div>
+              </div>
+              <div class="timer-controls">
+                <button class="btn btn-success" id="timerStartBtn" onclick="app.startTimer()">▶️ เริ่มจับเวลา</button>
+                <button class="btn btn-secondary" id="timerPauseBtn" onclick="app.pauseTimer()" disabled>⏸️ พักชั่วคราว</button>
+                <button class="btn btn-outline-danger" id="timerResetBtn" onclick="app.resetTimer()">🔄 รีเซ็ตเวลา</button>
+              </div>
+            </div>
+
+            <div class="safety-tip">
+              <strong>💡 คำแนะนำ:</strong> ดื่มน้ำให้เพียงพอทั้งก่อนและหลังออกกำลังกาย วอร์มอัพ 3-5 นาที และหากรู้สึกเหนื่อยหอบหน้ามืด ให้หยุดพักทันที
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Tab 5: Food Recommendations (เมื่อพลังงานขาด) -->
+    <section id="tab-recommend" class="tab-content">
+      <div class="recommend-header">
+        <div>
+          <h2>🥗 เมนูอาหารแนะนำเพื่อเติมเต็มสารอาหาร</h2>
+          <p>
+            วันนี้พลังงานของคุณยังขาดอีก: 
+            <span class="highlight-deficit" id="recommendDeficitAmount">0 kcal</span>
+          </p>
+        </div>
+        <!-- Macro filter buttons -->
+        <div class="recommend-filters">
+          <button class="filter-btn active" data-filter="all" onclick="app.filterFoodRecs('all', this)">ทั้งหมด</button>
+          <button class="filter-btn" data-filter="protein" onclick="app.filterFoodRecs('protein', this)">🍗 เน้นโปรตีน</button>
+          <button class="filter-btn" data-filter="fiber" onclick="app.filterFoodRecs('fiber', this)">🥦 เน้นไฟเบอร์/ผลไม้</button>
+          <button class="filter-btn" data-filter="carbs" onclick="app.filterFoodRecs('carbs', this)">🍚 คาร์บเชิงซ้อน</button>
+        </div>
+      </div>
+
+      <!-- Smart Advice Banner -->
+      <div class="smart-advice-banner" id="smartAdviceBanner">
+        <span class="advice-icon">💡</span>
+        <div id="smartAdviceText">
+          ระบบกำลังประมวลผลว่าอาหารมื้อไหนหรือสารอาหารหมวดใดที่คุณควรเสริมเป็นพิเศษในวันนี้...
+        </div>
+      </div>
+
+      <!-- Food Grid -->
+      <div class="food-recommendations-grid" id="foodRecsGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Tab 6: History & Analytics -->
+    <section id="tab-history" class="tab-content">
+      <div class="history-dashboard">
+        
+        <!-- Header & View Filters -->
+        <div class="history-header">
+          <div>
+            <h2>📅 สถิติ & ประวัติการรับประทานอาหารย้อนหลัง</h2>
+            <p>ติดตามแนวโน้มพลังงาน สมดุลแคลอรี และสัดส่วนสารอาหารในแต่ละช่วงเวลา</p>
+          </div>
+          <div class="history-top-actions">
+            <div class="period-toggle-group">
+              <button type="button" class="period-btn active" id="periodWeeklyBtn" onclick="app.setHistoryPeriod('week')">
+                🗓️ 7 วัน (สัปดาห์)
+              </button>
+              <button type="button" class="period-btn" id="periodMonthlyBtn" onclick="app.setHistoryPeriod('month')">
+                📆 30 วัน (เดือน)
+              </button>
+            </div>
+            <div class="demo-tools-dropdown">
+              <button type="button" class="btn btn-sm btn-outline" onclick="app.generateDemoHistory(7)">
+                ✨ สุ่มตัวอย่าง 7 วัน
+              </button>
+              <button type="button" class="btn btn-sm btn-outline" onclick="app.generateDemoHistory(30)">
+                ✨ สุ่มตัวอย่าง 30 วัน
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger" onclick="app.clearHistoryData()" title="ล้างประวัติทั้งหมด">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 KPI Summary Cards -->
+        <div class="history-kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon">🔥</div>
+            <div class="kpi-content">
+              <span class="kpi-label">แคลอรีเฉลี่ยต่อวัน</span>
+              <div class="kpi-value"><span id="kpiAvgCal">0</span> <span class="unit">kcal</span></div>
+              <span class="kpi-sub" id="kpiTargetSub">เทียบกับเป้าหมาย 0 kcal</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon">🎯</div>
+            <div class="kpi-content">
+              <span class="kpi-label">อัตรากินสมดุลตามเกณฑ์</span>
+              <div class="kpi-value"><span id="kpiBalanceRate">0%</span></div>
+              <span class="kpi-sub" id="kpiBalanceDays">0 วัน จากทั้งหมด 0 วัน</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon">⚖️</div>
+            <div class="kpi-content">
+              <span class="kpi-label">ส่วนต่างพลังงานสะสม</span>
+              <div class="kpi-value" id="kpiNetDiff">0 <span class="unit">kcal</span></div>
+              <span class="kpi-sub" id="kpiNetDiffSub">อยู่ในเกณฑ์สมดุล</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon">🍱</div>
+            <div class="kpi-content">
+              <span class="kpi-label">สัดส่วนสารอาหารเฉลี่ย</span>
+              <div class="kpi-value macro-mini-summary" id="kpiMacroAvg">
+                <span class="m-carb" title="แป้ง">C: 0%</span> | 
+                <span class="m-protein" title="โปรตีน">P: 0%</span> | 
+                <span class="m-fiber" title="ไฟเบอร์">F: 0%</span>
+              </div>
+              <span class="kpi-sub">แป้ง / โปรตีน / ไฟเบอร์</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trend Bar Chart Card -->
+        <div class="card chart-card">
+          <div class="chart-card-header">
+            <div>
+              <h3>📈 กราฟแนวโน้มพลังงานแคลอรี (<span id="chartPeriodTitle">7 วันล่าสุด</span>)</h3>
+              <p class="card-sub">เปรียบเทียบแคลอรีที่กินในแต่ละวันกับเส้นเป้าหมาย (TDEE Target)</p>
+            </div>
+            <div class="chart-legend">
+              <span class="legend-pill balanced"><span class="dot"></span> สมดุล (±50)</span>
+              <span class="legend-pill surplus"><span class="dot"></span> พลังงานเกิน</span>
+              <span class="legend-pill deficit"><span class="dot"></span> พลังงานขาด</span>
+              <span class="legend-pill target-line"><span class="line-sample"></span> เส้นเป้าหมาย</span>
+            </div>
+          </div>
+
+          <div class="chart-canvas-wrapper">
+            <canvas id="historyChartCanvas" width="900" height="340"></canvas>
+          </div>
+          
+          <div class="chart-tip">
+            💡 แตะหรือคลิกที่แท่งกราฟเพื่อดูรายละเอียดและสัดส่วนอาหารของวันนั้น
+          </div>
+        </div>
+
+        <!-- History Log Details List -->
+        <div class="card history-list-card">
+          <div class="history-list-header">
+            <h3>📑 บันทึกประวัติรายวัน (<span id="historyLogCount">0</span> รายการ)</h3>
+            <span class="sub-hint">คลิกที่รายการเพื่อดูหรือแก้ไขข้อมูลของวันนั้น</span>
+          </div>
+
+          <div class="history-logs-container" id="historyLogsContainer">
+            <!-- Dynamically populated by app.js -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Bottom Navigation Bar (6 Tabs) -->
+  <div class="mobile-bottom-nav">
+    <button class="mobile-nav-btn active" data-tab="tab-profile" onclick="app.switchTab('tab-profile')">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">ร่างกาย</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="tab-meals" onclick="app.switchTab('tab-meals')">
+      <span class="nav-icon">🍽️</span>
+      <span class="nav-label">อาหาร</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="tab-analysis" onclick="app.switchTab('tab-analysis')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">สมดุล</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="tab-workout" onclick="app.switchTab('tab-workout')">
+      <span class="nav-icon">🎡</span>
+      <span class="nav-label">สุ่มเบิร์น</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="tab-recommend" onclick="app.switchTab('tab-recommend')">
+      <span class="nav-icon">🥗</span>
+      <span class="nav-label">แนะนำ</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="tab-history" onclick="app.switchTab('tab-history')">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">สถิติ</span>
+    </button>
+  </div>
+
+  <!-- Quick Food Preset Modal -->
+  <div class="modal-overlay" id="presetModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🍱 เลือกเมนูอาหารไทยยอดนิยม</h3>
+        <button class="modal-close-btn" onclick="app.closePresets()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-sub">เลือกเมนูเพื่อใส่น้ำหนักแป้ง โปรตีน และผัก (กรัม) ลงในมื้ออาหารอัตโนมัติ</p>
+        <div class="preset-list" id="presetList">
+          <!-- Injected by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       AVATAR CUSTOMIZER STUDIO MODAL
+       ========================================== -->
+  <div class="modal-overlay" id="avatarStudioModal">
+    <div class="modal-card avatar-studio-modal">
+      <div class="modal-header">
+        <div class="studio-title-group">
+          <span class="studio-badge-icon">🎨</span>
+          <div>
+            <h3>สตูดิโอแต่งตัว & หน้าตา 3D (Avatar Studio)</h3>
+            <p class="modal-sub">ปรับแต่งทรงผม สีผิว เสื้อผ้า และเครื่องประดับ สะท้อนรูปร่างตาม BMI แบบเรียลไทม์</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="app.closeAvatarStudio()">✕</button>
+      </div>
+
+      <div class="modal-body studio-modal-body">
+        <!-- Studio Navigation Sub-tabs -->
+        <div class="studio-subtabs">
+          <button type="button" class="studio-tab-btn active" data-studiotab="tab-hair" onclick="app.switchStudioTab('tab-hair')">💇 ทรงผม & สีผม</button>
+          <button type="button" class="studio-tab-btn" data-studiotab="tab-face" onclick="app.switchStudioTab('tab-face')">🎨 ผิว, ตา & แก้ม</button>
+          <button type="button" class="studio-tab-btn" data-studiotab="tab-shirt" onclick="app.switchStudioTab('tab-shirt')">👕 เสื้อผ้า</button>
+          <button type="button" class="studio-tab-btn" data-studiotab="tab-shorts" onclick="app.switchStudioTab('tab-shorts')">👖 กางเกง</button>
+          <button type="button" class="studio-tab-btn" data-studiotab="tab-props" onclick="app.switchStudioTab('tab-props')">👓 พร็อพ & แว่น</button>
+        </div>
+
+        <!-- Section 1: Hair & Color -->
+        <div id="studio-tab-hair" class="studio-tab-pane active">
+          <label class="studio-section-label">เลือกทรงผม (Hairstyle):</label>
+          <div class="studio-options-grid">
+            <button type="button" class="studio-opt-btn active" data-opt="hairStyle" data-val="bowl" onclick="app.onAvatarCustomChange('hairStyle', 'bowl')">
+              <span class="opt-icon">👦</span>
+              <span class="opt-name">กะลาครอบ / หน้าม้า</span>
+              <span class="opt-tag">ลุคต้นแบบ ⭐</span>
+            </button>
+            <button type="button" class="studio-opt-btn" data-opt="hairStyle" data-val="short" onclick="app.onAvatarCustomChange('hairStyle', 'short')">
+              <span class="opt-icon">🏃</span>
+              <span class="opt-name">สั้นสปอร์ต</span>
+            </button>
+            <button type="button" class="studio-opt-btn" data-opt="hairStyle" data-val="ponytail" onclick="app.onAvatarCustomChange('hairStyle', 'ponytail')">
+              <span class="opt-icon">👱</span>
+              <span class="opt-name">มัดจุก / หางม้า</span>
+            </button>
+            <button type="button" class="studio-opt-btn" data-opt="hairStyle" data-val="bob" onclick="app.onAvatarCustomChange('hairStyle', 'bob')">
+              <span class="opt-icon">👧</span>
+              <span class="opt-name">บ๊อบลอนคลื่น</span>
+            </button>
+            <button type="button" class="studio-opt-btn" data-opt="hairStyle" data-val="buzz" onclick="app.onAvatarCustomChange('hairStyle', 'buzz')">
+              <span class="opt-icon">🧑‍🦲</span>
+              <span class="opt-name">สกินเฮด</span>
+            </button>
+          </div>
+
+          <label class="studio-section-label" style="margin-top: 1.1rem;">เลือกสีผม (Hair Color):</label>
+          <div class="color-swatches-row">
+            <button type="button" class="color-swatch-btn active" style="background-color: #3d2314;" data-opt="hairColor" data-val="#3d2314" onclick="app.onAvatarCustomChange('hairColor', '#3d2314')" title="น้ำตาลเข้ม (ต้นแบบ)"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #1c1c1e;" data-opt="hairColor" data-val="#1c1c1e" onclick="app.onAvatarCustomChange('hairColor', '#1c1c1e')" title="ดำธรรมชาติ"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #d4a359;" data-opt="hairColor" data-val="#d4a359" onclick="app.onAvatarCustomChange('hairColor', '#d4a359')" title="บลอนด์ทอง"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #8c4320;" data-opt="hairColor" data-val="#8c4320" onclick="app.onAvatarCustomChange('hairColor', '#8c4320')" title="น้ำตาลประกายส้ม"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #e085a8;" data-opt="hairColor" data-val="#e085a8" onclick="app.onAvatarCustomChange('hairColor', '#e085a8')" title="ชมพูพาสเทล"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #5da9e9;" data-opt="hairColor" data-val="#5da9e9" onclick="app.onAvatarCustomChange('hairColor', '#5da9e9')" title="ฟ้าพาสเทล"></button>
+          </div>
+        </div>
+
+        <!-- Section 2: Skin & Eyes -->
+        <div id="studio-tab-face" class="studio-tab-pane">
+          <label class="studio-section-label">เลือกสีผิว (Skin Tone):</label>
+          <div class="color-swatches-row">
+            <button type="button" class="color-swatch-btn active" style="background-color: #fce0d2;" data-opt="skinColor" data-val="#fce0d2" onclick="app.onAvatarCustomChange('skinColor', '#fce0d2')" title="ขาวอมชมพู (ต้นแบบ)"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #f5d0b0;" data-opt="skinColor" data-val="#f5d0b0" onclick="app.onAvatarCustomChange('skinColor', '#f5d0b0')" title="ขาวเหลือง / เอเชีย"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #d9a07a;" data-opt="skinColor" data-val="#d9a07a" onclick="app.onAvatarCustomChange('skinColor', '#d9a07a')" title="ผิวน้ำผึ้ง / แทน"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #8c5836;" data-opt="skinColor" data-val="#8c5836" onclick="app.onAvatarCustomChange('skinColor', '#8c5836')" title="ผิวเข้ม / บรอนซ์"></button>
+          </div>
+
+          <label class="studio-section-label" style="margin-top: 1.1rem;">เลือกสีดวงตา (Eye Color):</label>
+          <div class="color-swatches-row">
+            <button type="button" class="color-swatch-btn active" style="background-color: #2a1708;" data-opt="eyeColor" data-val="#2a1708" onclick="app.onAvatarCustomChange('eyeColor', '#2a1708')" title="น้ำตาลเข้ม (ต้นแบบ)"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #111111;" data-opt="eyeColor" data-val="#111111" onclick="app.onAvatarCustomChange('eyeColor', '#111111')" title="ดำขลับ"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #2b70c9;" data-opt="eyeColor" data-val="#2b70c9" onclick="app.onAvatarCustomChange('eyeColor', '#2b70c9')" title="ฟ้าครามสดใส"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #2a8c56;" data-opt="eyeColor" data-val="#2a8c56" onclick="app.onAvatarCustomChange('eyeColor', '#2a8c56')" title="เขียวมรกต"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #734b99;" data-opt="eyeColor" data-val="#734b99" onclick="app.onAvatarCustomChange('eyeColor', '#734b99')" title="ม่วงอเมทิสต์"></button>
+          </div>
+
+          <div class="studio-toggle-row" style="margin-top: 1.25rem;">
+            <label class="studio-toggle-label">
+              <span>🌸 ปัดแก้มชมพูระเรื่อ (Rosy Cheeks Blush)</span>
+              <input type="checkbox" id="studioBlushToggle" checked onchange="app.onAvatarCustomChange('blush', this.checked)">
+            </label>
+          </div>
+        </div>
+
+        <!-- Section 3: Shirt -->
+        <div id="studio-tab-shirt" class="studio-tab-pane">
+          <label class="studio-section-label">สไตล์เสื้อ (Shirt Style):</label>
+          <div class="studio-options-grid">
+            <button type="button" class="studio-opt-btn active" data-opt="shirtStyle" data-val="striped" onclick="app.onAvatarCustomChange('shirtStyle', 'striped')">
+              <span class="opt-icon">👕</span>
+              <span class="opt-name">เสื้อยืดลายขวาง</span>
+              <span class="opt-tag">ลุคต้นแบบ ⭐</span>
+            </button>
+            <button type="button" class="studio-opt-btn" data-opt="shirtStyle" data-val="solid" onclick="app.onAvatarCustomChange('shirtStyle', 'solid')">
+              <span class="opt-icon">👔</span>
+              <span class="opt-name">เสื้อสีพื้นมินิมอล</span>
+            </button>
+            <button type="button" class="studio-opt-btn" data-opt="shirtStyle" data-val="tank" onclick="app.onAvatarCustomChange('shirtStyle', 'tank')">
+              <span class="opt-icon">🎽</span>
+              <span class="opt-name">เสื้อกล้ามสปอร์ต</span>
+            </button>
+          </div>
+
+          <label class="studio-section-label" style="margin-top: 1.1rem;">สีเสื้อหลัก (Primary Color):</label>
+          <div class="color-swatches-row">
+            <button type="button" class="color-swatch-btn active" style="background-color: #4a47a3;" data-opt="shirtColor1" data-val="#4a47a3" onclick="app.onAvatarCustomChange('shirtColor1', '#4a47a3')" title="ม่วงน้ำเงิน (ต้นแบบ)"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #e11d48;" data-opt="shirtColor1" data-val="#e11d48" onclick="app.onAvatarCustomChange('shirtColor1', '#e11d48')" title="แดงสปอร์ต"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #0284c7;" data-opt="shirtColor1" data-val="#0284c7" onclick="app.onAvatarCustomChange('shirtColor1', '#0284c7')" title="ฟ้าสดใส"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #059669;" data-opt="shirtColor1" data-val="#059669" onclick="app.onAvatarCustomChange('shirtColor1', '#059669')" title="เขียวมรกต"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #111827;" data-opt="shirtColor1" data-val="#111827" onclick="app.onAvatarCustomChange('shirtColor1', '#111827')" title="ดำคลาสสิก"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #f8fafc;" data-opt="shirtColor1" data-val="#f8fafc" onclick="app.onAvatarCustomChange('shirtColor1', '#f8fafc')" title="ขาวสว่าง"></button>
+          </div>
+
+          <label class="studio-section-label" style="margin-top: 1.1rem;">สีลายขวาง / ขอบคอ (Secondary Color):</label>
+          <div class="color-swatches-row">
+            <button type="button" class="color-swatch-btn active" style="background-color: #f5a623;" data-opt="shirtColor2" data-val="#f5a623" onclick="app.onAvatarCustomChange('shirtColor2', '#f5a623')" title="เหลืองทอง (ต้นแบบ)"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #ffffff;" data-opt="shirtColor2" data-val="#ffffff" onclick="app.onAvatarCustomChange('shirtColor2', '#ffffff')" title="ขาวบริสุทธิ์"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #38bdf8;" data-opt="shirtColor2" data-val="#38bdf8" onclick="app.onAvatarCustomChange('shirtColor2', '#38bdf8')" title="ฟ้าพาสเทล"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #f43f5e;" data-opt="shirtColor2" data-val="#f43f5e" onclick="app.onAvatarCustomChange('shirtColor2', '#f43f5e')" title="ชมพูสดใส"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #a3e635;" data-opt="shirtColor2" data-val="#a3e635" onclick="app.onAvatarCustomChange('shirtColor2', '#a3e635')" title="เขียวเลมอน"></button>
+          </div>
+        </div>
+
+        <!-- Section 4: Shorts -->
+        <div id="studio-tab-shorts" class="studio-tab-pane">
+          <label class="studio-section-label">สไตล์กางเกง (Shorts Style):</label>
+          <div class="studio-options-grid">
+            <button type="button" class="studio-opt-btn active" data-opt="shortsStyle" data-val="dots" onclick="app.onAvatarCustomChange('shortsStyle', 'dots')">
+              <span class="opt-icon">🩳</span>
+              <span class="opt-name">กางเกงลายดาว/จุด</span>
+              <span class="opt-tag">ลุคต้นแบบ ⭐</span>
+            </button>
+            <button type="button" class="studio-opt-btn" data-opt="shortsStyle" data-val="denim" onclick="app.onAvatarCustomChange('shortsStyle', 'denim')">
+              <span class="opt-icon">👖</span>
+              <span class="opt-name">กางเกงยีนส์ขาสั้น</span>
+            </button>
+            <button type="button" class="studio-opt-btn" data-opt="shortsStyle" data-val="sport" onclick="app.onAvatarCustomChange('shortsStyle', 'sport')">
+              <span class="opt-icon">🏃</span>
+              <span class="opt-name">กางเกงวอร์มสปอร์ต</span>
+            </button>
+          </div>
+
+          <label class="studio-section-label" style="margin-top: 1.1rem;">สีกางเกง (Shorts Color):</label>
+          <div class="color-swatches-row">
+            <button type="button" class="color-swatch-btn active" style="background-color: #1f2e69;" data-opt="shortsColor" data-val="#1f2e69" onclick="app.onAvatarCustomChange('shortsColor', '#1f2e69')" title="กรมท่าเข้ม (ต้นแบบ)"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #1e2022;" data-opt="shortsColor" data-val="#1e2022" onclick="app.onAvatarCustomChange('shortsColor', '#1e2022')" title="ดำคลาสสิก"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #3b5998;" data-opt="shortsColor" data-val="#3b5998" onclick="app.onAvatarCustomChange('shortsColor', '#3b5998')" title="ยีนส์เดนิม"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #78716c;" data-opt="shortsColor" data-val="#78716c" onclick="app.onAvatarCustomChange('shortsColor', '#78716c')" title="กากีเอิร์ธโทน"></button>
+            <button type="button" class="color-swatch-btn" style="background-color: #be123c;" data-opt="shortsColor" data-val="#be123c" onclick="app.onAvatarCustomChange('shortsColor', '#be123c')" title="แดงเข้ม"></button>
+          </div>
+        </div>
+
+        <!-- Section 5: Accessories & Props -->
+        <div id="studio-tab-props" class="studio-tab-pane">
+          <label class="studio-section-label">แว่นตา (Glasses):</label>
+          <div class="studio-options-grid">
+            <button type="button" class="studio-opt-btn active" data-opt="glasses" data-val="none" onclick="app.onAvatarCustomChange('glasses', 'none')">
+              <span class="opt-icon">🚫</span>
+              <span class="opt-name">ไม่ใส่แว่น</span>
+              <span class="opt-tag">ลุคต้นแบบ ⭐</span>
+            </button>
+            <button type="button" class="studio-opt-btn" data-opt="glasses" data-val="round" onclick="app.onAvatarCustomChange('glasses', 'round')">
+              <span class="opt-icon">👓</span>
+              <span class="opt-name">แว่นตากลมน่ารัก</span>
+            </button>
+            <button type="button" class="studio-opt-btn" data-opt="glasses" data-val="sunglasses" onclick="app.onAvatarCustomChange('glasses', 'sunglasses')">
+              <span class="opt-icon">🕶️</span>
+              <span class="opt-name">แว่นกันแดดสุดเท่</span>
+            </button>
+          </div>
+
+          <div class="studio-toggle-row" style="margin-top: 1.25rem;">
+            <label class="studio-toggle-label">
+              <span>🎧 หูฟังครอบหู (Gaming / Music Headphones)</span>
+              <input type="checkbox" id="studioHeadphonesToggle" onchange="app.onAvatarCustomChange('headphones', this.checked)">
+            </label>
+          </div>
+        </div>
+
+        <!-- Bottom Actions Row -->
+        <div class="studio-action-footer">
+          <div class="studio-quick-tools">
+            <button type="button" class="btn btn-sm btn-outline" onclick="app.resetAvatarToReference()" title="คืนค่าเป็นตัวละครตามภาพต้นแบบ">
+              ⭐ ลุคต้นแบบ
+            </button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="app.randomizeAvatarLook()" title="สุ่มทรงผม สี และชุดอัตโนมัติ">
+              🎲 สุ่มลุค
+            </button>
+          </div>
+          <button type="button" class="btn btn-success btn-lg" onclick="app.saveAvatarLook()">
+            💾 บันทึกการแต่งตัว
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       LOGIN / SIGN UP MODAL DIALOG
+       ========================================== -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-card auth-modal-card">
+      <div class="modal-header">
+        <div class="auth-tabs-header">
+          <button type="button" class="auth-tab-btn active" id="authTabLoginBtn" onclick="app.switchAuthTab('login')">
+            🔑 เข้าสู่ระบบ
+          </button>
+          <button type="button" class="auth-tab-btn" id="authTabSignupBtn" onclick="app.switchAuthTab('signup')">
+            📝 สมัครสมาชิกใหม่
+          </button>
+        </div>
+        <button class="modal-close-btn" onclick="app.closeAuthModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Notice if opened due to Save action -->
+        <div id="authRequireNotice" class="auth-require-notice" style="display: none;">
+          🔒 <strong>กรุณาเข้าสู่ระบบก่อนบันทึกข้อมูล:</strong> หากยังไม่มีบัญชี สามารถสมัครได้ฟรีใน 30 วินาที ระบบจะบันทึกข้อมูลที่คุณกำลังทำอยู่ให้อัตโนมัติครับ
+        </div>
+
+        <!-- In-Modal Alert / Error Notice -->
+        <div id="authErrorMessage" class="auth-error-notice" style="display: none;"></div>
+
+        <!-- Form 1: LOGIN -->
+        <form id="loginForm" class="auth-form" onsubmit="app.handleLoginSubmit(event)">
+          <div class="form-group">
+            <label for="loginPhone">📱 เบอร์โทรศัพท์ (10 หลัก)</label>
+            <input type="tel" id="loginPhone" placeholder="เช่น 0812345678" required pattern="[0-9]{9,10}" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">🔒 รหัสผ่าน</label>
+            <input type="password" id="loginPassword" placeholder="กรอกรหัสผ่านของคุณ" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg">
+            🚀 เข้าสู่ระบบ
+          </button>
+        </form>
+
+        <!-- Form 2: SIGN UP -->
+        <form id="signupForm" class="auth-form" style="display: none;" onsubmit="app.handleSignupSubmit(event)">
+          <div class="form-group">
+            <label for="signupPhone">📱 เบอร์โทรศัพท์ (ใช้เป็นไอดีเข้าสู่ระบบ)</label>
+            <input type="tel" id="signupPhone" placeholder="เช่น 0891234567" required pattern="[0-9]{9,10}" inputmode="numeric">
+            <small class="field-hint">ต้องเป็นตัวเลข 9-10 หลัก</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="signupRealName">👤 ชื่อจริง - นามสกุล</label>
+              <input type="text" id="signupRealName" placeholder="เช่น สมชาย ใจดี" required>
+            </div>
+            <div class="form-group">
+              <label for="signupNickname">🏷️ ชื่อเล่น</label>
+              <input type="text" id="signupNickname" placeholder="เช่น ป๊อป, บอย" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="signupPassword">🔒 ตั้งรหัสผ่าน</label>
+            <input type="password" id="signupPassword" placeholder="รหัสผ่านอย่างน้อย 4 ตัวอักษร" minlength="4" required>
+          </div>
+
+          <div class="form-group">
+            <label for="signupConfirmPassword">🔒 ยืนยันรหัสผ่านอีกครั้ง</label>
+            <input type="password" id="signupConfirmPassword" placeholder="กรอกรหัสผ่านซ้ำอีกครั้ง" minlength="4" required>
+          </div>
+
+          <button type="submit" class="btn btn-success btn-block btn-lg">
+            ✅ ยืนยันการสมัครสมาชิก
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       ADMIN DASHBOARD MODAL
+       ========================================== -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal-card admin-modal-card">
+      <div class="modal-header">
+        <div class="admin-title-group">
+          <span class="admin-shield-icon">🛡️</span>
+          <div>
+            <h3>แดชบอร์ดผู้ดูแลระบบ (Admin Dashboard)</h3>
+            <p class="modal-sub">จัดการผู้ใช้งาน, สถิติสมาชิก, เพิ่ม/ลบ และรีเซ็ตรหัสผ่าน</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="app.closeAdminModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Admin KPI Stats -->
+        <div class="admin-stats-grid">
+          <div class="admin-stat-card">
+            <span class="stat-num" id="adminTotalUsers">0</span>
+            <span class="stat-text">ผู้ใช้ทั้งหมดในระบบ</span>
+          </div>
+          <div class="admin-stat-card">
+            <span class="stat-num text-success" id="adminUserRoleCount">0</span>
+            <span class="stat-text">สมาชิกทั่วไป (User)</span>
+          </div>
+          <div class="admin-stat-card">
+            <span class="stat-num text-warning" id="adminAdminRoleCount">0</span>
+            <span class="stat-text">ผู้ดูแลระบบ (Admin)</span>
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="admin-action-bar">
+          <h4>📋 รายชื่อสมาชิกทั้งหมด</h4>
+          <button type="button" class="btn btn-sm btn-primary" onclick="app.toggleAdminAddUserForm()">
+            ➕ เพิ่มผู้ใช้ใหม่
+          </button>
+        </div>
+
+        <!-- Add User Collapsible Form -->
+        <div id="adminAddUserContainer" class="admin-add-user-box" style="display: none;">
+          <h5>➕ สร้างบัญชีผู้ใช้งานใหม่โดย Admin</h5>
+          <form id="adminCreateUserForm" onsubmit="app.handleAdminCreateUser(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>เบอร์โทรศัพท์ (ID)</label>
+                <input type="tel" id="adminNewPhone" placeholder="08xxxxxxxx" required pattern="[0-9]{9,10}">
+              </div>
+              <div class="form-group">
+                <label>รหัสผ่าน</label>
+                <input type="password" id="adminNewPassword" placeholder="รหัสผ่าน" required minlength="4">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>ชื่อจริง - นามสกุล</label>
+                <input type="text" id="adminNewRealName" placeholder="ชื่อจริง นามสกุล" required>
+              </div>
+              <div class="form-group">
+                <label>ชื่อเล่น</label>
+                <input type="text" id="adminNewNickname" placeholder="ชื่อเล่น" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>บทบาท (Role)</label>
+                <select id="adminNewRole">
+                  <option value="user" selected>สมาชิกทั่วไป (User)</option>
+                  <option value="admin">ผู้ดูแลระบบ (Admin)</option>
+                </select>
+              </div>
+              <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button type="submit" class="btn btn-success btn-block">บันทึกผู้ใช้</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- User Table -->
+        <div class="admin-table-wrapper">
+          <table class="admin-user-table">
+            <thead>
+              <tr>
+                <th>เบอร์โทรศัพท์</th>
+                <th>ชื่อจริง</th>
+                <th>ชื่อเล่น</th>
+                <th>บทบาท</th>
+                <th>วันที่สมัคร</th>
+                <th style="text-align: right;">การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="adminUserTableBody">
+              <!-- Rendered by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Reset Password Sub-Modal -->
+  <div class="modal-overlay" id="adminResetModal">
+    <div class="modal-card" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3>🔑 รีเซ็ตรหัสผ่านของผู้ใช้</h3>
+        <button class="modal-close-btn" onclick="app.closeAdminResetModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-sub">
+          รีเซ็ตรหัสผ่านสำหรับ: <strong id="resetTargetName">-</strong> (<span id="resetTargetPhone">-</span>)
+        </p>
+        <form onsubmit="app.handleAdminResetPasswordSubmit(event)">
+          <div class="form-group">
+            <label for="resetNewPassword">รหัสผ่านใหม่</label>
+            <div class="input-with-preset">
+              <input type="text" id="resetNewPassword" placeholder="กรอกรหัสผ่านใหม่" required minlength="4">
+              <button type="button" class="btn-preset-dropdown" onclick="app.generateRandomPassword()">สุ่มรหัส</button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-warning btn-block btn-lg">
+            💾 บันทึกรหัสผ่านใหม่
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">ข้อความแจ้งเตือน</div>
+
+  <!-- Scripts -->
+  <script src="three.min.js"></script>
+  <script>if (typeof THREE === 'undefined') document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');</script>
+  <script src="GLTFLoader.js"></script>
+  <script>if (typeof THREE !== 'undefined' && typeof THREE.GLTFLoader === 'undefined') document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"><\/script>');</script>
+  <script src="avatar_models_data.js"></script>
+  <script src="body3d.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

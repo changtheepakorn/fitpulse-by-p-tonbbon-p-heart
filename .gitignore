@@ -1,0 +1,21 @@
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Temporary diagnostic and log files
+out.txt
+*.log
+*.tmp
+fitpulse_current.png
+fitpulse_test*.png
+fitpulse_final.png
+both_models.png
+scale_test*.png
+xbot_compare.png
+michelle_test.png
+arm_test.png
+anims_gallery.png
+test_shot.png
+diagnose.html
+test_*.html
