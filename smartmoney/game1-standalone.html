@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เกมภารกิจนักออมเงิน</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Kanit', 'Press Start 2P', cursive, sans-serif;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-color: #1a1a1a;
+      transition: background-image 0.3s ease;
+    }
+
+    /* ---------- ฉากสวนพื้นหลัง ---------- */
+    .garden-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+    .garden-bg svg { width: 100%; height: 100%; display: block; }
+    .gb-cloud { animation: gb-drift 28s ease-in-out infinite alternate; }
+    .gb-c2 { animation-duration: 36s; }
+    .gb-c3 { animation-duration: 22s; }
+    @keyframes gb-drift { from { transform: translateX(-30px); } to { transform: translateX(40px); } }
+    .gb-butterfly { animation: gb-float 6s ease-in-out infinite alternate; }
+    @keyframes gb-float { from { transform: translate(0,0); } to { transform: translate(70px,-50px); } }
+
+    /* แถบปุ่มควบคุมมุมบน */
+    .top-controls {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .control-btn {
+      background: rgba(0, 0, 0, 0.85);
+      border: 2px solid #fbf236;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+      font-family: 'Kanit', sans-serif;
+      font-weight: bold;
+    }
+    .control-btn:hover { background: #333; }
+
+    .game-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: none;
+      border-radius: 16px;
+      padding: 25px;
+      width: 100%;
+      max-width: 450px;
+      color: #fff;
+      box-shadow: none;
+    }
+
+    h2 { 
+      font-family: 'Press Start 2P', cursive;
+      font-size: 16px;
+      text-align: center; 
+      color: #fbf5ef; 
+      margin-top: 0; 
+      margin-bottom: 20px;
+      text-shadow: 3px 3px 0px #000;
+      line-height: 1.5;
+    }
+
+    .status-box {
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin-bottom: 15px;
+      box-shadow: none;
+      font-size: 15px;
+    }
+    .status-info {
+      margin-bottom: 8px;
+      color: #ffffff;
+      text-shadow: 1px 1px 3px #000;
+    }
+
+    .progress-bar-bg {
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #000;
+      height: 22px;
+      padding: 2px;
+      margin-top: 8px;
+      border-radius: 6px;
+    }
+
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #6abe30 0%, #99e550 100%);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+      box-shadow: inset 0px 2px 0px #cbdbfc;
+      border-radius: 4px;
+    }
+
+    .input-group { margin-bottom: 16px; }
+
+    label { 
+      display: block; 
+      margin-bottom: 6px; 
+      color: #ffffff; 
+      font-weight: bold;
+      font-size: 14px;
+      text-shadow: 1px 1px 3px #000;
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #000;
+      font-family: 'Kanit', sans-serif;
+      font-size: 14px;
+      font-weight: bold;
+      outline: none;
+      border-radius: 6px;
+      box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    #target-input { background-color: rgba(224, 248, 255, 0.95); color: #004080; }
+    #income-input { background-color: rgba(230, 255, 230, 0.95); color: #006600; }
+    #save-input { background-color: rgba(255, 243, 224, 0.95); color: #b35900; }
+
+    .quick-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .quick-btn {
+      flex: 1;
+      min-width: 60px;
+      padding: 8px 4px;
+      font-size: 12px;
+      background-color: #3f3f74;
+      color: #fff;
+      border: 2px solid #000;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 2px 2px 0px #000;
+      border-radius: 4px;
+    }
+    .quick-btn:hover { background-color: #5b6ee1; }
+
+    .random-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #df7126;
+      color: #fff;
+      border: 2px solid #000;
+      font-family: 'Kanit', sans-serif;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 3px 3px 0px #000;
+      text-shadow: 1px 1px 0px #000;
+      border-radius: 6px;
+    }
+    .random-btn:hover { background-color: #d9a066; }
+
+    button.main-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #5b6ee1;
+      color: #ffffff;
+      border: 2px solid #000;
+      font-family: 'Press Start 2P', 'Kanit', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0px #000;
+      text-shadow: 1px 1px 0px #000;
+      transition: all 0.1s ease;
+      margin-top: 8px;
+      border-radius: 6px;
+    }
+
+    button.main-btn:hover {
+      background-color: #639bff;
+      transform: translate(-2px, -2px);
+    }
+
+    button.next-day-btn {
+      background-color: #ac3232;
+      box-shadow: 4px 4px 0px #000;
+    }
+    button.next-day-btn:hover {
+      background-color: #d95763;
+    }
+
+    button.history-toggle-btn {
+      background-color: rgba(50, 60, 57, 0.85);
+      color: #cbdbfc;
+      border: 2px solid #000;
+      padding: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 15px;
+      box-shadow: 2px 2px 0px #000;
+      font-weight: bold;
+      border-radius: 4px;
+    }
+    button.history-toggle-btn:hover { background-color: #4b5a56; }
+
+    .advice-box {
+      background: rgba(251, 242, 54, 0.95);
+      border: 2px solid #000;
+      color: #000;
+      padding: 12px;
+      margin-bottom: 15px;
+      margin-top: 15px;
+      box-shadow: 4px 4px 0px #000;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+      border-radius: 6px;
+    }
+
+    .jackpot-box {
+      background: #5b6ee1 !important;
+      color: #fff !important;
+      border: 3px solid #fbf236 !important;
+      animation: pulse 0.8s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.02); }
+    }
+
+    .history-container {
+      background: rgba(24, 20, 37, 0.9);
+      border: 2px solid #000;
+      padding: 10px;
+      margin-bottom: 15px;
+      max-height: 180px;
+      overflow-y: auto;
+      border-radius: 6px;
+    }
+
+    .history-item {
+      background: rgba(44, 33, 55, 0.9);
+      border: 1px solid #59413e;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 4px;
+    }
+    .history-item:last-child { margin-bottom: 0; }
+    .history-day { color: #fbf236; font-weight: bold; }
+    .history-save { color: #6abe30; font-weight: bold; }
+    .history-income { color: #cbdbfc; }
+    .history-date { color: #d9a066; font-size: 11px; }
+
+    /* ปุ่มสลับมุมมองประวัติ: รายวัน / รายสัปดาห์ */
+    .view-switch { display: flex; gap: 6px; margin-bottom: 8px; }
+    .view-btn {
+      flex: 1; padding: 6px 4px; font-size: 12px; font-weight: bold;
+      background-color: #3f3f74; color: #fff; border: 2px solid #000;
+      cursor: pointer; text-align: center; box-shadow: 2px 2px 0px #000; border-radius: 4px;
+      font-family: 'Kanit', sans-serif;
+    }
+    .view-btn:hover { background-color: #5b6ee1; }
+    .view-btn.active { background-color: #df7126; }
+
+    /* กลุ่มสรุปรายสัปดาห์ */
+    .week-group { margin-bottom: 10px; }
+    .week-group:last-child { margin-bottom: 0; }
+    .week-header {
+      background: rgba(59, 63, 116, 0.9);
+      border: 1px solid #000;
+      padding: 6px 8px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 8px; flex-wrap: wrap;
+    }
+    .week-range { color: #fbf236; font-weight: bold; font-size: 13px; }
+    .week-total { color: #6abe30; font-weight: bold; font-size: 13px; }
+    .week-meta { color: #cbdbfc; font-size: 11px; width: 100%; }
+    .week-entries { padding: 0 2px; }
+
+    /* แผนภูมิกราฟแท่ง (สรุปเงินออม) */
+    .chart-section { margin-bottom: 12px; }
+    .chart-section:last-child { margin-bottom: 0; }
+    .chart-title { color: #fbf236; font-size: 12px; font-weight: bold; margin-bottom: 6px; text-shadow: 1px 1px 0 #000; }
+    .chart-summary { color: #cbdbfc; font-size: 12px; margin-bottom: 8px; text-shadow: 1px 1px 2px #000; }
+    .chart-wrap {
+      display: flex; align-items: stretch; gap: 4px;
+      height: 150px;
+      background: rgba(24, 20, 37, 0.9);
+      border: 2px solid #000;
+      border-radius: 6px;
+      padding: 8px 8px 6px;
+      overflow-x: auto;
+    }
+    .chart-col { flex: 1; min-width: 30px; display: flex; flex-direction: column; }
+    .chart-plot { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; border-bottom: 2px solid #59413e; }
+    .chart-val { font-size: 10px; color: #cbdbfc; margin-bottom: 2px; white-space: nowrap; text-shadow: 1px 1px 2px #000; }
+    .chart-bar {
+      width: 72%; max-width: 36px; min-height: 3px;
+      background: linear-gradient(180deg, #99e550 0%, #6abe30 100%);
+      border: 2px solid #000; border-bottom: none;
+      border-radius: 3px 3px 0 0;
+    }
+    .chart-bar.week { background: linear-gradient(180deg, #639bff 0%, #5b6ee1 100%); }
+    .chart-label { font-size: 10px; color: #d9a066; margin-top: 4px; text-align: center; white-space: nowrap; }
+
+    .hidden { display: none !important; }
+
+    .success-msg {
+      text-align: center;
+      color: #6abe30;
+      font-size: 18px;
+      font-weight: bold;
+      text-shadow: 2px 2px 0px #000;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    .action-badge {
+      font-size: 12px;
+      background: #6abe30;
+      color: #000;
+      padding: 2px 6px;
+      border: 1px solid #000;
+      font-weight: bold;
+      margin-top: 4px;
+      display: inline-block;
+      border-radius: 3px;
+    }
+    .action-badge.praise { animation: badgePop 0.4s ease; font-size: 13px; }
+
+    @keyframes badgePop {
+      0% { transform: scale(0.4); }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    button.cancel-btn {
+      background-color: rgba(50, 60, 57, 0.85);
+      font-family: 'Kanit', sans-serif;
+      font-size: 13px;
+      box-shadow: 2px 2px 0px #000;
+    }
+    button.cancel-btn:hover { background-color: #ac3232; }
+    button.cancel-btn.confirming {
+      background-color: #ac3232;
+      animation: pulse 0.8s infinite alternate;
+    }
+    button.cancel-btn.confirming:hover { background-color: #d95763; }
+  </style>
+</head>
+<body>
+
+<!-- ฉากสวนพื้นหลัง -->
+<div class="garden-bg" id="garden-bg" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gb-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#9fd8ef"/>
+        <stop offset="0.55" stop-color="#d4eeda"/>
+        <stop offset="1" stop-color="#eef7d6"/>
+      </linearGradient>
+      <linearGradient id="gb-grass" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#95c46d"/>
+        <stop offset="1" stop-color="#5e9340"/>
+      </linearGradient>
+      <pattern id="gb-slats" width="64" height="80" patternUnits="userSpaceOnUse">
+        <rect x="24" y="0" width="16" height="80" rx="4" fill="#fbfbf4"/>
+      </pattern>
+      <g id="gb-flower">
+        <path d="M0,0 Q-2,-16 0,-32" stroke="#3e7d2c" stroke-width="3" fill="none"/>
+        <path d="M-1,-14 Q-13,-20 -15,-10 Q-6,-5 -1,-14" fill="#4c8f36"/>
+        <circle cx="0" cy="-38" r="5.5" fill="currentColor"/>
+        <circle cx="-5.5" cy="-33" r="5.5" fill="currentColor"/>
+        <circle cx="5.5" cy="-33" r="5.5" fill="currentColor"/>
+        <circle cx="-3.5" cy="-26" r="5.5" fill="currentColor"/>
+        <circle cx="3.5" cy="-26" r="5.5" fill="currentColor"/>
+        <circle cx="0" cy="-32" r="4" fill="#ffd93d"/>
+      </g>
+    </defs>
+
+    <rect width="1440" height="900" fill="url(#gb-sky)"/>
+
+    <circle cx="1190" cy="145" r="110" fill="#ffdf6b" opacity="0.35"/>
+    <circle cx="1190" cy="145" r="62" fill="#ffd93d"/>
+
+    <g fill="#ffffff" opacity="0.92">
+      <g class="gb-cloud">
+        <ellipse cx="240" cy="150" rx="85" ry="28"/>
+        <ellipse cx="305" cy="128" rx="60" ry="24"/>
+        <ellipse cx="175" cy="132" rx="50" ry="20"/>
+      </g>
+      <g class="gb-cloud gb-c2" opacity="0.85">
+        <ellipse cx="700" cy="105" rx="70" ry="22"/>
+        <ellipse cx="755" cy="88" rx="48" ry="18"/>
+      </g>
+      <g class="gb-cloud gb-c3" opacity="0.8">
+        <ellipse cx="1020" cy="235" rx="60" ry="18"/>
+        <ellipse cx="1070" cy="220" rx="42" ry="15"/>
+      </g>
+    </g>
+
+    <path d="M0,610 Q340,480 700,585 T1440,555 L1440,900 L0,900 Z" fill="#cfe6a4"/>
+    <path d="M0,650 Q480,545 920,640 T1440,615 L1440,900 L0,900 Z" fill="#b5d689"/>
+
+    <rect x="0" y="585" width="1440" height="80" fill="url(#gb-slats)"/>
+    <g fill="#fbfbf4">
+      <rect x="0" y="600" width="1440" height="12" rx="6"/>
+      <rect x="0" y="638" width="1440" height="12" rx="6"/>
+    </g>
+
+    <path d="M0,665 Q720,632 1440,665 L1440,900 L0,900 Z" fill="url(#gb-grass)"/>
+
+    <g opacity="0.5" fill="#4d7c33">
+      <ellipse cx="200" cy="705" rx="3" ry="7"/>
+      <ellipse cx="208" cy="702" rx="3" ry="9"/>
+      <ellipse cx="216" cy="706" rx="3" ry="6"/>
+      <ellipse cx="860" cy="690" rx="3" ry="7"/>
+      <ellipse cx="868" cy="687" rx="3" ry="9"/>
+      <ellipse cx="1240" cy="715" rx="3" ry="8"/>
+      <ellipse cx="1248" cy="712" rx="3" ry="6"/>
+    </g>
+
+    <g color="#ff7eb6"><use href="#gb-flower" transform="translate(115,795) scale(1.2)"/></g>
+    <g color="#ff9f43"><use href="#gb-flower" transform="translate(245,735) scale(0.9)"/></g>
+    <g color="#ff5e5e"><use href="#gb-flower" transform="translate(405,805) scale(1.3)"/></g>
+    <g color="#c56cf0"><use href="#gb-flower" transform="translate(565,745) scale(1)"/></g>
+    <g color="#ffffff"><use href="#gb-flower" transform="translate(765,795) scale(1.15)"/></g>
+    <g color="#ff7eb6"><use href="#gb-flower" transform="translate(955,735) scale(0.9)"/></g>
+    <g color="#ffb7b0"><use href="#gb-flower" transform="translate(1125,805) scale(1.25)"/></g>
+    <g color="#ffd93d"><use href="#gb-flower" transform="translate(1305,750) scale(1)"/></g>
+    <g color="#ffffff"><use href="#gb-flower" transform="translate(60,705) scale(0.7)"/></g>
+    <g color="#ffb7b0"><use href="#gb-flower" transform="translate(705,700) scale(0.65)"/></g>
+    <g color="#c56cf0"><use href="#gb-flower" transform="translate(1245,700) scale(0.7)"/></g>
+
+    <g transform="translate(620,545)">
+      <g class="gb-butterfly">
+        <ellipse cx="-7" cy="-2" rx="9" ry="6" fill="#ff9ff3" transform="rotate(-25 -7 -2)"/>
+        <ellipse cx="7" cy="-2" rx="9" ry="6" fill="#feca57" transform="rotate(25 7 -2)"/>
+        <rect x="-1.5" y="-7" width="3" height="15" rx="1.5" fill="#5d3a1a"/>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<!-- แถบปุ่มควบคุมด้านบน -->
+<div class="top-controls">
+  <button class="control-btn" onclick="goHomeSafe('')">🏠 หน้าหลัก</button>
+  <button class="control-btn" onclick="goHomeSafe('#game2')">🌱 เกมที่ 2</button>
+  <button class="control-btn" onclick="document.getElementById('bg-file-input').click()">🖼️ เปลี่ยนรูปพื้นหลัง</button>
+</div>
+
+<!-- ช่องเลือกระบบอัปโหลดรูปพื้นหลัง (ซ่อนไว้) -->
+<input type="file" id="bg-file-input" accept="image/*" style="display: none;" onchange="changeBackgroundImage(event)">
+
+<div class="game-card">
+  <h2>🎮 SAVINGS QUEST</h2>
+
+  <!-- ขั้นตอนที่ 1: ตั้งเป้าหมาย -->
+  <div id="step-target">
+    <div class="input-group">
+      <label for="target-input">🎯 ตั้งเป้าหมายเงินออม (บาท):</label>
+      <input type="number" id="target-input" placeholder="กรอกเป้าหมายที่เราอยากออม" min="1">
+    </div>
+    <button class="main-btn" onclick="setTarget()">เริ่มภารกิจ!</button>
+  </div>
+
+  <!-- ขั้นตอนที่ 2: บันทึกประจำวัน -->
+  <div id="step-daily" class="hidden">
+    <div class="status-box">
+      <div class="status-info">📆 วันที่: <span id="day-num" style="color:#fbf5ef;">1</span> <span id="today-date" style="color:#d9a066; font-size:13px;"></span></div>
+      <div class="status-info">💰 เงินออมสะสม: <b id="current-saved" style="color:#6abe30;">0</b> / <span id="target-display" style="color:#fbf5ef;">0</span> บาท</div>
+      <div class="progress-bar-bg">
+        <div id="progress-bar" class="progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <button class="history-toggle-btn" onclick="toggleHistory()">📜 ดูประวัติการออม (<span id="history-count">0</span> รายการ)</button>
+    
+    <div id="history-box" class="history-container hidden">
+      <div id="history-list">
+        <div style="text-align: center; color: #d9a066; font-size: 12px;">ยังไม่มีประวัติการบันทึก</div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label for="income-input">💵 ระบุจำนวนเงินที่ได้รับวันนี้ (บาท):</label>
+      <input type="number" id="income-input" placeholder="พิมพ์จำนวนเงิน..." min="0">
+      
+      <div class="quick-buttons">
+        <div class="quick-btn" onclick="quickSelect(20)">+20</div>
+        <div class="quick-btn" onclick="quickSelect(50)">+50</div>
+        <div class="quick-btn" onclick="quickSelect(100)">+100</div>
+        <div class="quick-btn" onclick="quickSelect(500)">+500</div>
+      </div>
+
+      <button class="random-btn" onclick="randomSavings()">🎲 กดสุ่มเงินออมวันนี้!</button>
+    </div>
+
+    <div id="advice-box" class="advice-box">
+      <div id="advice-title">🎲 <b>ผลการสุ่มดวงการออมวันนี้:</b></div>
+      • เงินที่ได้รับวันนี้: <b id="rand-income" style="font-size: 16px;">0</b> บาท<br>
+      • สุ่มได้อัตราการออม: <b id="rand-percent" style="font-size: 16px;">0%</b><br>
+      • ยอดเงินที่ต้องออมวันนี้: <b id="rand-save" style="font-size: 16px;">0</b> บาท<br>
+      • เงินที่เหลือใช้จ่าย: <b id="rand-spend">0</b> บาท
+    </div>
+
+    <div class="input-group">
+      <label for="save-input">📥 ยอดเงินที่จะนำเข้ากระปุกออมสิน:</label>
+      <input type="number" id="save-input" placeholder="ยอดเงินที่จะออมจริง" min="0">
+    </div>
+
+    <button class="main-btn" onclick="addSavings()">💾 บันทึกการออมของวันนี้</button>
+    <div id="today-status" style="text-align:center; margin-top:4px;"></div>
+
+    <button class="main-btn next-day-btn" onclick="nextDay()">⏩ ไปยังวันถัดไป (Day <span id="next-day-num">2</span>)</button>
+
+    <button class="main-btn cancel-btn" id="cancel-btn" onclick="cancelMissionClick()">✖ ยกเลิกภารกิจนี้</button>
+  </div>
+
+  <!-- ขั้นตอนที่ 3: สรุปภารกิจสำเร็จ -->
+  <div id="step-finish" class="hidden">
+    <div class="success-msg">
+      🎉 MISSION COMPLETE! 🏆<br>คุณทำภารกิจสำเร็จแล้ว!
+    </div>
+    <p style="text-align: center; color: #fbf5ef; font-size: 15px; text-shadow: 1px 1px 2px #000;">คุณใช้เวลาทั้งหมด <b id="total-days" style="color:#6abe30;">0</b> วัน ในการออมเงินตามเป้าหมาย</p>
+    
+    <button class="history-toggle-btn" onclick="toggleHistoryFinish()">📜 ดูประวัติการออมทั้งหมด</button>
+    <div id="history-box-finish" class="history-container hidden">
+      <div id="history-list-finish"></div>
+    </div>
+
+    <button class="main-btn" onclick="resetGame()" style="background-color: #6abe30;">เล่นใหม่อีกครั้ง</button>
+  </div>
+</div>
+
+<script>
+  let targetAmount = 0;
+  let currentSavings = 0;
+  let currentDay = 1;
+  let savingsHistory = [];
+  let savedToday = false;
+  let historyViewMode = 'day'; // 'day' = รายวัน, 'week' = รายสัปดาห์
+
+  // --- คำชื่นชมสุ่มตอนบันทึกการออม ---
+  const PRAISE_MESSAGES = [
+    'เก่งมาก! วินัยระดับเทพ 🏆',
+    'สุดยอด! กระปุกอ้วนขึ้นอีกแล้ว 🐷',
+    'เยี่ยมไปเลย! ใกล้เป้าหมายขึ้นทุกวัน 🚀',
+    'นักออมตัวจริง! ทำแบบนี้ต่อเลย 💪',
+    'เก่งจัง! วันนี้ก้าวหนึ่งที่ดีมาก ✨',
+    'ว้าว! เงินก้อนแรกใกล้มาถึงแล้ว 💰'
+  ];
+
+  // --- เสียงเอฟเฟกต์ชื่นชม (Web Audio API ไม่ต้องโหลดไฟล์เสียง ทำงานออฟไลน์ได้) ---
+  let audioCtx = null;
+  function playSaveChime() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const notes = [523.25, 659.25, 783.99]; // โน้ต C5-E5-G5 ไล่ขึ้นเสียง "ติ้ง!"
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        const t = audioCtx.currentTime + i * 0.09;
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.4);
+      });
+    } catch (e) { /* เครื่องไม่รองรับเสียง ข้ามไปเฉยๆ */ }
+  }
+
+  // --- เสียงจิ๋วตอนกดปุ่ม (UI SFX) ---
+  function ensureAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+  function tone(freq, start, dur, vol) {
+    const ctx = ensureAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    const t = ctx.currentTime + start;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(t); osc.stop(t + dur + 0.05);
+  }
+  function uiClickSfx(kind) {
+    try {
+      if (kind === 'coin') {            // ปุ่ม +เงินด่วน: เสียงเหรียญ "ติ๊ง-อิง"
+        tone(1318.5, 0, 0.06, 0.12); tone(1760, 0.05, 0.1, 0.1);
+      } else if (kind === 'big') {      // ปุ่มใหญ่ (สุ่ม/บันทึก): "ปุ๊บ" ทุ้มสนุก
+        tone(180, 0, 0.09, 0.16); tone(450, 0.03, 0.06, 0.09);
+      } else if (kind === 'danger') {   // ปุ่มยกเลิก/วันถัดไป: "บึด" เสียงต่ำ
+        tone(320, 0, 0.05, 0.12); tone(240, 0.05, 0.08, 0.12);
+      } else {                          // ปุ่มทั่วไป: "ติ๊ก" สั้นกริ๊ง ๆ
+        tone(740, 0, 0.045, 0.1); tone(1100, 0.03, 0.04, 0.06);
+      }
+    } catch (e) { /* เครื่องไม่รองรับ ข้าม */ }
+  }
+
+  document.addEventListener('pointerdown', function(e) {
+    if (e.button !== undefined && e.button !== 0) return; // คลิกซ้าย/แตะเท่านั้น
+    const el = e.target.closest('button, .quick-btn');
+    if (!el) return;
+    let kind = 'tick';
+    if (el.classList.contains('quick-btn')) kind = 'coin';
+    else if (el.classList.contains('random-btn') || el.classList.contains('main-btn')) kind = 'big';
+    else if (el.classList.contains('next-day-btn') || el.classList.contains('cancel-btn')) kind = 'danger';
+    uiClickSfx(kind);
+  }, true);
+
+  // --- ระบบบันทึกความคืบหน้า (localStorage) ปิดเบราว์เซอร์แล้วเปิดใหม่เล่นต่อได้ ---
+  const STORAGE_KEY = 'savingsQuestState_v1';
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        targetAmount: targetAmount,
+        currentSavings: currentSavings,
+        currentDay: currentDay,
+        savingsHistory: savingsHistory,
+        savedToday: savedToday
+      }));
+    } catch (e) { /* localStorage ใช้ไม่ได้ (เช่นโหมดไม่ระบุตัวตน) ข้ามไป */ }
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (!data || typeof data !== 'object') return false;
+      targetAmount = Number(data.targetAmount) || 0;
+      currentSavings = Number(data.currentSavings) || 0;
+      currentDay = Number(data.currentDay) || 1;
+      savingsHistory = Array.isArray(data.savingsHistory) ? data.savingsHistory : [];
+      savedToday = !!data.savedToday;
+      return targetAmount > 0; // มีภารกิจที่บันทึกไว้จริง
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function clearState() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  }
+
+  function restoreUI() {
+    document.getElementById('target-display').innerText = targetAmount.toLocaleString();
+    document.getElementById('current-saved').innerText = currentSavings.toLocaleString();
+    document.getElementById('day-num').innerText = currentDay;
+    const percent = targetAmount > 0 ? Math.min((currentSavings / targetAmount) * 100, 100) : 0;
+    document.getElementById('progress-bar').style.width = percent + '%';
+    updateHistoryUI();
+    updateTodayDate();
+    updateNextDayButton();
+
+    document.getElementById('step-target').classList.add('hidden');
+    if (currentSavings >= targetAmount) {
+      // ภารกิจสำเร็จไปแล้ว กลับเข้าหน้าสรุป
+      document.getElementById('total-days').innerText = currentDay;
+      updateHistoryUIFinish();
+      document.getElementById('step-finish').classList.remove('hidden');
+    } else {
+      document.getElementById('step-daily').classList.remove('hidden');
+    }
+  }
+
+
+  // --- ระบบเปลี่ยนรูปพื้นหลัง ---
+  function changeBackgroundImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.body.style.backgroundImage = "url('" + e.target.result + "')";
+        const garden = document.getElementById('garden-bg');
+        if (garden) garden.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // --- ระบบเริ่มภารกิจ ---
+  function setTarget() {
+    const input = document.getElementById('target-input').value;
+    if (!input || parseFloat(input) <= 0) {
+      alert('กรุณากรอกเป้าหมายที่มากกว่า 0 บาทครับ');
+      return;
+    }
+
+    targetAmount = parseFloat(input);
+    document.getElementById('target-display').innerText = targetAmount.toLocaleString();
+    
+    document.getElementById('step-target').classList.add('hidden');
+    document.getElementById('step-daily').classList.remove('hidden');
+    updateTodayDate();
+    updateNextDayButton();
+    saveState();
+  }
+
+  function quickSelect(amount) {
+    const input = document.getElementById('income-input');
+    const current = parseFloat(input.value) || 0;
+    input.value = current + amount; // บวกเพิ่มจากยอดที่พิมพ์ไว้ ไม่ทับของเดิม
+  }
+
+  function randomSavings() {
+    const income = parseFloat(document.getElementById('income-input').value) || 0;
+    const adviceBox = document.getElementById('advice-box');
+    
+    if (income <= 0) {
+      alert('กรุณากรอกจำนวนเงินที่ได้รับวันนี้ก่อนกดสุ่มครับ!');
+      return;
+    }
+
+    const chance = Math.floor(Math.random() * 100) + 1;
+    let randomPercent = 0;
+    let isLucky = false;
+
+    if (chance <= 10) { 
+      randomPercent = 0;
+      isLucky = true;
+    } else {
+      const minPercent = 10;
+      const maxPercent = 40;
+      randomPercent = Math.floor(Math.random() * ((maxPercent - minPercent) / 5 + 1)) * 5 + minPercent;
+    }
+
+    let rawSaveAmount = (income * randomPercent) / 100;
+    let saveAmount = Math.round(rawSaveAmount / 5) * 5; 
+    const spendAmount = income - saveAmount;
+
+    if (isLucky) {
+      adviceBox.classList.add('jackpot-box');
+      document.getElementById('advice-title').innerHTML = '🎉 <b>โชคดีสุดๆ! (โอกาส 10%) วันนี้ไม่ต้องออมเลย!</b>';
+    } else {
+      adviceBox.classList.remove('jackpot-box');
+      document.getElementById('advice-title').innerHTML = '🎲 <b>ผลการสุ่มดวงการออมวันนี้:</b>';
+    }
+
+    document.getElementById('rand-income').innerText = income.toLocaleString();
+    document.getElementById('rand-percent').innerText = randomPercent + '%';
+    document.getElementById('rand-save').innerText = saveAmount.toLocaleString();
+    document.getElementById('rand-spend').innerText = spendAmount.toLocaleString();
+    
+    document.getElementById('save-input').value = saveAmount;
+    adviceBox.style.display = 'block';
+  }
+
+  function addSavings() {
+    const income = parseFloat(document.getElementById('income-input').value) || 0;
+    const save = parseFloat(document.getElementById('save-input').value) || 0;
+
+    if (save < 0) {
+      alert('จำนวนเงินออมต้องไม่ติดลบครับ');
+      return;
+    }
+
+    currentSavings += save;
+    savedToday = true;
+
+    savingsHistory.push({
+      day: currentDay,
+      income: income,
+      save: save,
+      totalSaved: currentSavings,
+      date: new Date().toISOString() // วันที่จริงที่บันทึกรายการนี้
+    });
+
+    document.getElementById('current-saved').innerText = currentSavings.toLocaleString();
+    const percent = Math.min((currentSavings / targetAmount) * 100, 100);
+    document.getElementById('progress-bar').style.width = percent + '%';
+
+    const praise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
+    document.getElementById('today-status').innerHTML = '<span class="action-badge praise">✓ บันทึกแล้ว! ' + praise + '</span>';
+    playSaveChime();
+    updateHistoryUI();
+    saveState();
+
+    if (currentSavings >= targetAmount) {
+      document.getElementById('step-daily').classList.add('hidden');
+      document.getElementById('step-finish').classList.remove('hidden');
+      document.getElementById('total-days').innerText = currentDay;
+      updateHistoryUIFinish();
+    }
+  }
+
+  function nextDay() {
+    if (!savedToday) {
+      const confirmNext = confirm('คุณยังไม่ได้กดบันทึกการออมของวันนี้ คุณต้องการข้ามไปวันถัดไปเลยหรือไม่?');
+      if (!confirmNext) return;
+    }
+
+    currentDay++;
+    savedToday = false;
+
+    document.getElementById('day-num').innerText = currentDay;
+    updateTodayDate();
+    document.getElementById('income-input').value = '';
+    document.getElementById('save-input').value = '';
+    document.getElementById('advice-box').style.display = 'none';
+    document.getElementById('advice-box').classList.remove('jackpot-box');
+    document.getElementById('today-status').innerHTML = '';
+    
+    updateNextDayButton();
+    saveState();
+  }
+
+  function updateNextDayButton() {
+    document.getElementById('next-day-num').innerText = currentDay + 1;
+  }
+
+  function toggleHistory() {
+    const box = document.getElementById('history-box');
+    box.classList.toggle('hidden');
+  }
+
+  function toggleHistoryFinish() {
+    const box = document.getElementById('history-box-finish');
+    box.classList.toggle('hidden');
+  }
+
+  // --- วันที่จริงของแต่ละรายการ ---
+  function formatDateTH(dateLike) {
+    return new Date(dateLike).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function updateTodayDate() {
+    document.getElementById('today-date').innerText = '• ' + formatDateTH(new Date());
+  }
+
+  function buildEntriesHTML(entries) {
+    let html = '';
+    for (let i = entries.length - 1; i >= 0; i--) {
+      const item = entries[i];
+      html += '<div class="history-item">' +
+                '<div>' +
+                  '<span class="history-day">Day ' + item.day + '</span>' +
+                  (item.date ? '<span class="history-date"> • ' + formatDateTH(item.date) + '</span>' : '') +
+                  '<br>' +
+                  '<span class="history-income">(รับ ' + item.income.toLocaleString() + ' บ.)</span>' +
+                '</div>' +
+                '<div class="history-save">+' + item.save.toLocaleString() + ' บาท</div>' +
+              '</div>';
+    }
+    return html;
+  }
+
+  function buildHistoryHTML() {
+    return buildEntriesHTML(savingsHistory);
+  }
+
+  // --- มุมมองสรุปรายสัปดาห์ ---
+  function startOfWeek(dateLike) {
+    const d = new Date(dateLike);
+    const offset = (d.getDay() + 6) % 7; // นับวันจันทร์เป็นวันแรกของสัปดาห์
+    d.setDate(d.getDate() - offset);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  function buildWeeklyHTML() {
+    const weeks = new Map(); // key = timestamp วันจันทร์ของสัปดาห์
+    const noDate = [];
+
+    for (const item of savingsHistory) {
+      if (!item.date) { noDate.push(item); continue; }
+      const start = startOfWeek(item.date);
+      const key = start.getTime();
+      if (!weeks.has(key)) weeks.set(key, { start: start, entries: [] });
+      weeks.get(key).entries.push(item);
+    }
+
+    const keys = Array.from(weeks.keys()).sort((a, b) => b - a); // สัปดาห์ล่าสุดอยู่บน
+    let html = '';
+
+    for (const key of keys) {
+      const w = weeks.get(key);
+      const end = new Date(w.start);
+      end.setDate(end.getDate() + 6);
+      const totalSave = w.entries.reduce((s, it) => s + (Number(it.save) || 0), 0);
+      const totalIncome = w.entries.reduce((s, it) => s + (Number(it.income) || 0), 0);
+      const avg = Math.round(totalSave / w.entries.length);
+
+      html += '<div class="week-group">' +
+                '<div class="week-header">' +
+                  '<span class="week-range">' + formatDateTH(w.start) + ' – ' + formatDateTH(end) + '</span>' +
+                  '<span class="week-total">ออมรวม +' + totalSave.toLocaleString() + ' บาท</span>' +
+                  '<span class="week-meta">ออม ' + w.entries.length + ' วัน • รับรวม ' + totalIncome.toLocaleString() + ' บาท • เฉลี่ย ' + avg.toLocaleString() + ' บ./วัน</span>' +
+                '</div>' +
+                '<div class="week-entries">' + buildEntriesHTML(w.entries) + '</div>' +
+              '</div>';
+    }
+
+    if (noDate.length > 0) {
+      const totalSave = noDate.reduce((s, it) => s + (Number(it.save) || 0), 0);
+      html += '<div class="week-group">' +
+                '<div class="week-header">' +
+                  '<span class="week-range">รายการเก่า (ไม่มีวันที่)</span>' +
+                  '<span class="week-total">ออมรวม +' + totalSave.toLocaleString() + ' บาท</span>' +
+                '</div>' +
+                '<div class="week-entries">' + buildEntriesHTML(noDate) + '</div>' +
+              '</div>';
+    }
+
+    return html || '<div style="text-align: center; color: #d9a066; font-size: 12px;">ยังไม่มีประวัติการบันทึก</div>';
+  }
+
+  // --- มุมมองสรุปรายเดือน ---
+  function buildMonthlyHTML() {
+    const months = new Map(); // key = 'YYYY-MM'
+    const noDate = [];
+
+    for (const item of savingsHistory) {
+      if (!item.date) { noDate.push(item); continue; }
+      const d = new Date(item.date);
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      if (!months.has(key)) months.set(key, { date: new Date(d.getFullYear(), d.getMonth(), 1), entries: [] });
+      months.get(key).entries.push(item);
+    }
+
+    const keys = Array.from(months.keys()).sort((a, b) => b.localeCompare(a)); // เดือนล่าสุดอยู่บน
+    let html = '';
+
+    for (const key of keys) {
+      const m = months.get(key);
+      const totalSave = m.entries.reduce((s, it) => s + (Number(it.save) || 0), 0);
+      const totalIncome = m.entries.reduce((s, it) => s + (Number(it.income) || 0), 0);
+      const avg = Math.round(totalSave / m.entries.length);
+      const monthName = m.date.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+
+      html += '<div class="week-group">' +
+                '<div class="week-header">' +
+                  '<span class="week-range">' + monthName + '</span>' +
+                  '<span class="week-total">ออมรวม +' + totalSave.toLocaleString() + ' บาท</span>' +
+                  '<span class="week-meta">ออม ' + m.entries.length + ' วัน • รับรวม ' + totalIncome.toLocaleString() + ' บาท • เฉลี่ย ' + avg.toLocaleString() + ' บ./วัน</span>' +
+                '</div>' +
+                '<div class="week-entries">' + buildEntriesHTML(m.entries) + '</div>' +
+              '</div>';
+    }
+
+    if (noDate.length > 0) {
+      const totalSave = noDate.reduce((s, it) => s + (Number(it.save) || 0), 0);
+      html += '<div class="week-group">' +
+                '<div class="week-header">' +
+                  '<span class="week-range">รายการเก่า (ไม่มีวันที่)</span>' +
+                  '<span class="week-total">ออมรวม +' + totalSave.toLocaleString() + ' บาท</span>' +
+                '</div>' +
+                '<div class="week-entries">' + buildEntriesHTML(noDate) + '</div>' +
+              '</div>';
+    }
+
+    return html || '<div style="text-align: center; color: #d9a066; font-size: 12px;">ยังไม่มีประวัติการบันทึก</div>';
+  }
+
+  // --- มุมมองกราฟแท่ง (รายวัน / รายอาทิตย์=รายสัปดาห์) ---
+  function chartColumn(label, value, maxValue, cls) {
+    const pct = maxValue > 0 ? Math.max(4, Math.round((value / maxValue) * 100)) : 4;
+    return '<div class="chart-col">' +
+             '<div class="chart-plot">' +
+               (value > 0 ? '<span class="chart-val">' + value.toLocaleString() + '</span>' : '') +
+               '<div class="chart-bar' + (cls ? ' ' + cls : '') + '" style="height:' + pct + '%"></div>' +
+             '</div>' +
+             '<div class="chart-label">' + label + '</div>' +
+           '</div>';
+  }
+
+  function buildDailyChartHTML() {
+    const dated = savingsHistory.filter(it => it.date);
+    const undated = savingsHistory.filter(it => !it.date);
+    const rows = dated.slice().sort((a, b) => new Date(a.date) - new Date(b.date))
+      .map(it => ({ label: formatDateTH(it.date), value: Number(it.save) || 0 }));
+
+    let summary = '';
+    if (undated.length > 0) {
+      const s = undated.reduce((acc, it) => acc + (Number(it.save) || 0), 0);
+      summary = '• มีรายการเก่าที่ไม่มีวันที่ ' + undated.length + ' รายการ (รวม ' + s.toLocaleString() + ' บาท) ไม่แสดงในกราฟ';
+    }
+
+    if (rows.length === 0) {
+      return '<div class="chart-section">' +
+               '<div class="chart-title">📊 เงินออมรายวัน</div>' +
+               (summary ? '<div class="chart-summary">' + summary + '</div>' : '') +
+               '<div style="text-align: center; color: #d9a066; font-size: 12px;">ยังไม่มีรายการที่มีวันที่</div>' +
+             '</div>';
+    }
+
+    const max = Math.max(...rows.map(r => r.value));
+    const total = rows.reduce((s, r) => s + r.value, 0);
+    let html = '<div class="chart-section">' +
+                 '<div class="chart-title">📊 เงินออมรายวัน</div>' +
+                 '<div class="chart-summary">รวม ' + total.toLocaleString() + ' บาท • ' + rows.length + ' วันที่ออม • เฉลี่ย ' + Math.round(total / rows.length).toLocaleString() + ' บ./วัน</div>' +
+                 '<div class="chart-wrap">';
+    for (const r of rows) html += chartColumn(r.label, r.value, max, '');
+    html += '</div>';
+    if (summary) html += '<div class="chart-summary" style="margin-top:6px;">' + summary + '</div>';
+    html += '</div>';
+    return html;
+  }
+
+  function buildWeeklyChartHTML() {
+    const weeks = new Map();
+    for (const item of savingsHistory) {
+      if (!item.date) continue;
+      const start = startOfWeek(item.date);
+      const key = start.getTime();
+      if (!weeks.has(key)) weeks.set(key, { start: start, total: 0 });
+      weeks.get(key).total += Number(item.save) || 0;
+    }
+
+    if (weeks.size === 0) {
+      return '<div class="chart-section">' +
+               '<div class="chart-title">📊 เงินออมรายอาทิตย์ (รายสัปดาห์)</div>' +
+               '<div style="text-align: center; color: #d9a066; font-size: 12px;">ยังไม่มีรายการที่มีวันที่</div>' +
+             '</div>';        
+    }
+
+    const rows = Array.from(weeks.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([key, w]) => {
+        const end = new Date(w.start);
+        end.setDate(end.getDate() + 6);
+        return { label: formatDateTH(w.start) + '<br>– ' + formatDateTH(end), value: w.total };
+      });
+
+    const max = Math.max(...rows.map(r => r.value));
+    const total = rows.reduce((s, r) => s + r.value, 0);
+    let html = '<div class="chart-section">' +
+                 '<div class="chart-title">📊 เงินออมรายอาทิตย์ (รายสัปดาห์)</div>' +
+                 '<div class="chart-summary">รวม ' + total.toLocaleString() + ' บาท • ' + rows.length + ' สัปดาห์ • เฉลี่ย ' + Math.round(total / rows.length).toLocaleString() + ' บ./สัปดาห์</div>' +
+                 '<div class="chart-wrap">';
+    for (const r of rows) html += chartColumn(r.label, r.value, max, 'week');
+    html += '</div></div>';
+    return html;
+  }
+
+  function buildChartsHTML() {
+    if (savingsHistory.length === 0) {
+      return '<div style="text-align: center; color: #d9a066; font-size: 12px;">ยังไม่มีประวัติการบันทึก</div>';
+    }
+    return buildDailyChartHTML() + buildWeeklyChartHTML();
+  }
+
+  function historySwitchHTML() {
+    if (savingsHistory.length === 0) return '';
+    return '<div class="view-switch">' +
+             '<div class="view-btn' + (historyViewMode === 'day' ? ' active' : '') + '" onclick="setHistoryView(\'day\')">📅 รายวัน</div>' +
+             '<div class="view-btn' + (historyViewMode === 'week' ? ' active' : '') + '" onclick="setHistoryView(\'week\')">🗓️ รายสัปดาห์</div>' +
+             '<div class="view-btn' + (historyViewMode === 'month' ? ' active' : '') + '" onclick="setHistoryView(\'month\')">📆 รายเดือน</div>' +
+             '<div class="view-btn' + (historyViewMode === 'chart' ? ' active' : '') + '" onclick="setHistoryView(\'chart\')">📊 กราฟ</div>' +
+           '</div>';
+  }
+
+  function setHistoryView(mode) {
+    historyViewMode = mode;
+    updateHistoryUI();
+    updateHistoryUIFinish();
+  }
+
+  function updateHistoryUI() {
+    document.getElementById('history-count').innerText = savingsHistory.length;
+    const historyList = document.getElementById('history-list');
+    
+    if (savingsHistory.length === 0) {
+      historyList.innerHTML = '<div style="text-align: center; color: #d9a066; font-size: 12px;">ยังไม่มีประวัติการบันทึก</div>';
+      return;
+    }
+
+    historyList.innerHTML = historySwitchHTML() +
+      (historyViewMode === 'week' ? buildWeeklyHTML() :
+       historyViewMode === 'month' ? buildMonthlyHTML() :
+       historyViewMode === 'chart' ? buildChartsHTML() :
+       buildHistoryHTML());
+  }
+
+  function updateHistoryUIFinish() {
+    document.getElementById('history-list-finish').innerHTML = historySwitchHTML() +
+      (historyViewMode === 'week' ? buildWeeklyHTML() :
+       historyViewMode === 'month' ? buildMonthlyHTML() :
+       historyViewMode === 'chart' ? buildChartsHTML() :
+       buildHistoryHTML());
+  }
+
+  function resetGame() {
+    targetAmount = 0;
+    currentSavings = 0;
+    currentDay = 1;
+    savingsHistory = [];
+    savedToday = false;
+    clearState();
+    
+    document.getElementById('target-input').value = '';
+    document.getElementById('income-input').value = '';
+    document.getElementById('save-input').value = '';
+    document.getElementById('progress-bar').style.width = '0%';
+    document.getElementById('current-saved').innerText = '0';
+    document.getElementById('day-num').innerText = '1';
+    document.getElementById('advice-box').style.display = 'none';
+    document.getElementById('advice-box').classList.remove('jackpot-box');
+    document.getElementById('today-status').innerHTML = '';
+    
+    updateHistoryUI();
+    
+    document.getElementById('step-finish').classList.add('hidden');
+    document.getElementById('step-daily').classList.add('hidden');
+    document.getElementById('step-target').classList.remove('hidden');
+    disarmCancel();
+  }
+
+  // --- ระบบยกเลิกภารกิจ (ต้องยืนยันอีก 1 ครั้ง) ---
+  let cancelArmed = false;
+  let cancelTimeout = null;
+
+  function cancelMissionClick() {
+    const btn = document.getElementById('cancel-btn');
+    if (!cancelArmed) {
+      // กดครั้งแรก: เข้าโหมดยืนยัน (ถ้าไม่กดซ้ำภายใน 5 วิ ปุ่มจะกลับเป็นปกติเอง)
+      cancelArmed = true;
+      btn.classList.add('confirming');
+      btn.innerHTML = '⚠️ จะลบความคืบหน้าทั้งหมดนะ — กดอีกครั้งเพื่อยืนยัน';
+      cancelTimeout = setTimeout(disarmCancel, 5000);
+    } else {
+      // กดครั้งที่สอง: ยืนยันยกเลิกจริง
+      disarmCancel();
+      alert('ยกเลิกภารกิจเรียบร้อย เริ่มตั้งเป้าหมายใหม่ได้เลยครับ 💪');
+      resetGame();
+    }
+  }
+
+  function disarmCancel() {
+    cancelArmed = false;
+    if (cancelTimeout) { clearTimeout(cancelTimeout); cancelTimeout = null; }
+    const btn = document.getElementById('cancel-btn');
+    if (btn) {
+      btn.classList.remove('confirming');
+      btn.innerHTML = '✖ ยกเลิกภารกิจนี้';
+    }
+  }
+
+  // --- โหลดความคืบหน้าตอนเปิดหน้าเว็บขึ้นมาใหม่ ---
+  if (loadState()) {
+    restoreUI();
+  }  // --- ปุ่มข้ามไฟล์: เช็คก่อนว่าไปได้จริง (กันหน้าหายในแท็บ Preview) ---
+  function navNotice() {
+    alert('แท็บ Preview เปิดได้ทีละไฟล์ — กรุณาเปิดไฟล์ home.html (หน้าหลัก) ในแท็บ Preview แทน\nหรือเปิดโฟลเดอร์เกมในเบราว์เซอร์จริง ปุ่มนี้จะใช้ได้ปกติครับ');
+  }
+  function goHomeSafe(hash) {
+    var dest = 'home.html' + (hash || '');
+    if (location.protocol === 'file:' || !window.fetch) { location.href = dest; goHomeSafe._busy = false; return; }
+    if (goHomeSafe._busy) return;
+    goHomeSafe._busy = true;
+    fetch('home.html', { method: 'HEAD' }).then(function(res) {
+      if (res.ok) { location.href = dest; goHomeSafe._busy = false; }
+      else { navNotice(); goHomeSafe._busy = false; }
+    }).catch(function(){ navNotice(); goHomeSafe._busy = false; });
+  }
+
+  </script>
+
+</body>
+</html>

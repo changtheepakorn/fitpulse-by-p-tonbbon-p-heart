@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สวนนักออมเงิน - เกมออมเงินปลูกต้นไม้</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+      background: linear-gradient(180deg, #87ceeb 0%, #e0f7c8 55%, #8fbc6a 100%);
+      background-attachment: fixed;
+      transition: background 0.3s ease;
+    }
+
+    /* ---------- ฉากสวนพื้นหลัง ---------- */
+    .garden-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+    .garden-bg svg { width: 100%; height: 100%; display: block; }
+    .gb-cloud { animation: gb-drift 28s ease-in-out infinite alternate; }
+    .gb-c2 { animation-duration: 36s; }
+    .gb-c3 { animation-duration: 22s; }
+    @keyframes gb-drift { from { transform: translateX(-30px); } to { transform: translateX(40px); } }
+    .gb-butterfly { animation: gb-float 6s ease-in-out infinite alternate; }
+    @keyframes gb-float { from { transform: translate(0,0); } to { transform: translate(70px,-50px); } }
+
+    /* แถบปุ่มควบคุมมุมบน */
+    .top-controls {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .control-btn {
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #fff;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+      font-family: 'Kanit', sans-serif;
+      font-weight: bold;
+    }
+    .control-btn:hover { background: #333; }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.18);
+      border: none;
+      border-radius: 16px;
+      padding: 25px;
+      width: 100%;
+      max-width: 460px;
+      color: #233d1e;
+      box-shadow: none;
+    }
+
+    h2 {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 15px;
+      text-align: center;
+      color: #2d5a27;
+      margin-top: 0;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    /* ฉากต้นไม้สมจริง */
+    .tree-scene {
+      position: relative;
+      height: 260px;
+      background: linear-gradient(180deg, #6ec6ff 0%, #b3e5fc 35%, #e8f5e9 68%, #81c784 68%, #388e3c 100%);
+      border: none;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 15px;
+      box-shadow: none;
+    }
+
+    .sun {
+      position: absolute;
+      top: 10px; right: 14px;
+      width: 44px; height: 44px;
+      background: radial-gradient(circle, #fff9c4 20%, #fbc02d 70%, #f57f17 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 25px #fdd835;
+      animation: sunSpin 24s linear infinite;
+    }
+    @keyframes sunSpin { to { transform: rotate(360deg); } }
+
+    .cloud {
+      position: absolute;
+      width: 60px; height: 20px;
+      background: #fff;
+      border-radius: 20px;
+      opacity: 0.88;
+      box-shadow: 20px -10px 0 6px #fff, -18px -6px 0 4px #fff;
+    }
+    .cloud.c1 { top: 24px; left: 20px; animation: drift 42s linear infinite; }
+    .cloud.c2 { top: 58px; left: 180px; transform: scale(0.65); animation: drift 58s linear infinite reverse; }
+    @keyframes drift {
+      from { left: -90px; }
+      to { left: 110%; }
+    }
+
+    /* ต้นไม้สมจริง SVG */
+    .realistic-tree-svg {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    .tree-group {
+      transform-origin: 150px 240px;
+      animation: treeSway 5s ease-in-out infinite;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes treeSway {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(1.2deg); }
+    }
+
+    .tree-trunk-group {
+      transform-origin: 150px 242px;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .tree-foliage {
+      transform-origin: 150px 100px;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
+    }
+
+    .tree-sprout {
+      transform-origin: 150px 240px;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .flower-bloom, .fruit-bloom {
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* แอนิเมชันรดน้ำ */
+    .tree-scene.watering .tree-group {
+      animation: treeWiggle 1.3s ease;
+    }
+    .watering-tool {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .tree-scene.watering .watering-tool {
+      opacity: 1;
+      animation: waterCanTilt 1.3s ease forwards;
+    }
+    @keyframes waterCanTilt {
+      0% { transform: rotate(0deg) translate(0, 0); }
+      30% { transform: rotate(-30deg) translate(-8px, 6px); }
+      80% { transform: rotate(-30deg) translate(-8px, 6px); }
+      100% { transform: rotate(0deg) translate(0, 0); }
+    }
+    @keyframes treeWiggle {
+      0% { transform: rotate(0deg); }
+      20% { transform: rotate(3deg) scale(1.02); }
+      40% { transform: rotate(-3deg) scale(1.02); }
+      60% { transform: rotate(2deg); }
+      80% { transform: rotate(-1deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .drop-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .water-drop {
+      position: absolute;
+      top: -14px;
+      width: 7px; height: 11px;
+      background: linear-gradient(180deg, #e0f2fe 0%, #38bdf8 100%);
+      border-radius: 50% 50% 60% 60%;
+      opacity: 0.95;
+      box-shadow: 0 0 6px rgba(56,189,248,0.8);
+    }
+    @keyframes dropFall {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(240px); opacity: 0.3; }
+    }
+
+    /* แถบความคืบหน้าต้นไม้ */
+    .growth-bar-bg {
+      background: #e7e0cf;
+      border: 2px solid #2d5a27;
+      height: 22px;
+      padding: 2px;
+      margin-top: 8px;
+      border-radius: 6px;
+    }
+    .growth-bar-fill {
+      background: linear-gradient(90deg, #6abe30 0%, #99e550 100%);
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease;
+      border-radius: 4px;
+    }
+
+    .status-info { margin-bottom: 8px; font-size: 15px; }
+    .money-green { color: #2e7d32; font-weight: bold; }
+
+    .input-group { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #233d1e;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #2d5a27;
+      font-family: 'Kanit', sans-serif;
+      font-size: 14px;
+      font-weight: bold;
+      outline: none;
+      border-radius: 6px;
+      background: #fdfbf3;
+      color: #33691e;
+    }
+    #income-input { background: #eef7e4; }
+
+    .quick-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .quick-btn {
+      flex: 1;
+      min-width: 60px;
+      padding: 8px 4px;
+      font-size: 12px;
+      background-color: #66bb6a;
+      color: #fff;
+      border: 2px solid #2d5a27;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 2px 2px 0px #2d5a27;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .quick-btn:hover { background-color: #81c784; }
+
+    .water-btn {
+      width: 100%;
+      padding: 14px;
+      background-color: #29b6f6;
+      color: #fff;
+      border: 2px solid #01579b;
+      font-family: 'Kanit', sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 3px 3px 0px #01579b;
+      text-shadow: 1px 1px 0px #01579b;
+      border-radius: 8px;
+      transition: transform 0.1s, background-color 0.15s;
+    }
+    .water-btn:hover { background-color: #4fc3f7; transform: translate(-2px, -2px); }
+
+    button.main-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #43a047;
+      color: #ffffff;
+      border: 2px solid #1b5e20;
+      font-family: 'Press Start 2P', 'Kanit', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0px #1b5e20;
+      text-shadow: 1px 1px 0px #1b5e20;
+      transition: all 0.1s ease;
+      margin-top: 8px;
+      border-radius: 6px;
+    }
+    button.main-btn:hover {
+      background-color: #66bb6a;
+      transform: translate(-2px, -2px);
+    }
+
+    button.cancel-btn {
+      background-color: #eceff1;
+      color: #455a64;
+      font-family: 'Kanit', sans-serif;
+      font-size: 13px;
+      box-shadow: 2px 2px 0px #90a4ae;
+      text-shadow: none;
+    }
+    button.cancel-btn:hover { background-color: #ffab91; color: #bf360c; }
+    button.cancel-btn.confirming {
+      background-color: #e53935;
+      color: #fff;
+      animation: pulse 0.8s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.02); }
+    }
+
+    .history-toggle-btn {
+      background-color: #eceff1;
+      color: #455a64;
+      border: 2px solid #2d5a27;
+      padding: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      box-shadow: 2px 2px 0px #90a4ae;
+      font-weight: bold;
+      border-radius: 4px;
+      font-family: 'Kanit', sans-serif;
+    }
+    .history-toggle-btn:hover { background-color: #dcedc8; }
+
+    .history-container {
+      background: #f1f8e9;
+      border: 2px solid #2d5a27;
+      padding: 10px;
+      margin-bottom: 15px;
+      max-height: 180px;
+      overflow-y: auto;
+      border-radius: 6px;
+    }
+
+    .history-item {
+      background: #fff;
+      border: 1px solid #c5e1a5;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 4px;
+    }
+    .history-item:last-child { margin-bottom: 0; }
+    .history-day { color: #e65100; font-weight: bold; }
+    .history-save { color: #2e7d32; font-weight: bold; }
+    .history-date { color: #795548; font-size: 11px; }
+
+    .hidden { display: none !important; }
+
+    /* วงล้อฟาร์มสดใส */
+    .farm-wheel-zone {
+      text-align: center;
+      margin: 12px 0 16px;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 2px solid #86efac;
+      border-radius: 16px;
+      padding: 14px 10px;
+      box-shadow: 0 4px 15px rgba(34,197,94,0.12);
+    }
+    .farm-pointer {
+      font-size: 32px;
+      line-height: 1;
+      margin-bottom: -10px;
+      position: relative;
+      z-index: 10;
+      color: #f59e0b;
+      filter: drop-shadow(0 3px 2px rgba(0,0,0,0.35));
+      animation: pointerBounce 1.5s ease-in-out infinite;
+    }
+    @keyframes pointerBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(3px); }
+    }
+    .farm-wheel-wrap {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      padding: 8px;
+      background: radial-gradient(circle, #fef08a, #eab308 70%, #ca8a04 100%);
+      box-shadow: 0 0 0 4px #b45309, 0 6px 18px rgba(0,0,0,0.3);
+    }
+    .farm-wheel {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      position: relative;
+      overflow: hidden;
+      transition: transform 4.2s cubic-bezier(0.12, 0.8, 0.15, 1);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.25);
+    }
+    .farm-wheel .seg-label {
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 0; height: 0;
+      transform-origin: 0 0;
+      white-space: nowrap;
+    }
+    .farm-wheel .seg-content {
+      position: absolute;
+      left: 0; top: 0;
+      transform: translate(-50%, -76px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+    }
+    .seg-badge {
+      background: rgba(255,255,255,0.95);
+      color: #0f172a;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 1px 6px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      border: 1px solid rgba(0,0,0,0.15);
+      line-height: 1.2;
+    }
+    .seg-name {
+      font-size: 10px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 2px #000;
+      line-height: 1.1;
+    }
+    .farm-hub {
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 38px; height: 38px;
+      margin: -19px 0 0 -19px;
+      background: radial-gradient(circle at 35% 35%, #fef08a, #eab308 60%, #9a3412);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      z-index: 8;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset -2px -2px 4px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+    }
+    .farm-result-card {
+      background: #fff;
+      border: 2px solid #86efac;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 8px auto 10px;
+      font-size: 14px;
+      color: #166534;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      min-height: 30px;
+    }
+    .farm-result-card.highlight {
+      background: linear-gradient(135deg, #fef9c3 0%, #ecfdf5 100%);
+      border-color: #f59e0b;
+      animation: popCard 0.4s ease;
+    }
+    @keyframes popCard {
+      0% { transform: scale(0.92); }
+      70% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .success-msg {
+      text-align: center;
+      color: #2e7d32;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .success-msg .big { font-size: 40px; display: block; animation: bounceIn 0.8s ease; }
+    @keyframes bounceIn {
+      0% { transform: scale(0); }
+      60% { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
+
+    .action-badge {
+      font-size: 12px;
+      background: #66bb6a;
+      color: #fff;
+      padding: 2px 8px;
+      border: 1px solid #2d5a27;
+      font-weight: bold;
+      margin-top: 4px;
+      display: inline-block;
+      border-radius: 3px;
+    }
+    .action-badge.praise { animation: badgePop 0.4s ease; font-size: 13px; }
+    @keyframes badgePop {
+      0% { transform: scale(0.4); }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .tree-quote {
+      text-align: center;
+      font-size: 13px;
+      color: #33691e;
+      background: #e8f5e9;
+      border: 1px dashed #66bb6a;
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 12px;
+      min-height: 20px;
+    }
+    /* ---------- ตัวเลือกชนิดต้นไม้ ---------- */
+    .tree-picker {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .tree-card {
+      background: #fffdf5;
+      border: 2px solid #d6cba8;
+      border-radius: 10px;
+      padding: 8px 4px 6px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      box-shadow: 2px 2px 0 #b8ad8a;
+      transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+      user-select: none;
+    }
+    .tree-card:hover { transform: translateY(-2px); border-color: #f59e0b; }
+    .tree-card.selected { background: #fef3c7; border-color: #d97706; box-shadow: 0 0 0 2px #fbbf24, 2px 2px 0 #b45309; }
+    .tree-card-icon { font-size: 24px; display: block; }
+    .tree-card-name { display: block; font-size: 11px; color: #6b4f1d; font-weight: bold; margin-top: 2px; }
+    .tree-check {
+      position: absolute; top: -7px; right: -7px;
+      background: #22c55e; color: #fff; font-size: 11px; font-weight: bold;
+      width: 20px; height: 20px; line-height: 18px; border-radius: 50%;
+      border: 2px solid #fff; display: none;
+    }
+    .tree-card.selected .tree-check { display: block; }
+    .tree-chip {
+      display: inline-block; background: #ecfccb; color: #3f6212;
+      border: 1px solid #a3e635; border-radius: 12px;
+      padding: 1px 10px; font-size: 12px; font-weight: bold; margin-left: 6px;
+    }
+    @media (max-width: 560px) { .tree-picker { grid-template-columns: repeat(3, 1fr); } }
+  </style>
+</head>
+<body>
+
+<!-- ฉากสวนพื้นหลัง -->
+<div class="garden-bg" id="garden-bg" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gb-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#9fd8ef"/>
+        <stop offset="0.55" stop-color="#d4eeda"/>
+        <stop offset="1" stop-color="#eef7d6"/>
+      </linearGradient>
+      <linearGradient id="gb-grass" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#95c46d"/>
+        <stop offset="1" stop-color="#5e9340"/>
+      </linearGradient>
+      <pattern id="gb-slats" width="64" height="80" patternUnits="userSpaceOnUse">
+        <rect x="24" y="0" width="16" height="80" rx="4" fill="#fbfbf4"/>
+      </pattern>
+      <g id="gb-flower">
+        <path d="M0,0 Q-2,-16 0,-32" stroke="#3e7d2c" stroke-width="3" fill="none"/>
+        <path d="M-1,-14 Q-13,-20 -15,-10 Q-6,-5 -1,-14" fill="#4c8f36"/>
+        <circle cx="0" cy="-38" r="5.5" fill="currentColor"/>
+        <circle cx="-5.5" cy="-33" r="5.5" fill="currentColor"/>
+        <circle cx="5.5" cy="-33" r="5.5" fill="currentColor"/>
+        <circle cx="-3.5" cy="-26" r="5.5" fill="currentColor"/>
+        <circle cx="3.5" cy="-26" r="5.5" fill="currentColor"/>
+        <circle cx="0" cy="-32" r="4" fill="#ffd93d"/>
+      </g>
+    </defs>
+
+    <rect width="1440" height="900" fill="url(#gb-sky)"/>
+
+    <circle cx="1190" cy="145" r="110" fill="#ffdf6b" opacity="0.35"/>
+    <circle cx="1190" cy="145" r="62" fill="#ffd93d"/>
+
+    <g fill="#ffffff" opacity="0.92">
+      <g class="gb-cloud">
+        <ellipse cx="240" cy="150" rx="85" ry="28"/>
+        <ellipse cx="305" cy="128" rx="60" ry="24"/>
+        <ellipse cx="175" cy="132" rx="50" ry="20"/>
+      </g>
+      <g class="gb-cloud gb-c2" opacity="0.85">
+        <ellipse cx="700" cy="105" rx="70" ry="22"/>
+        <ellipse cx="755" cy="88" rx="48" ry="18"/>
+      </g>
+      <g class="gb-cloud gb-c3" opacity="0.8">
+        <ellipse cx="1020" cy="235" rx="60" ry="18"/>
+        <ellipse cx="1070" cy="220" rx="42" ry="15"/>
+      </g>
+    </g>
+
+    <path d="M0,610 Q340,480 700,585 T1440,555 L1440,900 L0,900 Z" fill="#cfe6a4"/>
+    <path d="M0,650 Q480,545 920,640 T1440,615 L1440,900 L0,900 Z" fill="#b5d689"/>
+
+    <rect x="0" y="585" width="1440" height="80" fill="url(#gb-slats)"/>
+    <g fill="#fbfbf4">
+      <rect x="0" y="600" width="1440" height="12" rx="6"/>
+      <rect x="0" y="638" width="1440" height="12" rx="6"/>
+    </g>
+
+    <path d="M0,665 Q720,632 1440,665 L1440,900 L0,900 Z" fill="url(#gb-grass)"/>
+
+    <g opacity="0.5" fill="#4d7c33">
+      <ellipse cx="200" cy="705" rx="3" ry="7"/>
+      <ellipse cx="208" cy="702" rx="3" ry="9"/>
+      <ellipse cx="216" cy="706" rx="3" ry="6"/>
+      <ellipse cx="860" cy="690" rx="3" ry="7"/>
+      <ellipse cx="868" cy="687" rx="3" ry="9"/>
+      <ellipse cx="1240" cy="715" rx="3" ry="8"/>
+      <ellipse cx="1248" cy="712" rx="3" ry="6"/>
+    </g>
+
+    <g color="#ff7eb6"><use href="#gb-flower" transform="translate(115,795) scale(1.2)"/></g>
+    <g color="#ff9f43"><use href="#gb-flower" transform="translate(245,735) scale(0.9)"/></g>
+    <g color="#ff5e5e"><use href="#gb-flower" transform="translate(405,805) scale(1.3)"/></g>
+    <g color="#c56cf0"><use href="#gb-flower" transform="translate(565,745) scale(1)"/></g>
+    <g color="#ffffff"><use href="#gb-flower" transform="translate(765,795) scale(1.15)"/></g>
+    <g color="#ff7eb6"><use href="#gb-flower" transform="translate(955,735) scale(0.9)"/></g>
+    <g color="#ffb7b0"><use href="#gb-flower" transform="translate(1125,805) scale(1.25)"/></g>
+    <g color="#ffd93d"><use href="#gb-flower" transform="translate(1305,750) scale(1)"/></g>
+    <g color="#ffffff"><use href="#gb-flower" transform="translate(60,705) scale(0.7)"/></g>
+    <g color="#ffb7b0"><use href="#gb-flower" transform="translate(705,700) scale(0.65)"/></g>
+    <g color="#c56cf0"><use href="#gb-flower" transform="translate(1245,700) scale(0.7)"/></g>
+
+    <g transform="translate(620,545)">
+      <g class="gb-butterfly">
+        <ellipse cx="-7" cy="-2" rx="9" ry="6" fill="#ff9ff3" transform="rotate(-25 -7 -2)"/>
+        <ellipse cx="7" cy="-2" rx="9" ry="6" fill="#feca57" transform="rotate(25 7 -2)"/>
+        <rect x="-1.5" y="-7" width="3" height="15" rx="1.5" fill="#5d3a1a"/>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<div class="top-controls">
+  <button class="control-btn" onclick="goHomeSafe('')">🏠 หน้าหลัก</button>
+  <button class="control-btn" onclick="goHomeSafe('#game1')">🏦 เกมที่ 1</button>
+</div>
+
+<div class="game-card">
+  <h2>🌱 สวนนักออมเงิน</h2>
+
+  <!-- ขั้นตอนที่ 1: ตั้งเป้าหมาย -->
+  <div id="step-target">
+    <div class="tree-quote">ปลูกต้นไม้ด้วยเงินออม — ยิ่งออม ยิ่งโต! 🌱→🌳</div>
+    <div class="input-group">
+      <label for="target-input">🎯 ตั้งเป้าหมายเงินออม (บาท):</label>
+      <input type="number" id="target-input" placeholder="กรอกจำนวนเงิน" min="1">
+    </div>
+    <div class="input-group">
+      <label>🌳 เลือกชนิดต้นไม้ที่จะปลูก (10 ชนิด):</label>
+      <div class="tree-picker" id="tree-picker"></div>
+    </div>
+    <button class="main-btn" onclick="setTarget()">เริ่มปลูกต้นไม้!</button>
+  </div>
+
+  <!-- ขั้นตอนที่ 2: ออมเงิน = รดน้ำต้นไม้ -->
+  <div id="step-daily" class="hidden">
+    <div class="status-info">
+      📅 วันที่ <span id="day-num">1</span> • 💰 ออมสะสม: <b id="current-saved" class="money-green">0</b> /
+      <span id="target-display">0</span> บาท
+      <span id="today-date" style="color:#795548; font-size:13px;"></span>
+      <span id="tree-chip" class="tree-chip"></span>
+    </div>
+    <div class="growth-bar-bg"><div id="growth-bar" class="growth-bar-fill"></div></div>
+
+    <!-- ฉากต้นไม้สมจริง -->
+    <div class="tree-scene" id="tree-scene">
+      <div class="sun"></div>
+      <div class="cloud c1"></div>
+      <div class="cloud c2"></div>
+
+      <!-- Realistic Organic Tree SVG -->
+      <svg class="realistic-tree-svg" viewBox="0 0 300 250" preserveAspectRatio="xMidYMax meet">
+        <defs>
+          <linearGradient id="trunkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#3e2312"/>
+            <stop offset="25%" stop-color="#6e4321"/>
+            <stop offset="60%" stop-color="#8b572a"/>
+            <stop offset="100%" stop-color="#3a1e0e"/>
+          </linearGradient>
+          <linearGradient id="leafGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#bef264"/>
+            <stop offset="50%" stop-color="#65a30d"/>
+            <stop offset="100%" stop-color="#166534"/>
+          </linearGradient>
+          <linearGradient id="leafGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#86efac"/>
+            <stop offset="60%" stop-color="#22c55e"/>
+            <stop offset="100%" stop-color="#14532d"/>
+          </linearGradient>
+          <filter id="treeShadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+          </filter>
+        </defs>
+
+        <!-- Grass & Soil Mound -->
+        <ellipse cx="150" cy="245" rx="140" ry="25" fill="#4d7c0f" opacity="0.6"/>
+        <ellipse cx="150" cy="248" rx="110" ry="20" fill="#65a30d"/>
+        <ellipse cx="150" cy="249" rx="80" ry="14" fill="#84cc16"/>
+        <ellipse cx="150" cy="244" rx="42" ry="8" fill="#543310" opacity="0.85"/>
+        <ellipse cx="150" cy="244" rx="34" ry="5" fill="#78350f" opacity="0.9"/>
+
+        <!-- Tree Group -->
+        <g id="tree-container" class="tree-group" filter="url(#treeShadow)">
+          <!-- Roots -->
+          <g id="tree-roots" class="tree-roots">
+            <path d="M142,238 Q130,244 118,247 Q133,242 144,236 Z" fill="#45220c"/>
+            <path d="M158,238 Q170,244 182,247 Q167,242 156,236 Z" fill="#45220c"/>
+          </g>
+
+          <!-- Trunk -->
+          <g id="tree-trunk-group" class="tree-trunk-group">
+            <path id="tree-trunk" d="M136,242 C138,210 137,175 133,145 C129,125 116,105 102,92 C114,98 126,112 135,130 C138,105 142,85 145,68 C148,85 152,105 155,130 C164,112 176,98 188,92 C174,105 161,125 157,145 C153,175 152,210 164,242 Z" fill="url(#trunkGrad)"/>
+            <path d="M146,235 Q145,190 148,155" stroke="#2c1708" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.45"/>
+            <path d="M151,232 Q153,185 149,145" stroke="#2c1708" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.35"/>
+          </g>
+
+          <!-- Foliage -->
+          <g id="tree-foliage" class="tree-foliage">
+            <!-- Back Depth Layer -->
+            <g fill="#15803d">
+              <circle cx="110" cy="115" r="32"/>
+              <circle cx="190" cy="115" r="32"/>
+              <circle cx="150" cy="85" r="38"/>
+            </g>
+            <!-- Main Layer -->
+            <g fill="url(#leafGrad2)">
+              <circle cx="105" cy="100" r="36"/>
+              <circle cx="195" cy="100" r="36"/>
+              <circle cx="130" cy="70" r="38"/>
+              <circle cx="170" cy="70" r="38"/>
+              <circle cx="150" cy="55" r="34"/>
+              <circle cx="150" cy="95" r="42"/>
+            </g>
+            <!-- Highlight Canopy -->
+            <g fill="url(#leafGrad1)">
+              <circle cx="95" cy="88" r="26"/>
+              <circle cx="135" cy="50" r="28"/>
+              <circle cx="165" cy="50" r="28"/>
+              <circle cx="205" cy="88" r="26"/>
+              <circle cx="150" cy="78" r="32"/>
+            </g>
+            <!-- Light sheen -->
+            <ellipse cx="135" cy="45" rx="16" ry="10" fill="#ecfccb" opacity="0.55"/>
+            <ellipse cx="165" cy="45" rx="16" ry="10" fill="#ecfccb" opacity="0.55"/>
+            <ellipse cx="100" cy="82" rx="14" ry="9" fill="#ecfccb" opacity="0.5"/>
+            <ellipse cx="200" cy="82" rx="14" ry="9" fill="#ecfccb" opacity="0.5"/>
+          </g>
+
+          <!-- Sprout for early stage (0-15%) -->
+          <g id="tree-sprout" class="tree-sprout">
+            <path d="M150,244 Q148,225 146,215" stroke="#65a30d" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+            <path d="M146,215 C132,210 128,198 138,196 C148,194 148,208 146,215 Z" fill="#84cc16"/>
+            <path d="M146,215 C160,210 164,198 154,196 C144,194 144,208 146,215 Z" fill="#bef264"/>
+            <circle cx="136" cy="198" r="2.2" fill="#e0f2fe" opacity="0.85"/>
+          </g>
+
+          <!-- Flowers & Fruits -->
+          <g id="tree-flowers" class="tree-flowers">
+            <g class="flower-bloom" transform="translate(115, 80) scale(0)">
+              <circle cx="0" cy="-5" r="4.5" fill="#fbcfe8"/><circle cx="5" cy="-2" r="4.5" fill="#fbcfe8"/><circle cx="3" cy="4" r="4.5" fill="#fbcfe8"/><circle cx="-3" cy="4" r="4.5" fill="#fbcfe8"/><circle cx="-5" cy="-2" r="4.5" fill="#fbcfe8"/><circle cx="0" cy="0" r="3" fill="#f59e0b"/>
+            </g>
+            <g class="flower-bloom" transform="translate(185, 75) scale(0)">
+              <circle cx="0" cy="-5" r="4.5" fill="#fbcfe8"/><circle cx="5" cy="-2" r="4.5" fill="#fbcfe8"/><circle cx="3" cy="4" r="4.5" fill="#fbcfe8"/><circle cx="-3" cy="4" r="4.5" fill="#fbcfe8"/><circle cx="-5" cy="-2" r="4.5" fill="#fbcfe8"/><circle cx="0" cy="0" r="3" fill="#f59e0b"/>
+            </g>
+            <g class="flower-bloom" transform="translate(150, 42) scale(0)">
+              <circle cx="0" cy="-5.5" r="5" fill="#f472b6"/><circle cx="5.5" cy="-2" r="5" fill="#f472b6"/><circle cx="3.5" cy="4.5" r="5" fill="#f472b6"/><circle cx="-3.5" cy="4.5" r="5" fill="#f472b6"/><circle cx="-5.5" cy="-2" r="5" fill="#f472b6"/><circle cx="0" cy="0" r="3.5" fill="#f59e0b"/>
+            </g>
+            <g class="flower-bloom" transform="translate(135, 105) scale(0)">
+              <circle cx="0" cy="-4.5" r="4" fill="#fbcfe8"/><circle cx="4.5" cy="-2" r="4" fill="#fbcfe8"/><circle cx="3" cy="3.5" r="4" fill="#fbcfe8"/><circle cx="-3" cy="3.5" r="4" fill="#fbcfe8"/><circle cx="-4.5" cy="-2" r="4" fill="#fbcfe8"/><circle cx="0" cy="0" r="2.5" fill="#f59e0b"/>
+            </g>
+            <g class="flower-bloom" transform="translate(165, 105) scale(0)">
+              <circle cx="0" cy="-4.5" r="4" fill="#fbcfe8"/><circle cx="4.5" cy="-2" r="4" fill="#fbcfe8"/><circle cx="3" cy="3.5" r="4" fill="#fbcfe8"/><circle cx="-3" cy="3.5" r="4" fill="#fbcfe8"/><circle cx="-4.5" cy="-2" r="4" fill="#fbcfe8"/><circle cx="0" cy="0" r="2.5" fill="#f59e0b"/>
+            </g>
+            <!-- Apples -->
+            <g class="fruit-bloom" transform="translate(95, 105) scale(0)">
+              <circle cx="0" cy="0" r="7" fill="#ef4444"/><circle cx="-2" cy="-2" r="2" fill="#fca5a5"/>
+            </g>
+            <g class="fruit-bloom" transform="translate(205, 105) scale(0)">
+              <circle cx="0" cy="0" r="7" fill="#ef4444"/><circle cx="-2" cy="-2" r="2" fill="#fca5a5"/>
+            </g>
+          </g>
+        </g>
+
+        <!-- Watering Tool -->
+        <g class="watering-tool" id="watering-tool">
+          <text x="210" y="70" font-size="44">🚿</text>
+        </g>
+      </svg>
+      <div id="drop-layer" class="drop-layer"></div>
+    </div>
+
+    <div class="tree-quote" id="tree-quote">🌿 ต้นกล้าเล็กๆ กำลังรอน้ำ หมุนวงล้อเพื่อเริ่มรดน้ำได้เลย!</div>
+
+    <div class="input-group">
+      <label for="income-input">💵 ใส่เงินที่ได้รับวันนี้ (บาท):</label>
+      <input type="number" id="income-input" placeholder="พิมพ์จำนวนเงิน..." min="0">
+      <div class="quick-buttons">
+        <div class="quick-btn" onclick="quickSelect(20)">+20</div>
+        <div class="quick-btn" onclick="quickSelect(50)">+50</div>
+        <div class="quick-btn" onclick="quickSelect(100)">+100</div>
+        <div class="quick-btn" onclick="quickSelect(500)">+500</div>
+      </div>
+    </div>
+
+    <!-- วงล้อฟาร์มสดใส -->
+    <div class="farm-wheel-zone">
+      <div class="farm-pointer">▼</div>
+      <div class="farm-wheel-wrap">
+        <div class="farm-wheel" id="farm-wheel"></div>
+        <div class="farm-hub">⭐</div>
+      </div>
+      <div class="farm-result-card" id="farm-result">🎡 กดปุ่มด้านล่างเพื่อหมุนวงล้อสุ่ม % การออม!</div>
+      <button class="water-btn" style="background:#f59e0b; border-color:#b45309; box-shadow:3px 3px 0 #b45309;" id="farm-spin-btn" onclick="g2SpinWheel()">🎡 หมุนวงล้อนักออม!</button>
+    </div>
+
+    <button class="water-btn" id="water-btn" onclick="waterTree()">💧 รดน้ำต้นไม้ (บันทึกการออม)</button>
+    <div id="today-status" style="text-align:center; margin-top:6px;"></div>
+
+    <button class="main-btn next-day-btn" id="nextday-btn" onclick="newDay()">🌅 เริ่มวันใหม่ (วันที่ <span id="next-day-num">2</span>)</button>
+
+    <button class="history-toggle-btn" onclick="toggleHistory()">📜 ดูประวัติการรดน้ำ (<span id="history-count">0</span> ครั้ง)</button>
+    <div id="history-box" class="history-container hidden">
+      <div id="history-list">
+        <div style="text-align: center; color: #795548; font-size: 12px;">ยังไม่มีประวัติการรดน้ำ</div>
+      </div>
+    </div>
+
+    <button class="main-btn cancel-btn" id="cancel-btn" onclick="cancelMissionClick()">✖ ยกเลิกภารกิจนี้</button>
+  </div>
+
+  <!-- ขั้นตอนที่ 3: ต้นไม้โตเต็มวัย = ชนะ -->
+  <div id="step-finish" class="hidden">
+    <div class="success-msg">
+      <span style="font-size:42px; display:block;">🌳✨</span>
+      MISSION COMPLETE! 🏆<br>ต้นไม้ของคุณโตเต็มวัยและออกดอกผลแล้ว!
+    </div>
+    <p style="text-align: center; color: #233d1e; font-size: 15px;">
+      ออมครบ <b id="finish-target" class="money-green">0</b> บาท ภายใน
+      <b id="total-days" class="money-green">0</b> วัน รดน้ำไปทั้งหมด
+      <b id="total-waters" class="money-green">0</b> ครั้ง
+    </p>
+
+    <div class="tree-scene" id="tree-scene-finish">
+      <div class="sun"></div>
+      <div class="cloud c1"></div>
+      <div class="cloud c2"></div>
+
+      <svg class="realistic-tree-svg" viewBox="0 0 300 250" preserveAspectRatio="xMidYMax meet">
+        <ellipse cx="150" cy="245" rx="140" ry="25" fill="#4d7c0f" opacity="0.6"/>
+        <ellipse cx="150" cy="248" rx="110" ry="20" fill="#65a30d"/>
+        <ellipse cx="150" cy="249" rx="80" ry="14" fill="#84cc16"/>
+        <ellipse cx="150" cy="244" rx="42" ry="8" fill="#543310" opacity="0.85"/>
+
+        <g class="tree-group" filter="url(#treeShadow)">
+          <g class="tree-roots">
+            <path d="M142,238 Q130,244 118,247 Q133,242 144,236 Z" fill="#45220c"/>
+            <path d="M158,238 Q170,244 182,247 Q167,242 156,236 Z" fill="#45220c"/>
+          </g>
+          <g class="tree-trunk-group" style="transform:scale(1.05, 1.05);">
+            <path d="M136,242 C138,210 137,175 133,145 C129,125 116,105 102,92 C114,98 126,112 135,130 C138,105 142,85 145,68 C148,85 152,105 155,130 C164,112 176,98 188,92 C174,105 161,125 157,145 C153,175 152,210 164,242 Z" fill="url(#trunkGrad)"/>
+            <path d="M146,235 Q145,190 148,155" stroke="#2c1708" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.45"/>
+          </g>
+          <g class="tree-foliage" style="transform:scale(1.05); opacity:1;">
+            <g fill="#15803d">
+              <circle cx="110" cy="115" r="32"/><circle cx="190" cy="115" r="32"/><circle cx="150" cy="85" r="38"/>
+            </g>
+            <g fill="url(#leafGrad2)">
+              <circle cx="105" cy="100" r="36"/><circle cx="195" cy="100" r="36"/><circle cx="130" cy="70" r="38"/><circle cx="170" cy="70" r="38"/><circle cx="150" cy="55" r="34"/><circle cx="150" cy="95" r="42"/>
+            </g>
+            <g fill="url(#leafGrad1)">
+              <circle cx="95" cy="88" r="26"/><circle cx="135" cy="50" r="28"/><circle cx="165" cy="50" r="28"/><circle cx="205" cy="88" r="26"/><circle cx="150" cy="78" r="32"/>
+            </g>
+            <ellipse cx="135" cy="45" rx="16" ry="10" fill="#ecfccb" opacity="0.6"/>
+            <ellipse cx="165" cy="45" rx="16" ry="10" fill="#ecfccb" opacity="0.6"/>
+          </g>
+          <g class="tree-flowers">
+            <g class="flower-bloom" transform="translate(115, 80) scale(1)"><circle cx="0" cy="-5" r="4.5" fill="#fbcfe8"/><circle cx="5" cy="-2" r="4.5" fill="#fbcfe8"/><circle cx="3" cy="4" r="4.5" fill="#fbcfe8"/><circle cx="-3" cy="4" r="4.5" fill="#fbcfe8"/><circle cx="-5" cy="-2" r="4.5" fill="#fbcfe8"/><circle cx="0" cy="0" r="3" fill="#f59e0b"/></g>
+            <g class="flower-bloom" transform="translate(185, 75) scale(1)"><circle cx="0" cy="-5" r="4.5" fill="#fbcfe8"/><circle cx="5" cy="-2" r="4.5" fill="#fbcfe8"/><circle cx="3" cy="4" r="4.5" fill="#fbcfe8"/><circle cx="-3" cy="4" r="4.5" fill="#fbcfe8"/><circle cx="-5" cy="-2" r="4.5" fill="#fbcfe8"/><circle cx="0" cy="0" r="3" fill="#f59e0b"/></g>
+            <g class="flower-bloom" transform="translate(150, 42) scale(1)"><circle cx="0" cy="-5.5" r="5" fill="#f472b6"/><circle cx="5.5" cy="-2" r="5" fill="#f472b6"/><circle cx="3.5" cy="4.5" r="5" fill="#f472b6"/><circle cx="-3.5" cy="4.5" r="5" fill="#f472b6"/><circle cx="-5.5" cy="-2" r="5" fill="#f472b6"/><circle cx="0" cy="0" r="3.5" fill="#f59e0b"/></g>
+            <g class="flower-bloom" transform="translate(135, 105) scale(1)"><circle cx="0" cy="-4.5" r="4" fill="#fbcfe8"/><circle cx="4.5" cy="-2" r="4" fill="#fbcfe8"/><circle cx="3" cy="3.5" r="4" fill="#fbcfe8"/><circle cx="-3" cy="3.5" r="4" fill="#fbcfe8"/><circle cx="-4.5" cy="-2" r="4" fill="#fbcfe8"/><circle cx="0" cy="0" r="2.5" fill="#f59e0b"/></g>
+            <g class="flower-bloom" transform="translate(165, 105) scale(1)"><circle cx="0" cy="-4.5" r="4" fill="#fbcfe8"/><circle cx="4.5" cy="-2" r="4" fill="#fbcfe8"/><circle cx="3" cy="3.5" r="4" fill="#fbcfe8"/><circle cx="-3" cy="3.5" r="4" fill="#fbcfe8"/><circle cx="-4.5" cy="-2" r="4" fill="#fbcfe8"/><circle cx="0" cy="0" r="2.5" fill="#f59e0b"/></g>
+            <g class="fruit-bloom" transform="translate(95, 105) scale(1)"><circle cx="0" cy="0" r="7" fill="#ef4444"/><circle cx="-2" cy="-2" r="2" fill="#fca5a5"/></g>
+            <g class="fruit-bloom" transform="translate(205, 105) scale(1)"><circle cx="0" cy="0" r="7" fill="#ef4444"/><circle cx="-2" cy="-2" r="2" fill="#fca5a5"/></g>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <button class="history-toggle-btn" onclick="toggleHistoryFinish()">📜 ดูประวัติการรดน้ำทั้งหมด</button>
+    <div id="history-box-finish" class="history-container hidden">
+      <div id="history-list-finish"></div>
+    </div>
+
+    <button class="main-btn" onclick="resetGame()">🌱 ปลูกต้นใหม่อีกครั้ง</button>
+  </div>
+</div>
+
+<script>
+  let targetAmount = 0;
+  let currentSavings = 0;
+  let currentDay = 1;
+  let savingsHistory = [];
+
+  // --- คำชื่นชมสุ่มตอนรดน้ำ ---
+  const PRAISE_MESSAGES = [
+    'โตขึ้นอีกแล้ว! เก่งมาก 🌱',
+    'ใบแตกเพิ่มแล้ว! วินัยสุดยอด 🍃',
+    'ต้นไม้ชอบน้ำของคุณมาก 💚',
+    'ใกล้เป้าหมายขึ้นทุกวัน! สู้ๆ 🚀',
+    'รากแข็งแรงขึ้นเรื่อยๆ 💪',
+    'สวนนี้สวยขึ้นทุกวันจริงๆ ✨'
+  ];
+
+  // --- คำบรรยายต้นไม้ตามระดับความคืบหน้า ---
+  function treeQuote(percent) {
+    if (percent >= 100) return '🌳 เต็มวัยแล้ว! คุณชนะเกมนี้!';
+    if (percent >= 80) return '🌳 เกือบโตเต็มวัยแล้ว! อีกนิดเดียว!';
+    if (percent >= 60) return '🍃 แตกกิ่งก้านสวยงาม ไปต่อ!';
+    if (percent >= 40) return '🌿 ใบเริ่มร่มชื่น กำลังดี!';
+    if (percent >= 20) return '🌱 ต้นอ่อนเริ่มแข็งแรง!';
+    return '🌿 ต้นกล้าเล็กๆ กำลังโต!';
+  }
+
+  // --- ระบบบันทึกความคืบหน้า (localStorage) ปิดแล้วเปิดใหม่เล่นต่อได้ ---
+  const STORAGE_KEY = 'savingsTreeState_v1';
+
+  /* ---------- เลือกชนิดต้นไม้ได้ 10 ชนิด ---------- */
+  const SPECIES_KEY = 'savingsTreeSpecies_v1';
+  const TREES = [
+    { id:'oak',      icon:'🌳', name:'ต้นโอ๊ก',    trunk:['#3e2312','#6e4321','#8b572a','#3a1e0e'], deep:'#15803d', grad2:['#bef264','#65a30d','#166534'], grad1:['#86efac','#22c55e','#14532d'], hi:'#ecfccb', flower:'#f472b6', flowerCore:'#f59e0b', fruit:'#ef4444', fruitHi:'#fca5a5' },
+    { id:'sakura',   icon:'🌸', name:'ต้นซากุระ',  trunk:['#4a2c2a','#7a5148','#8d6e63','#3e2523'], deep:'#f472b6', grad2:['#fff1f2','#f9a8d4','#f472b6'], grad1:['#ffe4e6','#fda4af','#fb7185'], hi:'#fff1f2', flower:'#fda4af', flowerCore:'#fb7185', fruit:'#f472b6', fruitHi:'#fbcfe8' },
+    { id:'orange',   icon:'🍊', name:'ต้นส้ม',     trunk:['#3e2312','#6e4321','#8b572a','#3a1e0e'], deep:'#166534', grad2:['#d9f99d','#4ade80','#166534'], grad1:['#bbf7d0','#22c55e','#15803d'], hi:'#d9f99d', flower:'#ffffff', flowerCore:'#f59e0b', fruit:'#f97316', fruitHi:'#fed7aa' },
+    { id:'mango',    icon:'🥭', name:'ต้นมะม่วง',  trunk:['#3a2415','#5d4037','#6d4c41','#33200f'], deep:'#134e2a', grad2:['#ecfccb','#4ade80','#14532d'], grad1:['#d9f99d','#22c55e','#166534'], hi:'#ecfccb', flower:'#fef3c7', flowerCore:'#fbbf24', fruit:'#fbbf24', fruitHi:'#fef08a' },
+    { id:'pine',     icon:'🌲', name:'ต้นสน',      trunk:['#2d1a0e','#503322','#5d4037','#291708'], deep:'#052e16', grad2:['#6ee7b7','#10b981','#064e3b'], grad1:['#a7f3d0','#047857','#065f46'], hi:'#a7f3d0', flower:'#d1fae5', flowerCore:'#10b981', fruit:'#92400e', fruitHi:'#fcd34d', noFlower:true },
+    { id:'banana',   icon:'🍌', name:'ต้นกล้วย',   trunk:['#3f6212','#65a30d','#84cc16','#365314'], deep:'#4d7c0f', grad2:['#ecfccb','#a3e635','#4d7c0f'], grad1:['#d9f99d','#84cc16','#65a30d'], hi:'#f7fee7', flower:'#fef08a', flowerCore:'#f59e0b', fruit:'#facc15', fruitHi:'#fef9c3', noFlower:true },
+    { id:'maple',    icon:'🍁', name:'ต้นเมเปิ้ล', trunk:['#3e2312','#6e4321','#8b572a','#3a1e0e'], deep:'#991b1b', grad2:['#fed7aa','#f97316','#b91c1c'], grad1:['#fdba74','#ea580c','#dc2626'], hi:'#fed7aa', flower:'#f97316', flowerCore:'#ea580c', fruit:'#dc2626', fruitHi:'#fecaca' },
+    { id:'wisteria', icon:'💠', name:'วิสทีเรีย',   trunk:['#292524','#57534e','#78716c','#1c1917'], deep:'#166534', grad2:['#ddd6fe','#a78bfa','#6d28d9'], grad1:['#ede9fe','#c4b5fd','#8b5cf6'], hi:'#ede9fe', flower:'#c4b5fd', flowerCore:'#8b5cf6', fruit:'#a78bfa', fruitHi:'#ddd6fe' },
+    { id:'coconut',  icon:'🥥', name:'ต้นมะพร้าว', trunk:['#44403c','#78716c','#a8a29e','#292524'], deep:'#166534', grad2:['#d9f99d','#4ade80','#166534'], grad1:['#bbf7d0','#22c55e','#15803d'], hi:'#ecfccb', flower:'#fef3c7', flowerCore:'#d97706', fruit:'#7c3f1d', fruitHi:'#a16207', noFlower:true },
+    { id:'money',    icon:'💰', name:'ต้นเงินทอง', trunk:['#33260a','#8a6d1d','#b8962e','#291f07'], deep:'#854d0e', grad2:['#fef08a','#eab308','#854d0e'], grad1:['#fef9c3','#facc15','#a16207'], hi:'#fef9c3', flower:'#fde047', flowerCore:'#f59e0b', fruit:'#fbbf24', fruitHi:'#fef3c7' }
+  ];
+  let species = 'oak';
+  try {
+    const savedSp = localStorage.getItem(SPECIES_KEY);
+    if (savedSp && TREES.some(function(t) { return t.id === savedSp; })) species = savedSp;
+  } catch (e) {}
+  function getTree() {
+    return TREES.find(function(t) { return t.id === species; }) || TREES[0];
+  }
+  function setSpecies(id) {
+    species = id;
+    try { localStorage.setItem(SPECIES_KEY, id); } catch (e) {}
+    updateTreeVisual();
+  }
+  function buildTreePicker() {
+    const picker = document.getElementById('tree-picker');
+    if (!picker) return;
+    let html = '';
+    TREES.forEach(function(t) {
+      html += '<div class="tree-card' + (t.id === species ? ' selected' : '') + '" onclick="setSpecies(\'' + t.id + '\')" title="' + t.name + '">' +
+                '<span class="tree-card-icon">' + t.icon + '</span>' +
+                '<span class="tree-card-name">' + t.name + '</span>' +
+                '<span class="tree-check">✓</span>' +
+              '</div>';
+    });
+    picker.innerHTML = html;
+  }
+  function updateTreeTheme() {
+    const tree = getTree();
+    applyTreeThemeScene('tree-scene', tree);
+    applyTreeThemeScene('tree-scene-finish', tree);
+    const chip = document.getElementById('tree-chip');
+    if (chip) chip.innerText = tree.icon + ' ' + tree.name;
+    buildTreePicker();
+  }
+  function applyTreeThemeScene(sceneId, tree) {
+    const scene = document.getElementById(sceneId);
+    if (!scene) return;
+    const tstop = scene.querySelectorAll('#trunkGrad stop');
+    for (let i = 0; i < tstop.length && i < 4; i++) tstop[i].setAttribute('stop-color', tree.trunk[i]);
+    const fg = scene.querySelectorAll('.tree-foliage > g');
+    if (fg.length >= 3) {
+      fg[0].setAttribute('fill', tree.deep);
+      fg[1].setAttribute('fill', 'url(#leafGrad2)');
+      fg[2].setAttribute('fill', 'url(#leafGrad1)');
+    }
+    const s2 = scene.querySelectorAll('#leafGrad2 stop');
+    for (let i = 0; i < s2.length && i < 3; i++) s2[i].setAttribute('stop-color', tree.grad2[i]);
+    const s1 = scene.querySelectorAll('#leafGrad1 stop');
+    for (let i = 0; i < s1.length && i < 3; i++) s1[i].setAttribute('stop-color', tree.grad1[i]);
+    scene.querySelectorAll('.tree-foliage ellipse[fill="#ecfccb"]').forEach(function(el) { el.setAttribute('fill', tree.hi); });
+    scene.querySelectorAll('.flower-bloom').forEach(function(g) {
+      g.style.display = tree.noFlower ? 'none' : '';
+      const cs = g.querySelectorAll('circle');
+      cs.forEach(function(c, i) { c.setAttribute('fill', (i === cs.length - 1) ? tree.flowerCore : tree.flower); });
+    });
+    scene.querySelectorAll('.fruit-bloom').forEach(function(g) {
+      const cs = g.querySelectorAll('circle');
+      if (cs.length > 0) cs[0].setAttribute('fill', tree.fruit);
+      if (cs.length > 1) cs[1].setAttribute('fill', tree.fruitHi);
+    });
+  }
+  updateTreeTheme();
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        targetAmount: targetAmount,
+        currentSavings: currentSavings,
+        currentDay: currentDay,
+        savingsHistory: savingsHistory
+      }));
+    } catch (e) { /* localStorage ใช้ไม่ได้ ข้ามไป */ }
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (!data || typeof data !== 'object') return false;
+      targetAmount = Number(data.targetAmount) || 0;
+      currentSavings = Number(data.currentSavings) || 0;
+      currentDay = Number(data.currentDay) || 1;
+      savingsHistory = Array.isArray(data.savingsHistory) ? data.savingsHistory : [];
+      return targetAmount > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function clearState() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  }
+
+  // --- เสียงเอฟเฟกต์ (Web Audio API ไม่ต้องโหลดไฟล์เสียง ทำงานออฟไลน์ได้) ---
+  let audioCtx = null;
+  function ensureAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function tone(freq, start, dur, vol) {
+    const ctx = ensureAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    const t = ctx.currentTime + start;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + dur + 0.05);
+  }
+
+  // --- เสียงจิ๋วตอนกดปุ่ม (UI SFX — กดปุ่มไหนก็มีจังหวะสนุก ๆ) ---
+  function uiClickSfx(kind) {
+    try {
+      if (kind === 'coin') {            // ปุ่ม +เงินด่วน: เสียงเหรียญ "ติ๊ง-อิง"
+        tone(1318.5, 0, 0.06, 0.12); tone(1760, 0.05, 0.1, 0.1);
+      } else if (kind === 'nav') {      // การ์ดเลือกต้นไม้: "บึ่ง-บึ่ง" ไล่ขึ้น
+        tone(440, 0, 0.07, 0.12); tone(660, 0.06, 0.09, 0.12);
+      } else if (kind === 'big') {      // ปุ่มใหญ่ (สุ่ม/รดน้ำ/บันทึก): "ปุ๊บ" ทุ้มสนุก
+        tone(180, 0, 0.09, 0.16); tone(450, 0.03, 0.06, 0.09);
+      } else if (kind === 'danger') {   // ปุ่มยกเลิก/เริ่มวันใหม่: "บึด" เสียงต่ำ
+        tone(320, 0, 0.05, 0.12); tone(240, 0.05, 0.08, 0.12);
+      } else {                          // ปุ่มทั่วไป: "ติ๊ก" สั้นกริ๊ง ๆ
+        tone(740, 0, 0.045, 0.1); tone(1100, 0.03, 0.04, 0.06);
+      }
+    } catch (e) { /* เครื่องไม่รองรับ ข้าม */ }
+  }
+
+  document.addEventListener('pointerdown', function(e) {
+    if (e.button !== undefined && e.button !== 0) return; // คลิกซ้าย/แตะเท่านั้น
+    const el = e.target.closest('button, .quick-btn, .game-card, .tree-card');
+    if (!el) return;
+    let kind = 'tick';
+    if (el.classList.contains('quick-btn')) kind = 'coin';
+    else if (el.classList.contains('tree-card')) kind = 'nav';
+    else if (el.classList.contains('random-btn') || el.classList.contains('water-btn') || el.classList.contains('main-btn')) kind = 'big';
+    else if (el.classList.contains('next-day-btn') || el.classList.contains('cancel-btn')) kind = 'danger';
+    uiClickSfx(kind);
+  }, true);
+
+  // เสียงน้ำไหลสั้นๆ + โน้ตชื่นชม
+  function playWaterSound() {
+    try {
+      const ctx = ensureAudioCtx();
+      const bufferSize = 2 * ctx.sampleRate;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.5;
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 900;
+      filter.Q.value = 1.2;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.9);
+      noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+      noise.start();
+      noise.stop(ctx.currentTime + 0.95);
+      tone(523.25, 0.15, 0.35);
+      tone(659.25, 0.26, 0.35);
+    } catch (e) { /* เครื่องไม่รองรับ ข้ามไป */ }
+  }
+
+  // เสียงชัยชนะ: ไล่โน้ตยาว
+  function playWinSound() {
+    try {
+      [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * 0.16, 0.5, 0.25));
+    } catch (e) {}
+  }
+
+
+  // --- วันที่ภาษาไทย ---
+  function formatDateTH(dateLike) {
+    return new Date(dateLike).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function updateTodayDate() {
+    document.getElementById('today-date').innerText = ' • ' + formatDateTH(new Date());
+  }
+
+  // --- เริ่มภารกิจ ---
+  function setTarget() {
+    const input = document.getElementById('target-input').value;
+    if (!input || parseFloat(input) <= 0) {
+      alert('กรุณากรอกเป้าหมายที่มากกว่า 0 บาทครับ');
+      return;
+    }
+    targetAmount = parseFloat(input);
+    document.getElementById('target-display').innerText = targetAmount.toLocaleString();
+
+    document.getElementById('step-target').classList.add('hidden');
+    document.getElementById('step-daily').classList.remove('hidden');
+    updateTreeVisual();
+    updateTodayDate();
+    saveState();
+  }
+
+  let hasSpunToday = false;
+  let currentSpunSave = 0;
+  let currentSpunPercent = 0;
+
+  function quickSelect(amount) {
+    const input = document.getElementById('income-input');
+    const current = parseFloat(input.value) || 0;
+    input.value = current + amount;
+  }
+
+  // --- เริ่มภารกิจ ---
+  function setTarget() {
+    const input = document.getElementById('target-input').value;
+    if (!input || parseFloat(input) <= 0) {
+      alert('กรุณากรอกเป้าหมายที่มากกว่า 0 บาทครับ');
+      return;
+    }
+    targetAmount = parseFloat(input);
+    document.getElementById('target-display').innerText = targetAmount.toLocaleString();
+
+    document.getElementById('step-target').classList.add('hidden');
+    document.getElementById('step-daily').classList.remove('hidden');
+    g2BuildWheel();
+    updateTreeVisual();
+    updateTodayDate();
+    saveState();
+  }
+
+  // --- รดน้ำ = บันทึกการออม ---
+  function waterTree() {
+    const income = parseFloat(document.getElementById('income-input').value) || 0;
+
+    if (!hasSpunToday) {
+      if (income <= 0) {
+        alert('กรุณากรอก "เงินที่ได้รับวันนี้" แล้วกดหมุนวงล้อก่อนรดน้ำครับ!');
+        return;
+      }
+      // ถ้ายังไม่ได้หมุนวงล้อ ให้หมุนอัตโนมัติ
+      g2SpinWheel(function() {
+        waterTree();
+      });
+      return;
+    }
+
+    const save = currentSpunSave;
+    currentSavings += save;
+
+    savingsHistory.push({
+      day: currentDay,
+      income: income,
+      save: save,
+      totalSaved: currentSavings,
+      percent: currentSpunPercent,
+      date: new Date().toISOString()
+    });
+
+    document.getElementById('current-saved').innerText = currentSavings.toLocaleString();
+    const percent = Math.min((currentSavings / targetAmount) * 100, 100);
+    document.getElementById('growth-bar').style.width = percent + '%';
+
+    const praise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
+    document.getElementById('today-status').innerHTML =
+      '<span class="action-badge praise">💧 รดน้ำแล้ว +' + save.toLocaleString() + ' บ.! ' + praise + '</span>';
+    document.getElementById('tree-quote').innerText = treeQuote(percent);
+
+    playWaterSound();
+    animateWatering();
+    updateHistoryUI();
+    saveState();
+
+    // รีเซ็ตสถานะการหมุนของวันนี้
+    hasSpunToday = false;
+    currentSpunSave = 0;
+    const waterBtn = document.getElementById('water-btn');
+    if (waterBtn) waterBtn.innerText = '💧 รดน้ำต้นไม้ (บันทึกการออม)';
+
+    if (currentSavings >= targetAmount) {
+      setTimeout(showWin, 1600);
+    }
+  }
+
+  // --- เอฟเฟกต์รดน้ำ ---
+  function animateWatering() {
+    const scene = document.getElementById('tree-scene');
+    scene.classList.remove('watering');
+    void scene.offsetWidth;
+    scene.classList.add('watering');
+
+    const layer = document.getElementById('drop-layer');
+    layer.innerHTML = '';
+    for (let i = 0; i < 10; i++) {
+      const drop = document.createElement('div');
+      drop.className = 'water-drop';
+      drop.style.left = (120 + Math.random() * 60) + 'px';
+      drop.style.animation = 'dropFall 0.9s linear ' + (i * 0.08) + 's forwards';
+      layer.appendChild(drop);
+      setTimeout((function(d) { return function() { d.remove(); }; })(drop), 1400);
+    }
+
+    setTimeout(function() {
+      scene.classList.remove('watering');
+      updateTreeVisual();
+    }, 1500);
+    updateTreeVisual();
+  }
+
+  // --- อัปเดตขนาดต้นไม้สมจริงตาม % ความคืบหน้า ---
+  function updateTreeVisual() {
+    const percent = targetAmount > 0 ? Math.min((currentSavings / targetAmount) * 100, 100) : 0;
+    const sprout = document.getElementById('tree-sprout');
+    const trunkGroup = document.getElementById('tree-trunk-group');
+    const foliage = document.getElementById('tree-foliage');
+    const flowers = document.querySelectorAll('#tree-scene .flower-bloom');
+    const fruits = document.querySelectorAll('#tree-scene .fruit-bloom');
+    updateTreeTheme();
+
+    if (percent < 15) {
+      if (sprout) { sprout.style.opacity = '1'; sprout.style.transform = 'scale(1)'; }
+      if (trunkGroup) { trunkGroup.style.opacity = '0'; trunkGroup.style.transform = 'scale(0.2)'; }
+      if (foliage) { foliage.style.opacity = '0'; foliage.style.transform = 'scale(0.2)'; }
+    } else {
+      if (sprout) { sprout.style.opacity = '0'; sprout.style.transform = 'scale(0.3)'; }
+      if (trunkGroup) {
+        trunkGroup.style.opacity = '1';
+        const trunkScaleX = 0.45 + (percent / 100) * 0.58;
+        const trunkScaleY = 0.35 + (percent / 100) * 0.68;
+        trunkGroup.style.transform = 'scale(' + trunkScaleX + ',' + trunkScaleY + ')';
+      }
+      if (foliage) {
+        foliage.style.opacity = '1';
+        const folScale = 0.3 + (percent / 100) * 0.72;
+        foliage.style.transform = 'scale(' + folScale + ')';
+      }
+    }
+
+    flowers.forEach(function(fl, idx) {
+      const threshold = 45 + idx * 10;
+      if (percent >= 100) {
+        fl.style.transform = 'scale(1)';
+      } else if (percent >= threshold) {
+        fl.style.transform = 'scale(0.85)';
+      } else if (percent >= threshold - 10) {
+        fl.style.transform = 'scale(0.4)';
+      } else {
+        fl.style.transform = 'scale(0)';
+      }
+    });
+
+    fruits.forEach(function(fr) {
+      fr.style.transform = percent >= 100 ? 'scale(1)' : 'scale(0)';
+    });
+  }
+
+  // --- ฉากชนะ ---
+  function showWin() {
+    document.getElementById('step-daily').classList.add('hidden');
+    document.getElementById('step-finish').classList.remove('hidden');
+    document.getElementById('finish-target').innerText = targetAmount.toLocaleString();
+    document.getElementById('total-days').innerText = currentDay;
+    document.getElementById('total-waters').innerText = savingsHistory.length;
+    playWinSound();
+  }
+
+  // --- ประวัติการรดน้ำ ---
+  function toggleHistory() {
+    document.getElementById('history-box').classList.toggle('hidden');
+  }
+  function toggleHistoryFinish() {
+    document.getElementById('history-box-finish').classList.toggle('hidden');
+  }
+
+  function buildHistoryHTML() {
+    let html = '';
+    for (let i = savingsHistory.length - 1; i >= 0; i--) {
+      const item = savingsHistory[i];
+      html += '<div class="history-item">' +
+                '<div>' +
+                  '<span class="history-day">ครั้งที่ ' + (i + 1) + ' (Day ' + item.day + ')</span>' +
+                  (item.date ? '<span class="history-date"> • ' + formatDateTH(item.date) + '</span>' : '') +
+                  '<br>' +
+                  '<span style="color:#2e7d32; font-weight:bold;">💧 รดน้ำ ' + item.save.toLocaleString() + ' บาท</span>' +
+                  (item.income ? ' <span style="color:#795548; font-size:11px;">(รับ ' + item.income.toLocaleString() + ' บ.)</span>' : '') +
+                '</div>' +
+                '<div class="history-save">🌳 รวม ' + item.totalSaved.toLocaleString() + ' บ.</div>' +
+              '</div>';
+    }
+    return html || '<div style="text-align: center; color: #795548; font-size: 12px;">ยังไม่มีประวัติการรดน้ำ</div>';
+  }
+
+  function updateHistoryUI() {
+    document.getElementById('history-count').innerText = savingsHistory.length;
+    document.getElementById('history-list').innerHTML = buildHistoryHTML();
+  }
+  function updateHistoryUIFinish() {
+    document.getElementById('history-list-finish').innerHTML = buildHistoryHTML();
+  }
+
+  // --- ยกเลิกภารกิจ ---
+  let cancelArmed = false;
+  let cancelTimeout = null;
+
+  function newDay() {
+    if (hasSpunToday) {
+      if (!confirm('คุณหมุนวงล้อแล้วแต่วันนี้ยังไม่ได้กดรดน้ำ ถ้าเริ่มวันใหม่ยอดที่สุ่มได้จะถูกล้าง เริ่มวันใหม่เลยหรือไม่?')) return;
+    }
+    currentDay++;
+    hasSpunToday = false;
+    currentSpunSave = 0;
+    document.getElementById('day-num').innerText = currentDay;
+    document.getElementById('next-day-num').innerText = currentDay + 1;
+    document.getElementById('today-date').innerText = ' • ' + formatDateTH(new Date());
+    document.getElementById('income-input').value = '';
+    document.getElementById('today-status').innerHTML = '';
+    const res = document.getElementById('farm-result');
+    if (res) {
+      res.className = 'farm-result-card';
+      res.innerText = '🎡 กดปุ่มด้านล่างเพื่อหมุนวงล้อสุ่ม % การออม!';
+    }
+    const waterBtn = document.getElementById('water-btn');
+    if (waterBtn) waterBtn.innerText = '💧 รดน้ำต้นไม้ (บันทึกการออม)';
+    saveState();
+  }
+
+  function cancelMissionClick() {
+    const btn = document.getElementById('cancel-btn');
+    if (!cancelArmed) {
+      cancelArmed = true;
+      btn.classList.add('confirming');
+      btn.innerHTML = '⚠️ จะลบต้นไม้และความคืบหน้าทั้งหมด — กดอีกครั้งเพื่อยืนยัน';
+      cancelTimeout = setTimeout(disarmCancel, 5000);
+    } else {
+      disarmCancel();
+      alert('ยกเลิกภารกิจเรียบร้อย เริ่มปลูกต้นใหม่ได้เลยครับ 🌱');
+      resetGame();
+    }
+  }
+
+  function disarmCancel() {
+    cancelArmed = false;
+    if (cancelTimeout) { clearTimeout(cancelTimeout); cancelTimeout = null; }
+    const btn = document.getElementById('cancel-btn');
+    if (btn) {
+      btn.classList.remove('confirming');
+      btn.innerHTML = '✖ ยกเลิกภารกิจนี้';
+    }
+  }
+
+  function resetGame() {
+    targetAmount = 0;
+    currentSavings = 0;
+    currentDay = 1;
+    savingsHistory = [];
+    hasSpunToday = false;
+    currentSpunSave = 0;
+    clearState();
+
+    document.getElementById('target-input').value = '';
+    document.getElementById('income-input').value = '';
+    document.getElementById('current-saved').innerText = '0';
+    document.getElementById('growth-bar').style.width = '0%';
+    document.getElementById('tree-quote').innerText = '🌿 ต้นกล้าเล็กๆ กำลังรอน้ำ หมุนวงล้อเพื่อเริ่มรดน้ำได้เลย!';
+    document.getElementById('today-status').innerHTML = '';
+    const res = document.getElementById('farm-result');
+    if (res) {
+      res.className = 'farm-result-card';
+      res.innerText = '🎡 กดปุ่มด้านล่างเพื่อหมุนวงล้อสุ่ม % การออม!';
+    }
+    const waterBtn = document.getElementById('water-btn');
+    if (waterBtn) waterBtn.innerText = '💧 รดน้ำต้นไม้ (บันทึกการออม)';
+
+    updateTreeVisual();
+    updateHistoryUI();
+    disarmCancel();
+
+    document.getElementById('step-finish').classList.add('hidden');
+    document.getElementById('step-daily').classList.add('hidden');
+    document.getElementById('step-target').classList.remove('hidden');
+  }
+
+  function restoreUI() {
+    document.getElementById('target-display').innerText = targetAmount.toLocaleString();
+    document.getElementById('current-saved').innerText = currentSavings.toLocaleString();
+    const percent = Math.min((currentSavings / targetAmount) * 100, 100);
+    document.getElementById('growth-bar').style.width = percent + '%';
+    document.getElementById('day-num').innerText = currentDay;
+    document.getElementById('next-day-num').innerText = currentDay + 1;
+    g2BuildWheel();
+    updateTreeVisual();
+    updateHistoryUI();
+    updateTodayDate();
+
+    document.getElementById('step-target').classList.add('hidden');
+    if (currentSavings >= targetAmount) {
+      showWin();
+    } else {
+      document.getElementById('step-daily').classList.remove('hidden');
+      document.getElementById('tree-quote').innerText = treeQuote(percent);
+    }
+  }
+
+  function navNotice() {
+    alert('แท็บ Preview เปิดด้วยไฟล์เดียว — กรุณาเปิดไฟล์ home.html (หน้าหลัก) ในแท็บ Preview แทน\nหรือเปิดโฟลเดอร์เกมในเบราว์เซอร์จริง ปุ่มนี้จะใช้ได้ปกติครับ');
+  }
+  function goHomeSafe(hash) {
+    var dest = 'home.html' + (hash || '');
+    if (location.protocol === 'file:' || !window.fetch) { location.href = dest; goHomeSafe._busy = false; return; }
+    if (goHomeSafe._busy) return;
+    goHomeSafe._busy = true;
+    fetch('home.html', { method: 'HEAD' }).then(function(res) {
+      if (res.ok) { location.href = dest; goHomeSafe._busy = false; }
+      else { navNotice(); goHomeSafe._busy = false; }
+    }).catch(function(){ navNotice(); goHomeSafe._busy = false; });
+  }
+
+  /* --- วงล้อฟาร์มสดใส: สุ่ม % การออม (ธีมธรรมชาติสดใส พร้อม % ชัดเจน) --- */
+  const G2_WHEEL = [
+    { p: 0,  emoji: '🐣', name: 'ไม่ออม', color: '#b45309', bg: '#fef08a' },
+    { p: 10, emoji: '🌱', name: 'ต้นอ่อน', color: '#15803d', bg: '#86efac' },
+    { p: 20, emoji: '🍉', name: 'แตงโม', color: '#b91c1c', bg: '#fca5a5' },
+    { p: 25, emoji: '🍓', name: 'สตรอว์', color: '#7e22ce', bg: '#f0abfc' },
+    { p: 30, emoji: '🥑', name: 'อะโวคา', color: '#0e7490', bg: '#67e8f9' },
+    { p: 35, emoji: '🍊', name: 'ส้มหวาน', color: '#c2410c', bg: '#fdba74' },
+    { p: 40, emoji: '🍇', name: 'องุ่น', color: '#3730a3', bg: '#a5b4fc' },
+    { p: 50, emoji: '🌻', name: 'ทานตะวัน', color: '#854d0e', bg: '#fde047' }
+  ];
+
+  let g2WheelBuilt = false, g2Spinning = false, g2WheelRotation = 0;
+
+  function g2BuildWheel() {
+    if (g2WheelBuilt) return;
+    const wheel = document.getElementById('farm-wheel');
+    if (!wheel) return;
+    const n = G2_WHEEL.length;
+    const segDeg = 360 / n;
+    const stops = [];
+    for (let i = 0; i < n; i++) {
+      const c = G2_WHEEL[i].bg;
+      stops.push(c + ' ' + (i * segDeg) + 'deg ' + ((i + 1) * segDeg) + 'deg');
+    }
+    wheel.style.background = 'conic-gradient(' + stops.join(',') + ')';
+    wheel.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const seg = G2_WHEEL[i];
+      const lab = document.createElement('div');
+      lab.className = 'seg-label';
+      const mid = i * segDeg + segDeg / 2;
+      lab.style.transform = 'rotate(' + mid + 'deg)';
+      lab.innerHTML = '<div class="seg-content">' +
+                        '<span class="seg-badge" style="color:' + seg.color + ';">' + seg.p + '%</span>' +
+                        '<span class="seg-name">' + seg.emoji + '</span>' +
+                      '</div>';
+      wheel.appendChild(lab);
+    }
+    g2WheelBuilt = true;
+  }
+
+  function g2SpinWheel(callback) {
+    if (g2Spinning) return;
+    const income = parseFloat(document.getElementById('income-input').value) || 0;
+    if (income <= 0) {
+      alert('กรุณากรอก "ใส่เงินที่ได้รับวันนี้" ก่อนหมุนวงล้อครับ!');
+      return;
+    }
+    g2BuildWheel();
+    g2Spinning = true;
+    const wheel = document.getElementById('farm-wheel');
+    const result = document.getElementById('farm-result');
+    const spinBtn = document.getElementById('farm-spin-btn');
+    spinBtn.disabled = true;
+    spinBtn.style.opacity = '0.6';
+    result.className = 'farm-result-card';
+    result.innerHTML = '🎡 <b>กำลังหมุนวงล้อ... ลุ้นดวงการออมวันนี้!</b>';
+
+    const n = G2_WHEEL.length;
+    const segDeg = 360 / n;
+    const idx = Math.floor(Math.random() * n);
+    const midDeg = idx * segDeg + segDeg / 2;
+    const targetMod = (360 - midDeg) % 360;
+    const currentMod = ((g2WheelRotation % 360) + 360) % 360;
+    g2WheelRotation += 4 * 360 + ((targetMod - currentMod + 360) % 360);
+    wheel.style.transform = 'rotate(' + g2WheelRotation + 'deg)';
+
+    // เสียง tick สลับขณะหมุน
+    for (let t = 0; t < 15; t++) {
+      setTimeout(function() {
+        try { tone(750 + t * 25, 0, 0.03, 0.08); } catch(e){}
+      }, t * 220);
+    }
+
+    setTimeout(function() {
+      const seg = G2_WHEEL[idx];
+      const inc = parseFloat(document.getElementById('income-input').value) || 0;
+      const saveAmount = Math.round(inc * seg.p / 100);
+      const spendAmount = inc - saveAmount;
+
+      hasSpunToday = true;
+      currentSpunSave = saveAmount;
+      currentSpunPercent = seg.p;
+
+      result.className = 'farm-result-card highlight';
+      if (seg.p === 0) {
+        result.innerHTML = '🎉 <b>โชคดีสุดๆ! ' + seg.emoji + ' ' + seg.name + ' (0%)</b><br>วันนี้ไม่ต้องออมเลย ใช้เงินได้เต็มที่ ' + inc.toLocaleString() + ' บาท!';
+      } else {
+        result.innerHTML = '🎉 ผลการสุ่ม: <b>' + seg.emoji + ' ' + seg.name + ' (' + seg.p + '%)</b><br>' +
+          '💧 ยอดเงินที่จะนำไปรดน้ำ: <b style="font-size:16px; color:#2e7d32;">' + saveAmount.toLocaleString() + '</b> บาท ' +
+          '(เหลือใช้จ่าย ' + spendAmount.toLocaleString() + ' บ.)';
+      }
+
+      const waterBtn = document.getElementById('water-btn');
+      if (waterBtn) {
+        waterBtn.innerHTML = '💧 รดน้ำต้นไม้ (ออม ' + saveAmount.toLocaleString() + ' บาท)';
+      }
+
+      g2Spinning = false;
+      spinBtn.disabled = false;
+      spinBtn.style.opacity = '1';
+      try { tone(523.25, 0, 0.12, 0.2); tone(659.25, 0.12, 0.15, 0.2); tone(783.99, 0.25, 0.2, 0.2); } catch (e) {}
+
+      if (typeof callback === 'function') callback();
+    }, 4300);
+  }
+
+  // --- เริ่มต้น: โหลดภารกิจที่บันทึกไว้ (ต้องรันหลังประกาศตัวแปรครบแล้ว ไม่งั้นเจอ TDZ error) ---
+  if (loadState()) {
+    restoreUI();
+  }
+
+  </script>
+
+</body>
+</html>

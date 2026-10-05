@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ - SAVINGS ARCADE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+      overflow-x: hidden;
+    }
+
+    /* ---------- ดาวพื้นหลัง ---------- */
+    .stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .star {
+      position: absolute; background: #fff; border-radius: 50%;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+    @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+
+    /* ---------- การ์ดล็อกอิน ---------- */
+    .login-wrap { position: relative; z-index: 1; width: 100%; max-width: 440px; }
+    .login-card {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 20px;
+      padding: 28px 26px 24px;
+      color: #fff;
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.35);
+    }
+    .login-logo {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 15px;
+      color: #fbf236;
+      text-align: center;
+      text-shadow: 3px 3px 0 #000;
+      line-height: 1.7;
+      margin: 0 0 4px;
+    }
+    .login-sub {
+      color: #cbdbfc;
+      font-size: 14px;
+      text-align: center;
+      margin: 0 0 18px;
+      text-shadow: 1px 1px 3px #000;
+    }
+
+    /* แท็บสลับโหมด */
+    .mode-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+    .mode-tab {
+      flex: 1;
+      font-family: 'Kanit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: #cbdbfc;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      padding: 8px 0;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .mode-tab.active {
+      color: #1a1a2e;
+      background: #fbf236;
+      border-color: #fbf236;
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    .input-group { margin-bottom: 14px; }
+    .input-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #cbdbfc;
+      margin-bottom: 5px;
+    }
+    .input-group input {
+      width: 100%;
+      font-family: 'Kanit', sans-serif;
+      font-size: 15px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .input-group input:focus { border-color: #fbf236; }
+    .input-group input::placeholder { color: rgba(203, 219, 252, 0.45); }
+    .input-hint { font-size: 11.5px; color: rgba(203, 219, 252, 0.55); margin-top: 4px; }
+
+    .submit-btn {
+      width: 100%;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 12px;
+      color: #1a1a2e;
+      background: #fbf236;
+      border: 2px solid #000;
+      border-radius: 12px;
+      padding: 13px 0;
+      margin-top: 6px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 #000;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+    .submit-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+    .submit-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+
+    /* กล่องแจ้งเตือน */
+    .msg-box {
+      display: none;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13.5px;
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+    .msg-box.show { display: block; }
+    .msg-box.error { background: rgba(229, 57, 53, 0.18); border: 1px solid #ef5350; color: #ffab91; }
+    .msg-box.ok { background: rgba(76, 175, 80, 0.18); border: 1px solid #66bb6a; color: #a5d6a7; }
+
+    .login-footer {
+      margin-top: 16px;
+      text-align: center;
+      color: rgba(203, 219, 252, 0.5);
+      font-size: 11.5px;
+    }
+
+    @media (max-width: 480px) {
+      .login-card { padding: 22px 18px 20px; }
+      .login-logo { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ดาวพื้นหลัง -->
+<div class="stars" id="stars" aria-hidden="true"></div>
+
+<div class="login-wrap">
+  <div class="login-card">
+    <h1 class="login-logo">💰 SAVINGS ARCADE</h1>
+    <p class="login-sub">ล็อกอินก่อน แล้วมาเล่นเกมฝึกออมเงินกัน!</p>
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-login" onclick="setMode('login')">เข้าสู่ระบบ</button>
+      <button class="mode-tab" id="tab-register" onclick="setMode('register')">สมัครสมาชิก</button>
+    </div>
+
+    <form id="auth-form" onsubmit="submitForm(event)">
+      <div class="input-group" id="group-name" style="display:none;">
+        <label for="f-name">👤 ชื่อผู้เล่น</label>
+        <input type="text" id="f-name" placeholder="เช่น น้องออมดี" maxlength="30" autocomplete="name">
+      </div>
+
+      <div class="input-group">
+        <label for="f-phone">📱 เบอร์โทรศัพท์</label>
+        <input type="tel" id="f-phone" placeholder="เช่น 0812345678" maxlength="13" autocomplete="tel" inputmode="numeric">
+        <div class="input-hint">เบอร์มือถือไทย 10 หลัก ขึ้นต้นด้วย 0 (ใช้เป็นชื่อบัญชี)</div>
+      </div>
+
+      <div class="input-group">
+        <label for="f-password">🔒 รหัสผ่าน</label>
+        <input type="password" id="f-password" placeholder="อย่างน้อย 4 ตัวอักษร" maxlength="30" autocomplete="current-password">
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">เข้าสู่ระบบ ▶</button>
+    </form>
+
+    <div class="msg-box" id="msg-box"></div>
+
+    <div class="login-footer">💡 ข้อมูลบันทึกไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น</div>
+    <div style="margin-top: 14px; text-align: center;">
+      <a href="../index.html" style="color: #fbf236; font-size: 13px; text-decoration: none; font-weight: 500;">◀ กลับสู่หน้าหลัก fitจัง (พี่ต้นฮาร์ต พี่ต้นบุญ)</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ---------- เสียง ---------- */
+  let audioCtx = null;
+  function ensureAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+  function tone(freq, start, dur, vol, type) {
+    try {
+      const ctx = ensureAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type || 'triangle';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + start;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(vol || 0.15, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + dur + 0.05);
+    } catch (e) {}
+  }
+  function sfx(kind) {
+    try {
+      if (kind === 'ok') { [523.25, 659.25, 783.99, 1046.5].forEach(function(f, i) { tone(f, i * 0.1, 0.25, 0.16); }); }
+      else if (kind === 'err') { tone(220, 0, 0.2, 0.2, 'sawtooth'); }
+      else { tone(740, 0, 0.045, 0.1); }
+    } catch (e) {}
+  }
+  document.addEventListener('pointerdown', function(e) {
+    if (e.button !== undefined && e.button !== 0) return;
+    if (e.target.closest('.mode-tab, .submit-btn')) sfx('tick');
+  }, true);
+
+  /* ---------- ดาวพื้นหลัง ---------- */
+  (function buildStars() {
+    const box = document.getElementById('stars');
+    let html = '';
+    for (let i = 0; i < 50; i++) {
+      const s = 1 + Math.random() * 2;
+      html += '<div class="star" style="left:' + (Math.random() * 100) + '%;top:' + (Math.random() * 100) + '%;width:' + s + 'px;height:' + s + 'px;animation-delay:' + (Math.random() * 3) + 's;"></div>';
+    }
+    box.innerHTML = html;
+  })();
+
+  /* ---------- ระบบบัญชีผู้ใช้ ---------- */
+  const USERS_KEY = 'arcadeUsers_v1';
+  const SESSION_KEY = 'arcadeSession_v1';
+
+  function loadUsers() {
+    try {
+      const raw = localStorage.getItem(USERS_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+  function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+
+  /* ถ้าล็อกอินอยู่แล้ว ส่งเข้า home ไปเลย */
+  (function checkExistingSession() {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      const s = raw ? JSON.parse(raw) : null;
+      if (s && s.phone) location.replace('home.html');
+    } catch (e) {}
+  })();
+
+  /* ---------- โหมด เข้าสู่ระบบ / สมัครสมาชิก ---------- */
+  let mode = 'login';
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById('tab-login').classList.toggle('active', m === 'login');
+    document.getElementById('tab-register').classList.toggle('active', m === 'register');
+    document.getElementById('group-name').style.display = (m === 'register') ? '' : 'none';
+    document.getElementById('f-password').setAttribute('autocomplete', m === 'register' ? 'new-password' : 'current-password');
+    document.getElementById('submit-btn').textContent = (m === 'register') ? 'สมัครสมาชิก ▶' : 'เข้าสู่ระบบ ▶';
+    hideMsg();
+  }
+
+  function showMsg(text, kind) {
+    const box = document.getElementById('msg-box');
+    box.textContent = text;
+    box.className = 'msg-box show ' + kind;
+  }
+  function hideMsg() {
+    document.getElementById('msg-box').className = 'msg-box';
+  }
+
+  /* ---------- ตรวจข้อมูล ---------- */
+  function normalizePhone(v) {
+    return String(v || '').replace(/[\s-]/g, '');
+  }
+  function isValidThaiPhone(p) {
+    return /^0\d{9}$/.test(p) || /^\+66\d{9}$/.test(p);
+  }
+
+  function submitForm(ev) {
+    ev.preventDefault();
+    const name = document.getElementById('f-name').value.trim();
+    const phone = normalizePhone(document.getElementById('f-phone').value);
+    const password = document.getElementById('f-password').value;
+
+    if (!isValidThaiPhone(phone)) {
+      sfx('err');
+      showMsg('📱 เบอร์โทรไม่ถูกต้อง — กรอกเบอร์มือถือไทย 10 หลักขึ้นต้นด้วย 0', 'error');
+      return;
+    }
+    if (password.length < 4) {
+      sfx('err');
+      showMsg('🔒 รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร', 'error');
+      return;
+    }
+
+    const users = loadUsers();
+    const found = users.find(function(u) { return u.phone === phone; });
+
+    if (mode === 'register') {
+      if (name.length < 2) {
+        sfx('err');
+        showMsg('👤 กรอกชื่อผู้เล่นอย่างน้อย 2 ตัวอักษร', 'error');
+        return;
+      }
+      if (found) {
+        sfx('err');
+        showMsg('⚠️ เบอร์นี้สมัครไว้แล้ว — สลับไป "เข้าสู่ระบบ" ได้เลย', 'error');
+        return;
+      }
+      users.push({ name: name, phone: phone, password: password, createdAt: Date.now() });
+      saveUsers(users);
+      startSession({ name: name, phone: phone }, 'สมัครสมาชิกสำเร็จ! กำลังพาเข้าเกม... 🎉');
+    } else {
+      if (!found) {
+        sfx('err');
+        showMsg('❌ ไม่พบบัญชีนี้ — ลองสมัครสมาชิกก่อนนะ', 'error');
+        return;
+      }
+      if (found.password !== password) {
+        sfx('err');
+        showMsg('❌ รหัสผ่านไม่ถูกต้อง ลองใหม่อีกครั้ง', 'error');
+        return;
+      }
+      startSession({ name: found.name, phone: found.phone }, 'ยินดีต้อนรับ ' + found.name + '! กำลังเข้าเกม... 🎮');
+    }
+  }
+
+  function startSession(user, okText) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ name: user.name, phone: user.phone, at: Date.now() }));
+    sfx('ok');
+    showMsg(okText, 'ok');
+    setTimeout(function() { location.href = 'home.html'; }, 700);
+  }
+</script>
+
+</body>
+</html>
