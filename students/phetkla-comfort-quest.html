@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comfort Zone: Quest (500 Quests Ultimate Edition)</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1a1a2e;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .quick-stars-corner {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 9999;
+        }
+        .btn-star-quick {
+            background-color: #ffb703;
+            color: #000;
+            border: 2px solid #fff;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+        .btn-star-quick:active { transform: scale(0.92); }
+
+        /* ปุ่มซ่อน/แสดงเกมมุมขวาล่าง */
+        .hide-toggle-corner {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            z-index: 999999;
+        }
+        .btn-hide-ui {
+            background-color: rgba(15, 52, 96, 0.9);
+            color: #00fff5;
+            border: 2px solid #00fff5;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 245, 0.4);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .btn-hide-ui:hover {
+            background-color: #00fff5;
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        .game-container {
+            background-color: rgba(22, 33, 62, 0.95);
+            border: 4px solid #0f3460;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            backdrop-filter: blur(5px);
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        /* คลาสสำหรับซ่อนกล่องเกม */
+        .game-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        h1, h2 { text-align: center; color: #e94560; margin-top: 0; margin-bottom: 10px; }
+        .stats-box, .leaderboard-box {
+            background-color: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .bar-container {
+            background-color: #1a1a2e;
+            border-radius: 5px;
+            height: 20px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .exp-bar {
+            background-color: #00fff5;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .card {
+            background-color: #533483;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .reward-box, .event-box, .minigame-box {
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
+        .reward-box { background-color: #e94560; }
+        .event-box { background-color: #7209b7; }
+        .minigame-box { background-color: #0f3460; border: 2px solid #00fff5; }
+
+        .full-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(10, 10, 20, 0.98);
+            z-index: 99999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: opacity 0.4s ease;
+        }
+        .question-card-full {
+            background-color: #16213e;
+            border: 4px solid #ffb703;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 183, 3, 0.5);
+            color: #fff;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .btn {
+            background-color: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            width: 100%;
+            margin-top: 8px;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: grayscale(1); }
+
+        .btn-opt {
+            background-color: #1a1a2e;
+            color: #fff;
+            border: 2px solid #00fff5;
+            border-radius: 6px;
+            text-align: left;
+            padding: 12px 15px;
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-opt:hover { background-color: #0f3460; transform: scale(1.01); }
+        
+        .btn-reward { background-color: #ffb703; color: #000; }
+        .btn-complete { background-color: #00b4d8; }
+        .btn-event { background-color: #7209b7; }
+        .btn-minigame { background-color: #4cc9f0; color: #000; }
+        .btn-reset { background-color: #2ec4b6; color: #000; }
+        
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .tag-easy { background-color: #2ec4b6; }
+        .tag-medium { background-color: #ff9f1c; }
+        .tag-hard { background-color: #e71d36; }
+        
+        input[type="text"], input[type="number"], select {
+            width: 90%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid #00fff5;
+            background-color: #1a1a2e;
+            color: #fff;
+            text-align: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        th, td { border: 1px solid #533483; padding: 6px; text-align: center; }
+        th { background-color: #533483; }
+        
+        canvas {
+            background: #1a1a2e;
+            border: 2px solid #00fff5;
+            border-radius: 5px;
+            margin-top: 10px;
+            touch-action: none;
+        }
+        .bg-upload {
+            background-color: #0f3460;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .mem-card {
+            background-color: #533483;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #00fff5;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar to Portal -->
+<div id="student-portal-floating-bar" style="position:fixed; top:12px; left:12px; z-index:99999; display:flex; gap:8px;">
+  <a href="index.html" style="background:rgba(15, 23, 42, 0.9); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); backdrop-filter:blur(10px); padding:8px 14px; border-radius:12px; font-family:'Kanit', sans-serif; font-size:12px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:transform 0.15s ease;">
+    <span>◀</span>
+    <span>กลับหน้ารวมผลงานนักเรียน</span>
+  </a>
+</div>
+
+
+
+<div class="quick-stars-corner" id="quickStarsBar">
+    <button class="btn-star-quick" onclick="addBonusStars(1)">+1 ⭐</button>
+    <button class="btn-star-quick" onclick="addBonusStars(3)">+3 ⭐</button>
+</div>
+
+<!-- ปุ่มซ่อน/แสดงหน้าจอเกม มุมขวาล่าง -->
+<div class="hide-toggle-corner">
+    <button id="toggleHideBtn" class="btn-hide-ui" onclick="toggleGameVisibility()">👁️ ซ่อนเกม (ดูพื้นหลัง)</button>
+</div>
+
+<!-- หน้าต่างคำถามบังเต็มหน้าจอ (Overlay) -->
+<div id="fullQuestionOverlay" class="full-overlay">
+    <div class="question-card-full">
+        <div id="qCategoryTag" style="background-color: #ffb703; color: #000; font-weight: bold; font-size: 12px; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px;">หมวดหมู่คำถาม</div>
+        <h2 style="color: #00fff5; margin-top: 0;">🔒 คำถามทดสอบความรู้!</h2>
+        <p style="color: #ff4d4d; font-size: 11px; margin-bottom: 15px;">⚠️ ตอบผิดจะถูกหัก 1 ดาวทันที (สามารถติดลบได้)!</p>
+        <p id="questionText" style="font-size: 15px; font-weight: bold; margin-bottom: 15px; text-align: left; line-height: 1.4;"></p>
+        <div id="optionsContainer"></div>
+        <div id="feedbackBox" style="display: none; margin-top: 15px; padding: 12px; border-radius: 6px; font-size: 13px; font-weight: normal; line-height: 1.5; text-align: left;"></div>
+        <button id="closeQBtn" class="btn" style="background-color: #00fff5; color: #000; display: none; margin-top: 15px;" onclick="closeQuestionBox()">ปลดล็อกหน้าจอ & เล่นต่อ!</button>
+    </div>
+</div>
+
+<div class="game-container" id="mainGameContainer">
+    <h1>⚔️ ZONE QUEST ⚔️</h1>
+
+    <!-- ปุ่มเปลี่ยนรูปภาพพื้นหลัง -->
+    <div class="bg-upload">
+        <label for="bgInput" style="cursor: pointer;">🖼️ เปลี่ยนรูปภาพพื้นหลัง:</label>
+        <input type="file" id="bgInput" accept="image/*" onchange="changeBackground(event)" style="display: none;">
+        <button class="btn" style="padding: 5px 10px; font-size: 12px; width: auto; margin-top: 0; margin-left: 5px;" onclick="document.getElementById('bgInput').click()">เลือกรูป</button>
+    </div>
+
+    <!-- หน้า Lobby / สร้างตัวละคร -->
+    <div id="nameScreen" class="card">
+        <h3>✨ สร้างตัวละครใหม่</h3>
+        <input type="text" id="playerNameInput" placeholder="กรอกชื่อตัวละครของคุณ..." maxlength="15">
+        <button class="btn" onclick="startGame()">🚀 เริ่มต้นการผจญภัย</button>
+    </div>
+
+    <div id="gameScreen" style="display: none;">
+        <div class="stats-box">
+            <div><strong>ผู้เล่น:</strong> <span id="displayName" style="color: #00fff5;">-</span></div>
+            <div><strong>ยศปัจจุบัน:</strong> <span id="rank">🐣 Comfort Keeper</span></div>
+            <div><strong>EXP สะสม (ทั้งหมด):</strong> <span id="totalExpDisplay">0</span></div>
+            <div><strong>หลอด EXP ปัจจุบัน:</strong> <span id="exp">0</span> / 100</div>
+            <div><strong>ดาวสุ่มรางวัล:</strong> ⭐ <span id="stars">0</span> ดวง</div>
+            <div><strong>สถานะบัฟ:</strong> <span id="buffStatus">ปกติ</span></div>
+            <div class="bar-container">
+                <div class="exp-bar" id="expBar"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div id="questTag" class="tag tag-easy">EASY +5 EXP</div>
+            <h3 id="questTitle" style="margin: 5px 0;">กดสุ่มภารกิจประจำวัน!</h3>
+            <p id="questDesc" style="font-size: 14px; color: #ddd;">พร้อมออกจาก Comfort Zone หรือยัง?</p>
+            <button id="drawQuestBtn" class="btn" onclick="drawQuest()">🎲 สุ่มภารกิจใหม่ (คลัง 500 ภารกิจ)</button>
+            <button class="btn btn-complete" onclick="completeQuest()">✅ ทำภารกิจสำเร็จ!</button>
+        </div>
+
+        <button class="btn btn-reward" onclick="claimReward()">⭐ ใช้ 3 ดาวสุ่มรางวัล 100 ชนิด!</button>
+        <button class="btn btn-event" onclick="drawEvent()">🃏 ใช้ 3 ดาวสุ่มการ์ดเหตุการณ์พิเศษ!</button>
+        
+        <div style="margin-top: 8px;">
+            <select id="miniGameSelect" style="margin-bottom: 0;">
+                <option value="ball">⚽ 1. มินิเกมเดาะบอล</option>
+                <option value="dodge">☄️ 2. มินิเกมหลบอุกกาบาต</option>
+                <option value="clicker">🎯 3. มินิเกมคลิกเป้าหมาย</option>
+                <option value="guess">🧠 4. มินิเกมทายตัวเลข (1-100)</option>
+                <option value="memory">🎴 5. มินิเกมจับคู่การ์ดความจำ</option>
+            </select>
+            <button class="btn btn-minigame" onclick="startMiniGame()">🎮 ใช้ 1 ดาวเล่นมินิเกมที่เลือก (5 นาที)</button>
+        </div>
+
+        <button class="btn btn-reset" onclick="resetToNewCharacter()">➕ เปลี่ยนไปสร้างตัวละครอื่น</button>
+
+        <div id="rewardBox" class="reward-box">
+            <h3 style="margin: 0 0 5px 0;">🎉 คุณได้รับรางวัล!</h3>
+            <p id="rewardText" style="font-size: 15px; font-weight: bold;"></p>
+        </div>
+
+        <div id="eventBox" class="event-box">
+            <h3 style="margin: 0 0 5px 0;">🔮 การ์ดเหตุการณ์พิเศษ!</h3>
+            <p id="eventText" style="font-size: 15px; font-weight: bold;"></p>
+        </div>
+
+        <div id="miniGameBox" class="minigame-box">
+            <h3 id="gameTitleDisplay" style="margin: 0;">🎮 มินิเกม</h3>
+            <div>เวลาคงเหลือ: <span id="gameTimer" style="color: #ffb703; font-weight: bold;">05:00</span></div>
+            <div>คะแนน: <span id="gameScore">0</span></div>
+            
+            <div id="canvasContainer">
+                <canvas id="gameCanvas" width="350" height="230"></canvas>
+            </div>
+
+            <div id="guessGameUI" style="display: none; margin-top: 10px;">
+                <input type="number" id="guessInput" placeholder="ใส่เลข 1-100" min="1" max="100">
+                <button class="btn" onclick="checkGuessNumber()">ทายผล!</button>
+                <p id="guessFeedback" style="font-size: 13px; color: #00fff5; margin-top: 5px;"></p>
+            </div>
+
+            <div id="memoryGameUI" style="display: none; margin-top: 10px;">
+                <div class="card-grid" id="memoryGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="leaderboard-box" style="margin-top: 15px;">
+        <h2>🏆 LEADERBOARD</h2>
+        <table>
+            <thead>
+                <tr><th>ชื่อ</th><th>ยศ</th><th>EXP รวม</th><th>ดาว ⭐</th></tr>
+            </thead>
+            <tbody id="leaderboardBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // 👁️ ระบบซ่อน/แสดง UI เกม
+    let isUiHidden = false;
+    function toggleGameVisibility() {
+        const gameContainer = document.getElementById('mainGameContainer');
+        const quickStarsBar = document.getElementById('quickStarsBar');
+        const questionOverlay = document.getElementById('fullQuestionOverlay');
+        const toggleBtn = document.getElementById('toggleHideBtn');
+
+        isUiHidden = !isUiHidden;
+
+        if (isUiHidden) {
+            gameContainer.classList.add('game-hidden');
+            quickStarsBar.classList.add('game-hidden');
+            if (questionOverlay.style.display === "flex") {
+                questionOverlay.classList.add('game-hidden');
+            }
+            toggleBtn.innerText = "🎮 แสดงเกม";
+            toggleBtn.style.backgroundColor = "rgba(233, 69, 96, 0.9)";
+            toggleBtn.style.borderColor = "#e94560";
+            toggleBtn.style.color = "#fff";
+        } else {
+            gameContainer.classList.remove('game-hidden');
+            quickStarsBar.classList.remove('game-hidden');
+            questionOverlay.classList.remove('game-hidden');
+            toggleBtn.innerText = "👁️ ซ่อนเกม (ดูพื้นหลัง)";
+            toggleBtn.style.backgroundColor = "rgba(15, 52, 96, 0.9)";
+            toggleBtn.style.borderColor = "#00fff5";
+            toggleBtn.style.color = "#00fff5";
+        }
+    }
+
+    // 🌐 ระบบสร้างและจัดเก็บคลังภารกิจ 500 รูปแบบ
+    const questCategories = {
+        social: {
+            easy: [
+                "ทักทายคนขายของ/พนักงานด้วยรอยยิ้มสดใส 1 ครั้ง",
+                "เอ่ยคำขอบคุณอย่างจริงใจกับคนที่ช่วยเหลือคุณในวันนี้",
+                "ชมเชยเพื่อนหรือคนรอบข้างในเรื่องเล็กๆ น้อยๆ 1 เรื่อง",
+                "ส่งสติ๊กเกอร์ทักทายเพื่อนที่ไม่ได้คุยกันเกิน 1 สัปดาห์",
+                "สบตาและพยักหน้าทักทายเพื่อนร่วมงาน/เพื่อนร่วมชั้น"
+            ],
+            medium: [
+                "ถามสารทุกข์สุขดิบกับเพื่อนเก่าที่คุณไม่ได้เจอนานเกิน 3 เดือน",
+                "ชวนคนรู้จักคุยหัวข้อเกี่ยวกับงานอดิเรกอย่างน้อย 3 นาที",
+                "ไปนั่งร้านอาหาร/คาเฟ่คนเดียวโดยไม่หยิบมือถือขึ้นมาเล่น 15 นาที",
+                "กล้าเอ่ยปากขอความช่วยเหลือในเรื่องเล็กๆ จากคนอื่น",
+                "รับฟังปัญหาของเพื่อนโดยตั้งใจโดยไม่พูดแทรกเลย 10 นาที"
+            ],
+            hard: [
+                "ไปทานอาหารร้านใหญ่ๆ หรือบุฟเฟต์คนเดียวอย่างมั่นใจ",
+                "กล้าพูดปฏิเสธสิ่งที่คุณไม่อยากทำอย่างสุภาพแต่เด็ดขาด",
+                "โทรหาเพื่อนหรือคนในครอบครัวเพื่อเปิดใจคุยเรื่องที่ค้างคา",
+                "ทำความรู้จักเพื่อนใหม่ในงานหรือสถานที่ที่คุณไปครั้งแรก",
+                "ขึ้นพูดหรือแสดงความคิดเห็นต่อหน้ากลุ่มคนเกิน 5 คน"
+            ]
+        },
+        learning: {
+            easy: [
+                "ท่องคำศัพท์ภาษาต่างประเทศใหม่ 5 คำ พร้อมความหมาย",
+                "เปิดอ่านสรุปบทเรียนหรือชีทความรู้เก่าๆ เป็นเวลา 10 นาที",
+                "ฟังเพลงต่างประเทศแล้วเปิดดูเนื้อร้องเพื่อแปลความหมาย 1 เพลง",
+                "จดบันทึกความรู้ใหม่ที่เพิ่งเจอในวันนี้ 1 ข้อลงสมุด",
+                "ค้นหาความหมายของคำทับศัพท์หรือศัพท์วัยรุ่นที่ไม่เคยรู้"
+            ],
+            medium: [
+                "เขียนสรุปเนื้อหาจากวิชาที่เรียนหรือหนังสือที่อ่านลงกระดาษ 1 หน้า",
+                "ฝึกทำโจทย์หรือแบบฝึกหัดวิชาที่คุณรู้สึกว่ายากจำนวน 5 ข้อ",
+                "ดูคลิปวิดีโอเพื่อการเรียนรู้หรือสารคดีสั้นความยาว 20 นาที",
+                "ฟังพอดแคสต์ให้ความรู้ภาษา สังคม หรือวิทยาศาสตร์จนจบ 1 ตอน",
+                "สืบค้นข้อมูลเชิงลึกเกี่ยวกับเทคโนโลยีใหม่ๆ 30 นาที"
+            ],
+            hard: [
+                "ตั้งใจอ่านหนังสือสอบหรือทบทวนบทเรียนติดต่อกัน 2 ชั่วโมงเต็ม",
+                "อธิบายบทเรียนยากๆ ให้เพื่อนฟังจนเพื่อนเข้าใจอย่างแจ่มแจ้ง",
+                "จับเวลาทำข้อสอบเก่าหรือแบบทดสอบประเมินตนเอง 1 ชุดเต็ม",
+                "เรียนคอร์สออนไลน์ฟรีจนจบวิชาสั้นๆ 1 บทเรียน",
+                "เขียนบทความหรือสรุปความรู้ความยาว 500 คำด้วยตัวเอง"
+            ]
+        },
+        life: {
+            easy: [
+                "ลองเปลี่ยนเส้นทางเดินกลับบ้านหรือใช้ถนนที่ไม่เคยเข้า",
+                "ลองสั่งเมนูอาหารหรือเครื่องดื่มที่ไม่เคยคิดจะกินมาก่อน",
+                "จัดโต๊ะทำงานหรือโต๊ะเรียนใหม่ให้เป็นระเบียบเรียบร้อย",
+                "ดึงปลั๊กและปิดหน้าจอทุกอย่างแล้วนั่งนิ่งๆ อยู่กับตัวเอง 5 นาที",
+                "ตื่นนอนตรงเวลาแล้วจัดเก็บที่นอนทันทีโดยไม่ผลัดวัน"
+            ],
+            medium: [
+                "ทำความสะอาดห้องนอนหรือจัดตู้เสื้อผ้าใหม่ทั้งหมด 30 นาที",
+                "ลองทำอาหารหรือขนมเมนูใหม่ด้วยตัวเองจากสูตรในอินเทอร์เน็ต",
+                "งดใช้โซเชียลมีเดียทุกชนิดเป็นเวลา 3 ชั่วโมงติดต่อกัน",
+                "ออกไปเดินเล่นในสวนสาธารณะหรือสถานที่ที่ไม่เคยไป 30 นาที",
+                "บันทึกรายรับ-รายจ่ายของตัวเองในวันนี้อย่างละเอียด"
+            ],
+            hard: [
+                "ตื่นเช้ากว่าเวลาปกติ 1 ชั่วโมง แล้วนำเวลานั้นไปพัฒนาตัวเอง",
+                "งดการใช้เงินซื้อของไร้สาระตลอดทั้งวัน (Zero Spend Day)",
+                "บริจาคสิ่งของที่ไม่ใช้แล้วหรือทำประโยชน์เพื่อส่วนรวม 1 ชั่วโมง",
+                "ทำดิจิทัลดีท็อกซ์ (Digital Detox) ไม่จับมือถือเลยตลอดครึ่งวัน",
+                "ออกไปทำกิจกรรมกลางแจ้งหรือเล่นกีฬาที่คุณไม่เคยเล่นมาก่อน"
+            ]
+        },
+        health: {
+            easy: [
+                "ดื่มน้ำสะอาดให้ครบ 8 แก้ว (2 ลิตร) ตลอดทั้งวัน",
+                "ยืดเหยียดร่างกายสเตรทชิ่งแก้ปวดเมื่อยเป็นเวลา 5 นาที",
+                "งดเครื่องดื่มที่มีน้ำตาลสูงหรือน้ำหวานทุกชนิดตลอดวัน",
+                "เคี้ยวอาหารให้ช้าลงและละเอียดขึ้นในมื้อเย็น",
+                "เข้านอนก่อนเวลาปกติ 30 นาทีเพื่อพักผ่อนให้เพียงพอ"
+            ],
+            medium: [
+                "ออกกำลังกายคาร์ดิโอหรือเวทเทรนนิ่งอย่างต่อเนื่อง 20 นาที",
+                "งดการกินของทอด ของมัน และของหวานตลอดทั้งวัน",
+                "ทานผักและผลไม้สดเพิ่มขึ้นเป็นสองเท่าในมื้ออาหารวันนี้",
+                "ซิทอัพ วิดพื้น หรือแพลงก์ สะสมให้ครบ 50 ครั้งใน 1 วัน",
+                "เดินสะสมก้าวให้ครบ 8,000 ก้าวภายในวันเดียว"
+            ],
+            hard: [
+                "ออกกำลังกายอย่างหนักหน่วงจนเหงื่อออกเต็มที่ 1 ชั่วโมง",
+                "วิ่งหรือเดินออกกำลังกายเป็นระยะทางสะสม 5 กิโลเมตร",
+                "ทำ IF (Intermittent Fasting) หรือควบคุมเวลาทานอาหารอย่างเคร่งครัด",
+                "นอนหลับพักผ่อนให้ครบ 8 ชั่วโมงเต็มโดยไม่ตื่นกลางดึก",
+                "งดอาหารขยะ (Junk Food) และขนมกรุบกรอบติดต่อกัน 3 วัน"
+            ]
+        }
+    };
+
+    let all500Quests = [];
+    function generate500Quests() {
+        let questList = [];
+        let idCounter = 1;
+
+        const categories = ['social', 'learning', 'life', 'health'];
+        const types = [
+            { type: 'easy', exp: 5, tag: 'EASY +5 EXP' },
+            { type: 'medium', exp: 15, tag: 'MEDIUM +15 EXP' },
+            { type: 'hard', exp: 30, tag: 'HARD +30 EXP' }
+        ];
+
+        while (questList.length < 500) {
+            let catKey = categories[questList.length % categories.length];
+            let typeObj = types[questList.length % types.length];
+            let rawList = questCategories[catKey][typeObj.type];
+            let baseText = rawList[Math.floor(Math.random() * rawList.length)];
+
+            questList.push({
+                id: idCounter,
+                title: ภารกิจที่ ${idCounter}: ${baseText.split(' ')[0]},
+                desc: ${baseText} (รหัสภารกิจ #${idCounter}),
+                exp: typeObj.exp,
+                type: typeObj.type,
+                tag: typeObj.tag
+            });
+            idCounter++;
+        }
+        return questList;
+    }
+
+    all500Quests = generate500Quests();
+
+    const rewards = [
+        "ดูหนัง/ซีรีส์ที่อยากดู 1 เรื่อง", "ซื้อสติกเกอร์ไลน์ลายที่ชอบ 1 ชุด", "ฟังเพลงอัลบั้มใหม่ของศิลปินคนโปรดจนจบ", 
+        "อ่านมังฮวา/การ์ตูนเรื่องโปรด 3 ตอน", "ซื้อธีมไลน์ใหม่ 1 ลาย", "ดูคลิปรายการตลก/คอนเสิร์ต 1 ชม.", 
+        "ซื้อหนังสือเล่มใหม่ 1 เล่ม", "ซื้อเกมอินดี้ใน Steam/Store 1 เกม", "สั่งอาร์ตทอย/กล่องสุ่ม 1 กล่อง", 
+        "ไปดูภาพยนตร์ที่โรงหนังคนเดียว", "เติมเหรียญอ่านการ์ตูน/นิยาย", "ฟังพอดแคสต์หัวข้อที่สนใจ 1 ตอน", 
+        "ซื้อการ์ดเกม/การ์ดสะสมเพิ่ม 1 ซอง", "ดูภาพยนตร์การ์ตูนคลาสสิกยุคเก่า", "จัดเพลย์ลิสต์เพลงใหม่ 20 เพลง", 
+        "ซื้อโปสเตอร์/โปสการ์ดสวยๆ 1 แผ่น", "สมัครพรีเมียมแอปดูหนัง/ฟังเพลง 1 เดือน", "ดูคลิปเบื้องหลังการทำเกม 1 ชม."
+    ];
+
+    const events = [
+        { text: "⚡ บัฟคูณสอง (Double EXP): ทำภารกิจถัดไปได้รับ EXP x2!", effect: "double" },
+        { text: "⭐ โบนัสโชคดี: ได้รับดาวคืนฟรีทันที 2 ดวง!", effect: "add_stars_2" },
+        { text: "🎁 ขุมทรัพย์ดาว: ได้รับดาวคืนฟรีทันที 4 ดวง!", effect: "add_stars_4" },
+        { text: "💥 ระเบิด EXP: ได้รับ bonus +15 EXP ทันที!", effect: "add_exp_15" },
+        { text: "🚀 ซูเปอร์จัมป์: ได้รับ bonus +30 EXP ทันที!", effect: "add_exp_30" },
+        { text: "🔮 พรแห่งปัญญา: ปลดล็อกภารกิจให้ทำแล้วได้ EXP x3 ในตาถัดไป!", effect: "triple" },
+        { text: "🍀 โชคใหญ่หล่นทับ: ได้รับดาวคืน 5 ดวง + EXP +10!", effect: "jackpot" },
+        { text: "🌀 มิติเวลาปั่นป่วน: รีเซ็ตสิทธิ์การสุ่มภารกิจใหม่เป็น 5 ครั้งทันที!", effect: "reset_rerolls" },
+        { text: "☕ เวลาพักผ่อน: ไม่ได้รับอะไร แต่รู้สึกสดชื่นขึ้น!", effect: "none" },
+        { text: "🎭 สลับตัวละคร: ได้รับโบนัสพิเศษ +10 EXP!", effect: "add_exp_10" },
+        { text: "🔥 ไฟแห่งความพยายาม: ทำภารกิจถัดไปจะได้รับดาวเพิ่มฟรี 1 ดวง!", effect: "extra_star_quest" },
+        { text: "🎲 กล่องสุ่มเสี่ยงดวง: เสียดาวฟรีโดยไม่ได้อะไรเลย...", effect: "none" },
+        { text: "🌟 รังสีออร่า: ได้รับดาวคืน 3 ดวง (เท่ากับสุ่มฟรี!)", effect: "add_stars_3" },
+        { text: "📜 คัมภีร์โบราณ: ปลดล็อกยศพิเศษชั่วคราว +20 EXP!", effect: "add_exp_20" },
+        { text: "🧊 แช่แข็งความขี้เกียจ: เพิ่มพลังใจ EXP +5!", effect: "add_exp_5" },
+        { text: "🏆 ถ้วยเกียรติยศ: ได้รับดาวคืน 1 ดวง และ EXP +10!", effect: "star_and_exp" },
+        { text: "🌈 ร่มเจ็ดสี: บัฟ EXP x2 สำหรับภารกิจถัดไป!", effect: "double" },
+        { text: "🎈 กิจกรรมพิเศษ: สุ่มได้ดาวคืนทันที 1 ดวง", effect: "add_stars_1" },
+        { text: "🪙 เหรียญทองคำ: รับ EXP +25 ทันที!", effect: "add_exp_25" },
+        { text: "👑 พรจากราชา: ได้รับดาวคืน 6 ดวงสุดคุ้ม!", effect: "add_stars_6" }
+    ];
+
+    const staticQuestions = [
+        { cat: "🧪 เคมี (ม.4 ยาก)", q: "ธาตุ A มีเลขอะตอม 19 จัดเรียงอิเล็กตรอนอย่างไร และอยู่ในหมู่ใด?", opts: ["2, 8, 8, 1 (หมู่ 1A)", "2, 8, 9 (หมู่ 3A)", "2, 8, 8, 2 (หมู่ 2A)", "2, 8, 7, 2 (หมู่ 7A)"], ans: 0, exp: "💡 *อธิบายเหตุผล:* ธาตุเลขอะตอม 19 คือ โพแทสเซียม (K) การจัดเรียงอิเล็กตรอนคือ 2, 8, 8, 1 ตัวสุดท้ายคือ 1 จึงอยู่หมู่ 1A" },
+        { cat: "🧪 เคมี (ม.4 ยาก)", q: "ข้อใดเป็นแรงยึดเหนี่ยวระหว่างโมเลกุลที่ทำให้ H2O มีจุดเดือดสูงกว่า H2S มาก?", opts: ["พันธะไอออนิก", "พันธะไฮโดรเจน", "แรงลอนดอน", "พันธะโคเวเลนต์"], ans: 1, exp: "💡 *อธิบายเหตุผล:* H2O มีพันธะไฮโดรเจน ซึ่งแข็งแรงมาก ทำให้จุดเดือดสูงกว่า H2S" },
+        { cat: "🧪 เคมี (ม.4 ยาก)", q: "สารละลาย HCl เข้มข้น 0.01 โมล/ลิตร มีค่า pH เท่าใด?", opts: ["pH = 1", "pH = 2", "pH = 3", "pH = 12"], ans: 1, exp: "💡 *อธิบายเหตุผล:* pH = -log[H+] = -log(10^-2) = 2" },
+        { cat: "🧬 ชีววิทยา (ม.4 ยาก)", q: "ในการสังเคราะห์ด้วยแสง ปฏิกิริยาแสง เกิดขึ้นที่บริเวณใด?", opts: ["Stroma", "Thylakoid Membrane", "Outer Membrane", "Cristae"], ans: 1, exp: "💡 *อธิบายเหตุผล:* เกิดขึ้นที่เยื่อไทลาคอยด์เพราะมีคลอโรฟิลล์ฝังตัวอยู่" },
+        { cat: "⚡ ฟิสิกส์ (ม.4 ยาก)", q: "โยนวัตถุขึ้นด้วยความเร็วต้น 20 m/s วัตถุจะขึ้นได้สูงสุดกี่เมตร? (g = 10 m/s²)", opts: ["10 เมตร", "20 เมตร", "30 เมตร", "40 เมตร"], ans: 1, exp: "💡 *อธิบายเหตุผล:* v² = u² - 2gh -> 0 = 400 - 20h -> h = 20 เมตร" },
+        { cat: "📐 คณิตศาสตร์ (ม.4 ยาก)", q: "ถ้า x + 1/x = 3 แล้วค่าของ x² + 1/x² เท่ากับเท่าใด?", opts: ["7", "9", "11", "6"], ans: 0, exp: "💡 *อธิบายเหตุผล:* (x + 1/x)² = 9 -> x² + 2 + 1/x² = 9 -> x² + 1/x² = 7" },
+        { cat: "🇬🇧 ภาษาอังกฤษ", q: "If he _____ harder, he would have passed the exam.", opts: ["studied", "has studied", "had studied", "would study"], ans: 2, exp: "💡 *อธิบายเหตุผล:* Third Conditional: If + had + V.3, would have + V.3" },
+        { cat: "🤡 คำถามกวนๆ", q: "เกาะอะไรมีเสาไฟเยอะที่สุด?", opts: ["เกาะเสม็ด", "เกาะกลางถนน", "เกาะช้าง", "เกาะพีพี"], ans: 1, exp: "💡 *อธิบายเหตุผล:* เกาะกลางถนนตั้งเสาไฟส่องสว่างไว้ตลอดแนวถนนครับ!" }
+    ];
+
+    function generateDynamicQuestion() {
+        const types = ["math_poly", "math_pythagoras", "phys_speed", "chem_mol"];
+        const chosen = types[Math.floor(Math.random() * types.length)];
+
+        if (chosen === "math_poly") {
+            const a = Math.floor(Math.random() * 😎 + 2;
+            const ans = a * a - 2;
+            return {
+                cat: "📐 คณิตศาสตร์ (ม.4 ยาก - Dynamic)",
+                q: ถ้า x + 1/x = ${a} แล้วค่าของ x² + 1/x² เท่ากับเท่าใด?,
+                opts: [`${ans}`, ${a*a}, ${ans + 4}, `${ans - 2}`],
+                ans: 0,
+                exp:💡 **อธิบายเหตุผล:** (x + 1/x)² = ${a}² จะได้ x² + 2 + 1/x² = ${a*a} ดังนั้น x² + 1/x² = **${ans}**`
+            };
+        } else if (chosen === "math_pythagoras") {
+            const k = Math.floor(Math.random() * 5) + 1;
+            const a = 3 * k, b = 4 * k, c = 5 * k;
+            return {
+                cat: "📐 คณิตศาสตร์ (ม.4 ยาก - Dynamic)",
+                q: สามเหลี่ยมมุมฉากมีด้านยาว ${a} และ ${b} เซนติเมตร ด้านตรงข้ามมุมฉากยาวกี่เซนติเมตร?,
+                opts: [`${c} ซม.`, ${c + 2} ซม., ${c - 1} ซม., `${a + b} ซม.`],
+                ans: 0,
+                exp:💡 **อธิบายเหตุผล:** c² = ${a}² + ${b}² = ${a*a + b*b} ดังนั้น c = **${c} ซม.**`
+            };
+        } else if (chosen === "phys_speed") {
+            const v = (Math.floor(Math.random() * 5) + 1) * 10;
+            const h = (v * v) / 20;
+            return {
+                cat: "⚡ ฟิสิกส์ (ม.4 ยาก - Dynamic)",
+                q: โยนวัตถุขึ้นด้วยความเร็วต้น ${v} m/s วัตถุจะขึ้นได้สูงสุดกี่เมตร? (g = 10 m/s²),
+                opts: [`${h} เมตร`, ${h * 2} เมตร, ${h / 2} เมตร, `${h + 10} เมตร`],
+                ans: 0,
+                exp:💡 **อธิบายเหตุผล:** h = v² / 2g = ${v*v} / 20 = **${h} เมตร**`
+            };
+        } else {
+            const g = (Math.floor(Math.random() * 5) + 1) * 18;
+            const mol = g / 18;
+            return {
+                cat: "🧪 เคมี (ม.4 ยาก - Dynamic)",
+                q: น้ำ (H2O) มวล ${g} กรัม คิดเป็นกี่โมล? (MW = 18 g/mol),
+                opts: [`${mol} โมล`, ${mol * 2} โมล, ${mol + 1} โมล, `${mol / 2} โมล`],
+                ans: 0,
+                exp:💡 **อธิบายเหตุผล:** n = g / MW = ${g} / 18 = **${mol} โมล**`
+            };
+        }
+    }
+
+    function getRandomQuestion() {
+        return Math.random() < 0.5 ? generateDynamicQuestion() : staticQuestions[Math.floor(Math.random() * staticQuestions.length)];
+    }
+
+    const sadQuotes = [
+        "โธ่น้องน่าสงสารไว้คราวหน้าเอาใหม่นาาา",
+        "ป๊าดดด ผิดซะงั้น โธ่น้องน่าสงสารไว้คราวหน้าเอาใหม่นาาา",
+        "โอ๋ๆ ไม่เป็นไรนะ โธ่น้องน่าสงสารไว้คราวหน้าเอาใหม่นาาา",
+        "เฉียดไปนิดเดียวเอง โธ่น้องน่าสงสารไว้คราวหน้าเอาใหม่นาาา",
+        "ดวงยังไม่มาว่ะน้อง โธ่น้องน่าสงสารไว้คราวหน้าเอาใหม่นาาา"
+    ];
+
+    let playerName = "";
+    let currentQuest = null;
+    let currentBarExp = 0;
+    let totalLifetimeExp = 0;
+    let stars = 0;
+    let starsEarnedCounter = 0;
+    let rankTitle = "🐣 Comfort Keeper";
+    let expMultiplier = 1;
+    let leaderboard = [];
+    let remainingRerolls = 5;
+
+    function renderLeaderboard() {
+        const tbody = document.getElementById('leaderboardBody');
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        leaderboard.forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = <td>${p.name}</td><td>${p.rank}</td><td>${p.exp}</td><td>⭐ ${p.stars}</td>;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updateLeaderboardData() {
+        if (!playerName) return;
+        const playerData = { name: playerName, rank: rankTitle, exp: totalLifetimeExp, stars: stars };
+        
+        let existingIdx = leaderboard.findIndex(p => p.name === playerName);
+        if (existingIdx !== -1) {
+            leaderboard[existingIdx] = playerData;
+        } else {
+            leaderboard.push(playerData);
+        }
+        leaderboard.sort((a, b) => b.exp - a.exp);
+        renderLeaderboard();
+    }
+
+    function saveGameData() {
+        updateLeaderboardData();
+        const gameSave = {
+            playerName, currentBarExp, totalLifetimeExp, stars, starsEarnedCounter,
+            rankTitle, expMultiplier, remainingRerolls, currentQuest
+        };
+        localStorage.setItem('zoneQuestSave', JSON.stringify(gameSave));
+        localStorage.setItem('zoneQuestLeaderboard', JSON.stringify(leaderboard));
+    }
+
+    function loadGameData() {
+        const savedBg = localStorage.getItem('zoneQuestBg');
+        if (savedBg) {
+            document.body.style.backgroundImage = url('${savedBg}');
+        }
+
+        const savedLeaderboard = localStorage.getItem('zoneQuestLeaderboard');
+        if (savedLeaderboard) {
+            leaderboard = JSON.parse(savedLeaderboard);
+            renderLeaderboard();
+        }
+
+        const savedGame = localStorage.getItem('zoneQuestSave');
+        if (savedGame) {
+            const data = JSON.parse(savedGame);
+            playerName = data.playerName || "";
+            currentBarExp = data.currentBarExp || 0;
+            totalLifetimeExp = data.totalLifetimeExp || 0;
+            stars = data.stars !== undefined ? data.stars : 0;
+            starsEarnedCounter = data.starsEarnedCounter || 0;
+            rankTitle = data.rankTitle || "🐣 Comfort Keeper";
+            expMultiplier = data.expMultiplier || 1;
+            remainingRerolls = data.remainingRerolls !== undefined ? data.remainingRerolls : 5;
+            currentQuest = data.currentQuest || null;
+
+            if (playerName) {
+                updateUIState();
+                document.getElementById('nameScreen').style.display = "none";
+                document.getElementById('gameScreen').style.display = "block";
+            }
+        }
+    }
+
+    
+    function updateUIState() {
+        document.getElementById('displayName').innerText = playerName;
+        document.getElementById('exp').innerText = currentBarExp;
+        document.getElementById('totalExpDisplay').innerText = totalLifetimeExp;
+        document.getElementById('stars').innerText = stars;
+        document.getElementById('rank').innerText = rankTitle;
+        const expPercent = Math.min((currentBarExp / 100) * 100, 100);
+        const expBar = document.getElementById('expBar');
+        if (expBar) expBar.style.width = expPercent + '%';
+        const buff = document.getElementById('buffStatus');
+        if (buff) {
+            buff.innerText = expMultiplier > 1 ? `⚡ EXP x${expMultiplier} Active!` : '';
+        }
+    }
+
+    function checkRank() {
+        if (totalLifetimeExp >= 1000) rankTitle = "👑 Legend of the Zone";
+        else if (totalLifetimeExp >= 600) rankTitle = "💎 Diamond Master";
+        else if (totalLifetimeExp >= 350) rankTitle = "🥇 Gold Conqueror";
+        else if (totalLifetimeExp >= 180) rankTitle = "🥈 Silver Voyager";
+        else if (totalLifetimeExp >= 80) rankTitle = "🥉 Bronze Explorer";
+        else rankTitle = "🐣 Comfort Keeper";
+    }
+
+    function startGame() {
+        const input = document.getElementById('playerNameInput');
+        const name = input ? input.value.trim() : "";
+        if (!name) {
+            alert("กรุณากรอกชื่อตัวละครก่อนเริ่มต้นผจญภัยครับ!");
+            return;
+        }
+        playerName = name;
+        document.getElementById('nameScreen').style.display = "none";
+        document.getElementById('gameScreen').style.display = "block";
+        if (!currentQuest) drawQuest();
+        updateUIState();
+        saveGameData();
+    }
+
+    function drawQuest() {
+        if (!all500Quests || all500Quests.length === 0) {
+            all500Quests = generate500Quests();
+        }
+        currentQuest = all500Quests[Math.floor(Math.random() * all500Quests.length)];
+        document.getElementById('questTitle').innerText = currentQuest.title;
+        document.getElementById('questDesc').innerText = currentQuest.desc;
+        const tagEl = document.getElementById('questTag');
+        if (tagEl) {
+            tagEl.innerText = currentQuest.tag;
+            tagEl.className = 'quest-tag ' + currentQuest.type;
+        }
+        document.getElementById('rewardBox').style.display = "none";
+        document.getElementById('eventBox').style.display = "none";
+        saveGameData();
+    }
+
+    let activeQuestion = null;
+
+    function completeQuest() {
+        if (!currentQuest) {
+            alert("กรุณากดสุ่มภารกิจก่อนครับ!");
+            return;
+        }
+        activeQuestion = getRandomQuestion();
+        document.getElementById('qCategoryTag').innerText = activeQuestion.cat || "คำถามทั่วไป";
+        document.getElementById('questionText').innerText = activeQuestion.q;
+        const feedback = document.getElementById('feedbackBox');
+        if (feedback) feedback.style.display = "none";
+
+        const optContainer = document.getElementById('optionsContainer');
+        optContainer.innerHTML = "";
+        activeQuestion.opts.forEach((optText, index) => {
+            const btn = document.createElement('button');
+            btn.className = "opt-btn";
+            btn.innerText = (index + 1) + ". " + optText;
+            btn.onclick = () => answerQuestion(index);
+            optContainer.appendChild(btn);
+        });
+
+        document.getElementById('fullQuestionOverlay').style.display = "flex";
+    }
+
+    function answerQuestion(selectedIdx) {
+        if (!activeQuestion) return;
+        const feedback = document.getElementById('feedbackBox');
+        if (selectedIdx === activeQuestion.ans) {
+            const gainedExp = (currentQuest ? currentQuest.exp : 10) * expMultiplier;
+            currentBarExp += gainedExp;
+            totalLifetimeExp += gainedExp;
+            stars += 1;
+            starsEarnedCounter += 1;
+
+            if (currentBarExp >= 100) {
+                currentBarExp -= 100;
+                alert("🎉 LEVEL UP! ตัวละครของคุณเติบโตขึ้นอีกขั้น!");
+            }
+            checkRank();
+            expMultiplier = 1;
+
+            feedback.className = "feedback-box success";
+            feedback.innerHTML = `✅ <b>ถูกต้องยอดเยี่ยม!</b><br>ได้รับ <b>+${gainedExp} EXP</b> และ ⭐ <b>+1 ดาว</b><br><small>${activeQuestion.exp || ''}</small>`;
+            feedback.style.display = "block";
+            updateUIState();
+            saveGameData();
+
+            setTimeout(() => {
+                closeQuestionBox();
+                drawQuest();
+            }, 2200);
+        } else {
+            const quote = sadQuotes[Math.floor(Math.random() * sadQuotes.length)];
+            feedback.className = "feedback-box wrong";
+            feedback.innerHTML = `❌ <b>ยังไม่ถูกต้อง!</b><br>${quote}<br><small>${activeQuestion.exp || ''}</small>`;
+            feedback.style.display = "block";
+        }
+    }
+
+    function closeQuestionBox() {
+        document.getElementById('fullQuestionOverlay').style.display = "none";
+    }
+
+    function claimReward() {
+        if (stars < 3) {
+            alert("ต้องใช้ 3 ดาว ⭐ ในการสุ่มรางวัลครับ! (สะสมได้จากการตอบคำถามทำเควสต์)");
+            return;
+        }
+        stars -= 3;
+        const rw = rewards[Math.floor(Math.random() * rewards.length)];
+        document.getElementById('rewardText').innerHTML = `🎁 <b>${rw}</b>`;
+        document.getElementById('rewardBox').style.display = "block";
+        updateUIState();
+        saveGameData();
+    }
+
+    function drawEvent() {
+        if (stars < 3) {
+            alert("ต้องใช้ 3 ดาว ⭐ ในการสุ่มการ์ดเหตุการณ์พิเศษครับ!");
+            return;
+        }
+        stars -= 3;
+        const ev = events[Math.floor(Math.random() * events.length)];
+        document.getElementById('eventText').innerHTML = `🔮 <b>${ev.text}</b>`;
+        document.getElementById('eventBox').style.display = "block";
+
+        if (ev.effect === 'double') expMultiplier = 2;
+        else if (ev.effect === 'add_stars_2') stars += 2;
+        else if (ev.effect === 'add_exp_20') { currentBarExp += 20; totalLifetimeExp += 20; }
+
+        updateUIState();
+        saveGameData();
+    }
+
+    function addBonusStars(amount) {
+        stars += amount;
+        updateUIState();
+        saveGameData();
+    }
+
+    function toggleGameVisibility() {
+        const box = document.getElementById('mainGameContainer');
+        const btn = document.getElementById('toggleHideBtn');
+        if (box.classList.contains('hidden-game')) {
+            box.classList.remove('hidden-game');
+            if (btn) btn.innerText = "👁️ ซ่อนเกม (ดูพื้นหลัง)";
+        } else {
+            box.classList.add('hidden-game');
+            if (btn) btn.innerText = "👁️ แสดงเกม";
+        }
+    }
+
+    let targetGuessNumber = Math.floor(Math.random() * 20) + 1;
+    function startMiniGame() {
+        const type = document.getElementById('miniGameSelect').value;
+        const guessUI = document.getElementById('guessGameUI');
+        const memoryUI = document.getElementById('memoryGameUI');
+        if (type === 'guess') {
+            guessUI.style.display = "block";
+            if (memoryUI) memoryUI.style.display = "none";
+            targetGuessNumber = Math.floor(Math.random() * 20) + 1;
+            document.getElementById('guessFeedback').innerText = "ทายเลขระหว่าง 1 - 20";
+        } else {
+            if (guessUI) guessUI.style.display = "none";
+            if (memoryUI) memoryUI.style.display = "block";
+        }
+    }
+
+    function checkGuessNumber() {
+        const val = parseInt(document.getElementById('guessInput').value);
+        const fb = document.getElementById('guessFeedback');
+        if (isNaN(val)) return;
+        if (val === targetGuessNumber) {
+            fb.innerHTML = `🎉 <b>ถูกต้อง! เลขคือ ${targetGuessNumber}</b> ได้รับ +1 ดาว ⭐!`;
+            stars += 1;
+            updateUIState();
+            saveGameData();
+            targetGuessNumber = Math.floor(Math.random() * 20) + 1;
+        } else if (val < targetGuessNumber) {
+            fb.innerText = "🔼 น้อยเกินไป! ลองเลขที่มากกว่านี้";
+        } else {
+            fb.innerText = "🔽 มากเกินไป! ลองเลขที่น้อยกว่านี้";
+        }
+    }
+
+    function resetToNewCharacter() {
+        if (!confirm("ต้องการรีเซ็ตตัวละครและเริ่มต้นใหม่ทั้งหมดใช่ไหม?")) return;
+        localStorage.removeItem('zoneQuestSave');
+        playerName = "";
+        currentBarExp = 0;
+        totalLifetimeExp = 0;
+        stars = 0;
+        currentQuest = null;
+        document.getElementById('gameScreen').style.display = "none";
+        document.getElementById('nameScreen').style.display = "block";
+    }
+
+    // Initialize game
+    window.onload = function() {
+        all500Quests = generate500Quests();
+        loadGameData();
+    };
+</script>
+</body>
+</html>

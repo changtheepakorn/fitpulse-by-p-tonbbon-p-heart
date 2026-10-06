@@ -1,0 +1,5160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ไว้พรุ่งนี้ค่อยคิด 🌙</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+/* =========================
+   BASIC
+========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  color: #3f4050;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f9f4ff,
+      #f1f8ff,
+      #fff8ef
+    );
+
+  min-height: 100vh;
+
+  transition:
+    background .3s ease,
+    color .3s ease;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  width: min(100%, 1050px);
+  margin: auto;
+  padding: 25px 20px 50px;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.brand-icon {
+  width: 55px;
+  height: 55px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ddd1ff,
+      #b9ddff
+    );
+
+  font-size: 27px;
+
+  box-shadow:
+    0 8px 20px rgba(100, 80, 150, .12);
+}
+
+.brand h1 {
+  margin: 0;
+
+  font-size: 22px;
+}
+
+.brand p {
+  margin: 3px 0 0;
+
+  color: #8b8c99;
+
+  font-size: 13px;
+}
+
+.icon-btn {
+  border: 0;
+
+  width: 45px;
+  height: 45px;
+
+  border-radius: 15px;
+
+  background: rgba(255,255,255,.8);
+
+  font-size: 20px;
+
+  box-shadow:
+    0 5px 18px rgba(0,0,0,.07);
+
+  transition: .2s;
+}
+
+.icon-btn:hover {
+  transform: scale(1.05);
+}
+
+
+/* =========================
+   NAV
+========================= */
+
+.nav {
+  display: flex;
+  gap: 8px;
+
+  padding: 7px;
+
+  margin-bottom: 25px;
+
+  background: rgba(255,255,255,.65);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 8px 25px rgba(0,0,0,.05);
+}
+
+.nav-btn {
+  flex: 1;
+
+  border: 0;
+
+  padding: 11px 8px;
+
+  border-radius: 15px;
+
+  background: transparent;
+
+  color: #777989;
+
+  font-size: 14px;
+
+  transition: .25s;
+}
+
+.nav-btn span {
+  margin-left: 4px;
+}
+
+.nav-btn:hover {
+  background: rgba(255,255,255,.7);
+}
+
+.nav-btn.active {
+  background: white;
+
+  color: #6b5aa6;
+
+  box-shadow:
+    0 5px 15px rgba(0,0,0,.07);
+
+  font-weight: 700;
+}
+
+
+/* =========================
+   PAGE
+========================= */
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+
+  animation:
+    pageIn .35s ease;
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 30px;
+
+  margin-bottom: 20px;
+
+  border-radius: 30px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #e8ddff,
+      #dff1ff,
+      #fff1df
+    );
+
+  overflow: hidden;
+}
+
+.small-label {
+  display: inline-block;
+
+  padding: 7px 12px;
+
+  border-radius: 20px;
+
+  background: rgba(255,255,255,.6);
+
+  font-size: 13px;
+}
+
+.hero h2 {
+  margin: 14px 0 8px;
+
+  font-size: clamp(28px, 5vw, 42px);
+
+  line-height: 1.2;
+}
+
+.hero p {
+  margin: 0;
+
+  color: #717384;
+
+  line-height: 1.6;
+}
+
+.hero-emoji {
+  font-size: 100px;
+
+  animation:
+    floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0%,100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+.card {
+  background: rgba(255,255,255,.82);
+
+  border-radius: 25px;
+
+  padding: 23px;
+
+  margin-bottom: 20px;
+
+  box-shadow:
+    0 10px 30px rgba(60,60,100,.07);
+
+  backdrop-filter: blur(10px);
+}
+
+.card-heading,
+.section-title {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 15px;
+
+  margin-bottom: 15px;
+}
+
+.card-heading h3,
+.section-title h3 {
+  margin: 0;
+
+  font-size: 20px;
+}
+
+.card-heading p,
+.section-title p {
+  margin: 4px 0 0;
+
+  color: #9293a0;
+
+  font-size: 13px;
+}
+
+#charCount {
+  color: #999;
+
+  font-size: 12px;
+}
+
+
+/* =========================
+   TEXTAREA
+========================= */
+
+textarea {
+  width: 100%;
+
+  min-height: 150px;
+
+  padding: 17px;
+
+  border: 2px solid transparent;
+
+  border-radius: 18px;
+
+  resize: vertical;
+
+  outline: none;
+
+  background: #f8f7fb;
+
+  color: #3f4050;
+
+  font-size: 15px;
+
+  line-height: 1.6;
+
+  transition: .25s;
+}
+
+textarea:focus {
+  border-color: #c9b8f4;
+
+  background: white;
+
+  box-shadow:
+    0 0 0 4px rgba(201,184,244,.15);
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+.field {
+  margin-top: 18px;
+}
+
+.field label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  font-weight: 600;
+
+  font-size: 14px;
+}
+
+.feeling-list {
+  display: flex;
+  gap: 9px;
+}
+
+.feeling-btn {
+  width: 48px;
+  height: 45px;
+
+  border: 2px solid transparent;
+
+  border-radius: 14px;
+
+  background: #f6f4fa;
+
+  font-size: 21px;
+
+  transition: .2s;
+}
+
+.feeling-btn:hover {
+  transform: translateY(-2px);
+}
+
+.feeling-btn.selected {
+  border-color: #a997d7;
+
+  background: #eee8ff;
+
+  transform: translateY(-3px);
+}
+
+select {
+  width: 100%;
+
+  padding: 13px 15px;
+
+  border: 0;
+
+  border-radius: 15px;
+
+  background: #f7f6fa;
+
+  color: #50515f;
+
+  outline: none;
+
+  font-size: 14px;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.form-buttons {
+  display: flex;
+
+  gap: 10px;
+
+  margin-top: 20px;
+}
+
+.primary-btn,
+.secondary-btn {
+  border: 0;
+
+  border-radius: 15px;
+
+  padding: 13px 18px;
+
+  font-weight: 700;
+
+  transition: .2s;
+}
+
+.primary-btn {
+  background:
+    linear-gradient(
+      135deg,
+      #9b88d7,
+      #7d9fdb
+    );
+
+  color: white;
+
+  box-shadow:
+    0 7px 18px rgba(120,100,180,.2);
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+}
+
+.secondary-btn {
+  background: #f0eff5;
+
+  color: #666;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.text-btn {
+  border: 0;
+
+  background: transparent;
+
+  color: #7664aa;
+
+  font-weight: 600;
+}
+
+
+/* =========================
+   STATS
+========================= */
+
+.stats-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 14px;
+
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  padding: 20px;
+
+  border-radius: 22px;
+
+  background: rgba(255,255,255,.8);
+
+  text-align: center;
+
+  box-shadow:
+    0 7px 22px rgba(0,0,0,.05);
+}
+
+.stat-card span {
+  display: block;
+
+  font-size: 25px;
+
+  margin-bottom: 7px;
+}
+
+.stat-card strong {
+  display: block;
+
+  font-size: 25px;
+}
+
+.stat-card small {
+  color: #999;
+
+  font-size: 12px;
+}
+
+
+/* =========================
+   THOUGHT ITEM
+========================= */
+
+.thought-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.thought-item {
+  padding: 17px;
+
+  border-radius: 19px;
+
+  background: #faf9fc;
+
+  border: 1px solid #eeeaf5;
+
+  transition: .2s;
+}
+
+.thought-item:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 7px 18px rgba(0,0,0,.05);
+}
+
+.thought-top {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 10px;
+}
+
+.thought-feeling {
+  font-size: 22px;
+}
+
+.thought-date {
+  color: #aaa;
+
+  font-size: 11px;
+}
+
+.thought-text {
+  margin: 12px 0;
+
+  line-height: 1.6;
+
+  white-space: pre-wrap;
+
+  word-break: break-word;
+}
+
+.category-tag {
+  display: inline-block;
+
+  padding: 5px 9px;
+
+  border-radius: 10px;
+
+  background: #eee9fb;
+
+  color: #7663a9;
+
+  font-size: 11px;
+}
+
+.status-tag {
+  display: inline-block;
+
+  padding: 5px 9px;
+
+  border-radius: 10px;
+
+  margin-left: 5px;
+
+  font-size: 11px;
+}
+
+.status-active {
+  background: #fff0db;
+
+  color: #a87531;
+}
+
+.status-tomorrow {
+  background: #e8f2ff;
+
+  color: #5579a8;
+}
+
+.status-completed {
+  background: #e6f5e8;
+
+  color: #5d9363;
+}
+
+.thought-actions {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  margin-top: 14px;
+}
+
+.action-btn {
+  border: 0;
+
+  padding: 8px 11px;
+
+  border-radius: 11px;
+
+  background: #eeedf3;
+
+  color: #666;
+
+  font-size: 12px;
+}
+
+.action-btn:hover {
+  background: #e2dfeb;
+}
+
+.action-btn.danger {
+  color: #b65e68;
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+.search-box {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 12px 15px;
+
+  border-radius: 15px;
+
+  background: #f7f6fa;
+}
+
+.search-box input {
+  flex: 1;
+
+  border: 0;
+
+  outline: none;
+
+  background: transparent;
+
+  color: #444;
+
+  font-size: 14px;
+}
+
+.filter-list {
+  display: flex;
+
+  gap: 8px;
+
+  overflow-x: auto;
+
+  margin-top: 15px;
+
+  padding-bottom: 2px;
+}
+
+.filter-btn {
+  border: 0;
+
+  padding: 8px 13px;
+
+  border-radius: 12px;
+
+  background: #f0eff4;
+
+  color: #777;
+
+  white-space: nowrap;
+
+  font-size: 12px;
+}
+
+.filter-btn.active {
+  background: #dcd1f8;
+
+  color: #66528e;
+
+  font-weight: 700;
+}
+
+
+/* =========================
+   PAGE HEADER
+========================= */
+
+.page-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  margin-bottom: 20px;
+}
+
+.page-icon {
+  width: 55px;
+  height: 55px;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 18px;
+
+  background: #eee8ff;
+
+  font-size: 28px;
+}
+
+.page-header h2 {
+  margin: 0;
+}
+
+.page-header p {
+  margin: 4px 0 0;
+
+  color: #9293a0;
+
+  font-size: 13px;
+}
+
+
+/* =========================
+   TOMORROW
+========================= */
+
+.tomorrow-hero {
+  padding: 30px;
+
+  margin-bottom: 20px;
+
+  text-align: center;
+
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #e8f2ff,
+      #f2eaff
+    );
+}
+
+.big-box {
+  font-size: 65px;
+
+  animation:
+    floating 3s ease-in-out infinite;
+}
+
+.tomorrow-hero h2 {
+  margin: 10px 0 5px;
+}
+
+.tomorrow-hero p {
+  margin: 0;
+
+  color: #77798a;
+
+  line-height: 1.7;
+}
+
+
+/* =========================
+   GARDEN
+========================= */
+
+.garden-card {
+  background:
+    rgba(255,255,255,.85);
+
+  border-radius: 28px;
+
+  padding: 25px;
+
+  margin-bottom: 20px;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.08);
+}
+
+.garden-title {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 15px;
+}
+
+.garden-title h2 {
+  margin: 0;
+
+  font-size: 24px;
+}
+
+.garden-title p {
+  margin: 6px 0 0;
+
+  color: #777;
+
+  line-height: 1.5;
+}
+
+#plantLevel {
+  background: #eef8e8;
+
+  padding: 8px 14px;
+
+  border-radius: 20px;
+
+  font-weight: bold;
+
+  white-space: nowrap;
+}
+
+
+/* =========================
+   PLANT AREA
+========================= */
+
+.plant-area {
+  height: 260px;
+
+  margin: 20px 0;
+
+  border-radius: 24px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  position: relative;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #eaf7ff 0%,
+      #f5fbff 56%,
+      #eaf5dc 56%,
+      #dceec8 100%
+    );
+}
+
+.plant {
+  font-size: 90px;
+
+  position: relative;
+
+  z-index: 3;
+
+  transform-origin:
+    center bottom;
+
+  transition:
+    font-size .5s ease;
+
+  filter:
+    drop-shadow(
+      0 8px 8px
+      rgba(50,80,40,.12)
+    );
+}
+
+.ground {
+  position: absolute;
+
+  bottom: 0;
+
+  width: 100%;
+
+  height: 28%;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(100,130,70,.18),
+      transparent 65%
+    );
+}
+
+.sparkles {
+  position: absolute;
+
+  z-index: 5;
+
+  font-size: 35px;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+.sparkles.show {
+  animation:
+    sparkle 1.3s ease;
+}
+
+@keyframes sparkle {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      scale(.3)
+      rotate(0deg);
+  }
+
+  35% {
+    opacity: 1;
+
+    transform:
+      scale(1.4)
+      rotate(20deg);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      scale(2)
+      rotate(45deg);
+  }
+}
+
+.plant.grow {
+  animation:
+    growPlant .9s ease;
+}
+
+@keyframes growPlant {
+
+  0% {
+    transform:
+      scale(.5)
+      translateY(15px);
+
+    opacity: .3;
+  }
+
+  45% {
+    transform:
+      scale(1.3)
+      translateY(-5px);
+  }
+
+  70% {
+    transform:
+      scale(.92);
+  }
+
+  100% {
+    transform:
+      scale(1);
+  }
+}
+
+
+/* =========================
+   GROWTH
+========================= */
+
+.growth-info {
+  text-align: center;
+}
+
+#plantName {
+  font-size: 21px;
+}
+
+#plantMessage {
+  color: #777;
+
+  margin: 7px 0 15px;
+}
+
+.growth-bar {
+  width: 100%;
+
+  height: 12px;
+
+  background: #e8e8e8;
+
+  border-radius: 20px;
+
+  overflow: hidden;
+}
+
+#growthProgress {
+  height: 100%;
+
+  width: 0%;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #b8d99a,
+      #78b159
+    );
+
+  transition:
+    width .7s ease;
+}
+
+#growthText {
+  display: block;
+
+  margin-top: 8px;
+
+  color: #888;
+}
+
+
+/* =========================
+   GROWTH LEVELS
+========================= */
+
+.growth-levels {
+  display: grid;
+
+  grid-template-columns:
+    repeat(6, 1fr);
+
+  gap: 10px;
+
+  margin-top: 17px;
+}
+
+.level-item {
+  padding: 13px 7px;
+
+  border-radius: 17px;
+
+  text-align: center;
+
+  background: #faf9fc;
+}
+
+.level-item span {
+  font-size: 30px;
+}
+
+.level-item p {
+  margin: 5px 0 2px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.level-item small {
+  color: #999;
+
+  font-size: 10px;
+}
+
+
+/* =========================
+   SLEEP
+========================= */
+
+.sleep-btn {
+  width: 100%;
+
+  padding: 16px;
+
+  border: 0;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #3e3d63,
+      #69658f
+    );
+
+  color: white;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  box-shadow:
+    0 8px 20px rgba(50,50,90,.15);
+
+  transition: .2s;
+}
+
+.sleep-btn:hover {
+  transform: translateY(-2px);
+}
+
+.sleep-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 100;
+
+  display: none;
+
+  justify-content: center;
+
+  align-items: center;
+
+  padding: 20px;
+
+  background:
+    radial-gradient(
+      circle at top,
+      #45446d,
+      #16172b
+    );
+}
+
+.sleep-overlay.show {
+  display: flex;
+
+  animation:
+    fadeIn .4s ease;
+}
+
+.sleep-content {
+  max-width: 500px;
+
+  width: 100%;
+
+  text-align: center;
+
+  color: white;
+}
+
+.moon-big {
+  font-size: 90px;
+
+  animation:
+    floating 3s infinite;
+}
+
+.sleep-content h2 {
+  font-size: 34px;
+
+  margin: 15px 0 10px;
+}
+
+.sleep-content p {
+  color: #d7d6e8;
+
+  line-height: 1.8;
+}
+
+.sleep-message {
+  margin: 25px 0;
+
+  padding: 15px;
+
+  border-radius: 17px;
+
+  background: rgba(255,255,255,.1);
+}
+
+
+/* =========================
+   TOAST
+========================= */
+
+.toast {
+  position: fixed;
+
+  left: 50%;
+
+  bottom: 25px;
+
+  z-index: 200;
+
+  transform:
+    translate(-50%, 30px);
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  padding: 12px 18px;
+
+  border-radius: 15px;
+
+  background: #353547;
+
+  color: white;
+
+  font-size: 13px;
+
+  transition: .3s;
+}
+
+.toast.show {
+  opacity: 1;
+
+  transform:
+    translate(-50%, 0);
+}
+
+
+/* =========================
+   DARK MODE
+========================= */
+
+body.dark {
+  color: #eee;
+  background:
+    linear-gradient(
+      135deg,
+      #171727,
+      #1d2430,
+      #272126
+    );
+}
+
+body.dark .nav {
+  background: rgba(35,35,45,.75);
+}
+
+body.dark .nav-btn.active,
+body.dark .card,
+body.dark .stat-card,
+body.dark .garden-card,
+body.dark .icon-btn {
+  background: rgba(40,40,52,.9);
+
+  color: #eee;
+}
+
+body.dark .nav-btn {
+  color: #aaa;
+}
+
+body.dark textarea,
+body.dark select,
+body.dark .search-box,
+body.dark .feeling-btn,
+body.dark .thought-item,
+body.dark .level-item {
+  background: #2b2b38;
+
+  color: #eee;
+}
+
+body.dark textarea:focus {
+  background: #30303e;
+}
+
+body.dark .thought-item {
+  border-color: #3c3c4a;
+}
+
+body.dark .card-heading p,
+body.dark .section-title p,
+body.dark .brand p,
+body.dark .page-header p,
+body.dark .garden-title p,
+body.dark #plantMessage {
+  color: #aaa;
+}
+
+body.dark .secondary-btn,
+body.dark .action-btn,
+body.dark .filter-btn {
+  background: #353542;
+
+  color: #ccc;
+}
+
+body.dark #plantLevel {
+  background: #30452b;
+}
+
+body.dark .plant-area {
+  background:
+    linear-gradient(
+      to bottom,
+      #20283a 0%,
+      #293247 56%,
+      #263326 56%,
+      #1f2b1d 100%
+    );
+}
+
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty {
+  padding: 35px 15px;
+
+  text-align: center;
+
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 45px;
+
+  margin-bottom: 8px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 700px) {
+
+  .app {
+    padding:
+      15px
+      12px
+      40px;
+  }
+
+  .hero {
+    padding: 23px;
+  }
+
+  .hero-emoji {
+    font-size: 70px;
+  }
+
+  .stats-grid {
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 15px 8px;
+  }
+
+  .stat-card strong {
+    font-size: 21px;
+  }
+
+  .nav-btn span {
+    display: block;
+
+    font-size: 10px;
+
+    margin-top: 3px;
+  }
+
+  .growth-levels {
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+
+  .plant {
+    font-size: 75px;
+  }
+
+  .garden-title {
+    flex-direction: column;
+  }
+
+}
+
+@media (max-width: 430px) {
+
+  .brand h1 {
+    font-size: 18px;
+  }
+
+  .hero h2 {
+    font-size: 27px;
+  }
+
+  .hero-emoji {
+    font-size: 55px;
+  }
+
+  .feeling-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================
+   FADE
+========================= */
+
+@keyframes fadeIn {
+
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+
+}
+  </style>
+</head>
+
+<body>
+
+<!-- Top Navigation Bar to Portal -->
+<div id="student-portal-floating-bar" style="position:fixed; top:12px; left:12px; z-index:99999; display:flex; gap:8px;">
+  <a href="index.html" style="background:rgba(15, 23, 42, 0.9); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); backdrop-filter:blur(10px); padding:8px 14px; border-radius:12px; font-family:'Kanit', sans-serif; font-size:12px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:transform 0.15s ease;">
+    <span>◀</span>
+    <span>กลับหน้ารวมผลงานนักเรียน</span>
+  </a>
+</div>
+
+
+
+  <!-- =========================
+       APP
+  ========================== -->
+
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="topbar">
+
+      <div class="brand">
+        <div class="brand-icon">🌙</div>
+
+        <div>
+          <h1>ไว้พรุ่งนี้ค่อยคิด</h1>
+          <p>วางความคิดลง แล้วพักใจสักหน่อย</p>
+        </div>
+      </div>
+
+      <button id="themeBtn" class="icon-btn" title="เปลี่ยนธีม">
+        🌙
+      </button>
+
+    </header>
+
+
+    <!-- =========================
+         NAVIGATION
+    ========================== -->
+
+    <nav class="nav">
+
+      <button class="nav-btn active" data-page="home">
+        🏠
+        <span>หน้าแรก</span>
+      </button>
+
+      <button class="nav-btn" data-page="history">
+        📚
+        <span>ประวัติ</span>
+      </button>
+
+      <button class="nav-btn" data-page="tomorrow">
+        📦
+        <span>กล่องพรุ่งนี้</span>
+      </button>
+
+      <button class="nav-btn" data-page="garden">
+        🌱
+        <span>สวนของฉัน</span>
+      </button>
+
+    </nav>
+
+
+    <!-- =========================
+         HOME PAGE
+    ========================== -->
+
+    <main id="homePage" class="page active">
+
+      <section class="hero">
+
+        <div class="hero-text">
+
+          <span class="small-label">
+            🌙 ก่อนนอนคืนนี้
+          </span>
+
+          <h2>
+            มีอะไรอยู่ในหัว<br>
+            เอามาวางไว้ตรงนี้ได้นะ
+          </h2>
+
+          <p>
+            ไม่ต้องแก้ทุกเรื่องคืนนี้
+            แค่เขียนมันออกมาก็พอ
+          </p>
+
+        </div>
+
+        <div class="hero-emoji">
+          🌙
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           WRITE CARD
+      ========================== -->
+
+      <section class="card write-card">
+
+        <div class="card-heading">
+
+          <div>
+            <h3>💭 Brain Dump</h3>
+            <p>เขียนสิ่งที่กำลังคิดอยู่ตอนนี้</p>
+          </div>
+
+          <span id="charCount">0 / 500</span>
+
+        </div>
+
+
+        <textarea
+          id="thoughtInput"
+          maxlength="500"
+          placeholder="เช่น พรุ่งนี้ต้องส่งงาน กลัวว่าจะทำไม่ทัน..."
+        ></textarea>
+
+
+        <!-- FEELING -->
+
+        <div class="field">
+
+          <label>วันนี้รู้สึกยังไง?</label>
+
+          <div class="feeling-list">
+
+            <button class="feeling-btn" data-feeling="😊">
+              😊
+            </button>
+
+            <button class="feeling-btn" data-feeling="🙂">
+              🙂
+            </button>
+
+            <button class="feeling-btn" data-feeling="😐">
+              😐
+            </button>
+
+            <button class="feeling-btn" data-feeling="😟">
+              😟
+            </button>
+
+            <button class="feeling-btn" data-feeling="😣">
+              😣
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- CATEGORY -->
+
+        <div class="field">
+
+          <label for="categorySelect">
+            เรื่องนี้เกี่ยวกับอะไร?
+          </label>
+
+          <select id="categorySelect">
+
+            <option value="การเรียน">
+              📚 การเรียน
+            </option>
+
+            <option value="ครอบครัว">
+              🏠 ครอบครัว
+            </option>
+
+            <option value="เพื่อน">
+              👫 เพื่อน
+            </option>
+
+            <option value="ความสัมพันธ์">
+              💗 ความสัมพันธ์
+            </option>
+
+            <option value="ตัวเอง">
+              🌷 ตัวเอง
+            </option>
+
+            <option value="อนาคต">
+              🌤️ อนาคต
+            </option>
+
+            <option value="อื่น ๆ">
+              💭 อื่น ๆ
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- BUTTONS -->
+
+        <div class="form-buttons">
+
+          <button
+            id="saveThoughtBtn"
+            class="primary-btn"
+          >
+            💾 วางความคิดไว้
+          </button>
+
+          <button
+            id="cancelEditBtn"
+            class="secondary-btn hidden"
+          >
+            ยกเลิก
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           SUMMARY
+      ========================== -->
+
+      <section class="stats-grid">
+
+        <div class="stat-card">
+          <span>💭</span>
+          <strong id="totalThoughts">0</strong>
+          <small>ความคิดทั้งหมด</small>
+        </div>
+
+        <div class="stat-card">
+          <span>📦</span>
+          <strong id="tomorrowCount">0</strong>
+          <small>เรื่องที่พักไว้</small>
+        </div>
+
+        <div class="stat-card">
+          <span>✨</span>
+          <strong id="completedCount">0</strong>
+          <small>เรื่องที่จัดการแล้ว</small>
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           RECENT
+      ========================== -->
+
+      <section class="card">
+
+        <div class="section-title">
+
+          <div>
+            <h3>📝 ความคิดล่าสุด</h3>
+            <p>เรื่องที่เพิ่งเขียนไว้</p>
+          </div>
+
+          <button
+            id="goHistoryBtn"
+            class="text-btn"
+          >
+            ดูทั้งหมด →
+          </button>
+
+        </div>
+
+        <div id="recentList" class="thought-list"></div>
+
+      </section>
+
+
+      <!-- SLEEP BUTTON -->
+
+      <button
+        id="sleepBtn"
+        class="sleep-btn"
+      >
+        🌙 วันนี้พอแล้ว ขอพักก่อน
+      </button>
+
+    </main>
+
+
+
+    <!-- =========================
+         HISTORY PAGE
+    ========================== -->
+
+    <main id="historyPage" class="page">
+
+      <div class="page-header">
+
+        <span class="page-icon">📚</span>
+
+        <div>
+          <h2>ประวัติความคิด</h2>
+          <p>ทุกความคิดที่เธอเคยวางไว้</p>
+        </div>
+
+      </div>
+
+
+      <section class="card">
+
+        <div class="search-box">
+
+          <span>🔍</span>
+
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="ค้นหาความคิด..."
+          >
+
+        </div>
+
+
+        <div class="filter-list">
+
+          <button
+            class="filter-btn active"
+            data-filter="all"
+          >
+            ทั้งหมด
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="active"
+          >
+            ยังไม่ได้จัดการ
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="tomorrow"
+          >
+            กล่องพรุ่งนี้
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="completed"
+          >
+            จัดการแล้ว
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <div id="historyList" class="thought-list"></div>
+
+    </main>
+
+
+
+    <!-- =========================
+         TOMORROW PAGE
+    ========================== -->
+
+    <main id="tomorrowPage" class="page">
+
+      <section class="tomorrow-hero">
+
+        <div class="big-box">
+          📦
+        </div>
+
+        <h2>กล่องพรุ่งนี้</h2>
+
+        <p>
+          เรื่องที่ยังแก้ไม่ได้คืนนี้<br>
+          ขอพักไว้ก่อนก็ได้นะ
+        </p>
+
+      </section>
+
+
+      <section class="card">
+
+        <div class="section-title">
+
+          <div>
+            <h3>🌙 พรุ่งนี้ค่อยคิด</h3>
+            <p>กลับมาเปิดดูเมื่อพร้อม</p>
+          </div>
+
+          <span id="tomorrowPageCount">
+            0 เรื่อง
+          </span>
+
+        </div>
+
+        <div id="tomorrowList" class="thought-list"></div>
+
+      </section>
+
+    </main>
+
+
+
+    <!-- =========================
+         GARDEN PAGE
+    ========================== -->
+
+    <main id="gardenPage" class="page">
+
+      <section class="page-header">
+
+        <span class="page-icon">🌱</span>
+
+        <div>
+          <h2>สวนของฉัน</h2>
+          <p>
+            ทุกครั้งที่เธอดูแลความคิด
+            เมล็ดพันธุ์ก็เติบโต
+          </p>
+        </div>
+
+      </section>
+
+
+      <!-- GARDEN -->
+
+      <section class="garden-card">
+
+        <div class="garden-title">
+
+          <div>
+            <h2>🌱 สวนของฉัน</h2>
+
+            <p>
+              ทุกครั้งที่เธอจัดการความคิด
+              ต้นไม้ก็เติบโตขึ้น
+            </p>
+          </div>
+
+          <span id="plantLevel">
+            ระดับ 1
+          </span>
+
+        </div>
+
+
+        <div class="plant-area">
+
+          <div
+            id="sparkles"
+            class="sparkles"
+          >
+            ✨
+          </div>
+
+          <div
+            id="plant"
+            class="plant"
+          >
+            🌰
+          </div>
+
+          <div class="ground"></div>
+
+        </div>
+
+
+        <div class="growth-info">
+
+          <strong id="plantName">
+            เมล็ดพันธุ์
+          </strong>
+
+          <p id="plantMessage">
+            เริ่มต้นจากเมล็ดเล็ก ๆ กันนะ 🌱
+          </p>
+
+
+          <div class="growth-bar">
+
+            <div
+              id="growthProgress"
+            ></div>
+
+          </div>
+
+
+          <small id="growthText">
+            0 / 1 ครั้ง
+          </small>
+
+        </div>
+
+      </section>
+
+
+      <!-- GARDEN GUIDE -->
+
+      <section class="card">
+
+        <h3>🌱 การเติบโตของเมล็ดพันธุ์</h3>
+
+        <div class="growth-levels">
+
+          <div class="level-item">
+            <span>🌰</span>
+            <p>เมล็ดพันธุ์</p>
+            <small>เริ่มต้น</small>
+          </div>
+
+          <div class="level-item">
+            <span>🌱</span>
+            <p>เริ่มงอก</p>
+            <small>1 ครั้ง</small>
+          </div>
+
+          <div class="level-item">
+            <span>🪴</span>
+            <p>ต้นอ่อน</p>
+            <small>3 ครั้ง</small>
+          </div>
+
+          <div class="level-item">
+            <span>🌿</span>
+            <p>ต้นไม้</p>
+            <small>6 ครั้ง</small>
+          </div>
+
+          <div class="level-item">
+            <span>🌳</span>
+            <p>ต้นไม้ใหญ่</p>
+            <small>10 ครั้ง</small>
+          </div>
+
+          <div class="level-item">
+            <span>🌸</span>
+            <p>ผลิบาน</p>
+            <small>15 ครั้ง</small>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+
+  <!-- =========================
+       SLEEP SCREEN
+  ========================== -->
+
+  <div
+    id="sleepOverlay"
+    class="sleep-overlay"
+  >
+
+    <div class="sleep-content">
+
+      <div class="moon-big">
+        🌙
+      </div>
+
+      <h2>
+        วันนี้พอแล้วนะ
+      </h2>
+
+      <p>
+        เรื่องที่ยังแก้ไม่ได้<br>
+        ค่อยกลับมาคิดพรุ่งนี้ก็ได้
+      </p>
+
+      <div class="sleep-message">
+        🤍 เธอทำดีที่สุดแล้วในวันนี้
+      </div>
+
+      <button
+        id="closeSleepBtn"
+        class="primary-btn"
+      >
+        กลับไปพักผ่อน 🌙
+      </button>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =========================
+       TOAST
+  ========================== -->
+
+  <div
+    id="toast"
+    class="toast"
+  >
+    สำเร็จ ✨<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ไว้พรุ่งนี้ค่อยคิด 🌙</title>
+</head>
+
+<body>
+
+  <!-- =========================
+       APP
+  ========================== -->
+
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="topbar">
+
+      <div class="brand">
+        <div class="brand-icon">🌙</div>
+
+        <div>
+          <h1>ไว้พรุ่งนี้ค่อยคิด</h1>
+          <p>วางความคิดลง แล้วพักใจสักหน่อย</p>
+        </div>
+      </div>
+
+      <button id="themeBtn" class="icon-btn" title="เปลี่ยนธีม">
+        🌙
+      </button>
+
+    </header>
+
+
+    <!-- =========================
+         NAVIGATION
+    ========================== -->
+
+    <nav class="nav">
+
+      <button class="nav-btn active" data-page="home">
+        🏠
+        <span>หน้าแรก</span>
+      </button>
+
+      <button class="nav-btn" data-page="history">
+        📚
+        <span>ประวัติ</span>
+      </button>
+
+      <button class="nav-btn" data-page="tomorrow">
+        📦
+        <span>กล่องพรุ่งนี้</span>
+      </button>
+
+      <button class="nav-btn" data-page="garden">
+        🌱
+        <span>สวนของฉัน</span>
+      </button>
+
+    </nav>
+
+
+    <!-- =========================
+         HOME PAGE
+    ========================== -->
+
+    <main id="homePage" class="page active">
+
+      <section class="hero">
+
+        <div class="hero-text">
+
+          <span class="small-label">
+            🌙 ก่อนนอนคืนนี้
+          </span>
+
+          <h2>
+            มีอะไรอยู่ในหัว<br>
+            เอามาวางไว้ตรงนี้ได้นะ
+          </h2>
+
+          <p>
+            ไม่ต้องแก้ทุกเรื่องคืนนี้
+            แค่เขียนมันออกมาก็พอ
+          </p>
+
+        </div>
+
+        <div class="hero-emoji">
+          🌙
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           WRITE CARD
+      ========================== -->
+
+      <section class="card write-card">
+
+        <div class="card-heading">
+
+          <div>
+            <h3>💭 Brain Dump</h3>
+            <p>เขียนสิ่งที่กำลังคิดอยู่ตอนนี้</p>
+          </div>
+
+          <span id="charCount">0 / 500</span>
+
+        </div>
+
+
+        <textarea
+          id="thoughtInput"
+          maxlength="500"
+          placeholder="เช่น พรุ่งนี้ต้องส่งงาน กลัวว่าจะทำไม่ทัน..."
+        ></textarea>
+
+
+        <!-- FEELING -->
+
+        <div class="field">
+
+          <label>วันนี้รู้สึกยังไง?</label>
+
+          <div class="feeling-list">
+
+            <button class="feeling-btn" data-feeling="😊">
+              😊
+            </button>
+
+            <button class="feeling-btn" data-feeling="🙂">
+              🙂
+            </button>
+
+            <button class="feeling-btn" data-feeling="😐">
+              😐
+            </button>
+
+            <button class="feeling-btn" data-feeling="😟">
+              😟
+            </button>
+
+            <button class="feeling-btn" data-feeling="😣">
+              😣
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- CATEGORY -->
+
+        <div class="field">
+
+          <label for="categorySelect">
+            เรื่องนี้เกี่ยวกับอะไร?
+          </label>
+
+          <select id="categorySelect">
+
+            <option value="การเรียน">
+              📚 การเรียน
+            </option>
+
+            <option value="ครอบครัว">
+              🏠 ครอบครัว
+            </option>
+
+            <option value="เพื่อน">
+              👫 เพื่อน
+            </option>
+
+            <option value="ความสัมพันธ์">
+              💗 ความสัมพันธ์
+            </option>
+
+            <option value="ตัวเอง">
+              🌷 ตัวเอง
+            </option>
+
+            <option value="อนาคต">
+              🌤️ อนาคต
+            </option>
+
+            <option value="อื่น ๆ">
+              💭 อื่น ๆ
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- BUTTONS -->
+
+        <div class="form-buttons">
+
+          <button
+            id="saveThoughtBtn"
+            class="primary-btn"
+          >
+            💾 วางความคิดไว้
+          </button>
+
+          <button
+            id="cancelEditBtn"
+            class="secondary-btn hidden"
+          >
+            ยกเลิก
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           SUMMARY
+      ========================== -->
+
+      <section class="stats-grid">
+
+        <div class="stat-card">
+          <span>💭</span>
+          <strong id="totalThoughts">0</strong>
+          <small>ความคิดทั้งหมด</small>
+        </div>
+
+        <div class="stat-card">
+          <span>📦</span>
+          <strong id="tomorrowCount">0</strong>
+          <small>เรื่องที่พักไว้</small>
+        </div>
+
+        <div class="stat-card">
+          <span>✨</span>
+          <strong id="completedCount">0</strong>
+          <small>เรื่องที่จัดการแล้ว</small>
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           RECENT
+      ========================== -->
+
+      <section class="card">
+
+        <div class="section-title">
+
+          <div>
+            <h3>📝 ความคิดล่าสุด</h3>
+            <p>เรื่องที่เพิ่งเขียนไว้</p>
+          </div>
+
+          <button
+            id="goHistoryBtn"
+            class="text-btn"
+          >
+            ดูทั้งหมด →
+          </button>
+
+        </div>
+
+        <div id="recentList" class="thought-list"></div>
+
+      </section>
+
+
+      <!-- SLEEP BUTTON -->
+
+      <button
+        id="sleepBtn"
+        class="sleep-btn"
+      >
+        🌙 วันนี้พอแล้ว ขอพักก่อน
+      </button>
+
+    </main>
+
+
+
+    <!-- =========================
+         HISTORY PAGE
+    ========================== -->
+
+    <main id="historyPage" class="page">
+
+      <div class="page-header">
+
+        <span class="page-icon">📚</span>
+
+        <div>
+          <h2>ประวัติความคิด</h2>
+          <p>ทุกความคิดที่เธอเคยวางไว้</p>
+        </div>
+
+      </div>
+
+
+      <section class="card">
+
+        <div class="search-box">
+
+          <span>🔍</span>
+
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="ค้นหาความคิด..."
+          >
+
+        </div>
+
+
+        <div class="filter-list">
+
+          <button
+            class="filter-btn active"
+            data-filter="all"
+          >
+            ทั้งหมด
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="active"
+          >
+            ยังไม่ได้จัดการ
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="tomorrow"
+          >
+            กล่องพรุ่งนี้
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="completed"
+          >
+            จัดการแล้ว
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <div id="historyList" class="thought-list"></div>
+
+    </main>
+
+
+
+    <!-- =========================
+         TOMORROW PAGE
+    ========================== -->
+
+    <main id="tomorrowPage" class="page">
+
+      <section class="tomorrow-hero">
+
+        <div class="big-box">
+          📦
+        </div>
+
+        <h2>กล่องพรุ่งนี้</h2>
+
+        <p>
+          เรื่องที่ยังแก้ไม่ได้คืนนี้<br>
+          ขอพักไว้ก่อนก็ได้นะ
+        </p>
+
+      </section>
+
+
+      <section class="card">
+
+        <div class="section-title">
+
+          <div>
+            <h3>🌙 พรุ่งนี้ค่อยคิด</h3>
+            <p>กลับมาเปิดดูเมื่อพร้อม</p>
+          </div>
+
+          <span id="tomorrowPageCount">
+            0 เรื่อง
+          </span>
+
+        </div>
+
+        <div id="tomorrowList" class="thought-list"></div>
+
+      </section>
+
+    </main>
+
+
+
+    <!-- =========================
+         GARDEN PAGE
+    ========================== -->
+
+    <main id="gardenPage" class="page">
+
+      <section class="page-header">
+
+        <span class="page-icon">🌱</span>
+
+        <div>
+          <h2>สวนของฉัน</h2>
+          <p>
+            ทุกครั้งที่เธอดูแลความคิด
+            เมล็ดพันธุ์ก็เติบโต
+          </p>
+        </div>
+
+      </section>
+
+
+      <!-- GARDEN -->
+
+      <section class="garden-card">
+
+        <div class="garden-title">
+
+          <div>
+            <h2>🌱 สวนของฉัน</h2>
+
+            <p>
+              ทุกครั้งที่เธอจัดการความคิด
+              ต้นไม้ก็เติบโตขึ้น
+            </p>
+          </div>
+
+          <span id="plantLevel">
+            ระดับ 1
+          </span>
+
+        </div>
+
+
+        <div class="plant-area">
+
+          <div
+            id="sparkles"
+            class="sparkles"
+          >
+            ✨
+          </div>
+
+          <div
+            id="plant"
+            class="plant"
+          >
+            🌰
+          </div>
+
+          <div class="ground"></div>
+
+        </div>
+
+
+        <div class="growth-info">
+
+          <strong id="plantName">
+            เมล็ดพันธุ์
+          </strong>
+
+          <p id="plantMessage">
+            เริ่มต้นจากเมล็ดเล็ก ๆ กันนะ 🌱
+          </p>
+
+
+          <div class="growth-bar">
+
+            <div
+              id="growthProgress"
+            ></div>
+
+          </div>
+
+
+          <small id="growthText">
+            0 / 1 ครั้ง
+          </small>
+
+        </div>
+
+      </section>
+
+
+      <!-- GARDEN GUIDE -->
+
+      <section class="card">
+
+        <h3>🌱 การเติบโตของเมล็ดพันธุ์</h3>
+
+        <div class="growth-levels">
+
+          <div class="level-item">
+            <span>🌰</span>
+            <p>เมล็ดพันธุ์</p>
+            <small>เริ่มต้น</small>
+          </div>
+
+          <div class="level-item">
+            <span>🌱</span>
+            <p>เริ่มงอก</p>
+            <small>1 ครั้ง</small>
+          </div>
+
+          <div class="level-item">
+            <span>🪴</span>
+            <p>ต้นอ่อน</p>
+            <small>3 ครั้ง</small>
+          </div>
+
+          <div class="level-item">
+            <span>🌿</span>
+            <p>ต้นไม้</p>
+            <small>6 ครั้ง</small>
+          </div>
+
+          <div class="level-item">
+            <span>🌳</span>
+            <p>ต้นไม้ใหญ่</p>
+            <small>10 ครั้ง</small>
+          </div>
+
+          <div class="level-item">
+            <span>🌸</span>
+            <p>ผลิบาน</p>
+            <small>15 ครั้ง</small>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+
+  <!-- =========================
+       SLEEP SCREEN
+  ========================== -->
+
+  <div
+    id="sleepOverlay"
+    class="sleep-overlay"
+  >
+
+    <div class="sleep-content">
+
+      <div class="moon-big">
+        🌙
+      </div>
+
+      <h2>
+        วันนี้พอแล้วนะ
+      </h2>
+
+      <p>
+        เรื่องที่ยังแก้ไม่ได้<br>
+        ค่อยกลับมาคิดพรุ่งนี้ก็ได้
+      </p>
+
+      <div class="sleep-message">
+        🤍 เธอทำดีที่สุดแล้วในวันนี้
+      </div>
+
+      <button
+        id="closeSleepBtn"
+        class="primary-btn"
+      >
+        กลับไปพักผ่อน 🌙
+      </button>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =========================
+       TOAST
+  ========================== -->
+
+  <div
+    id="toast"
+    class="toast"
+  >
+    สำเร็จ ✨
+  </div>
+
+
+
+  <script>
+/* =====================================================
+   🌙 ไว้พรุ่งนี้ค่อยคิด
+   FULL JAVASCRIPT
+===================================================== */
+
+
+/* =====================================================
+   STORAGE
+===================================================== */
+
+const STORAGE_KEY =
+  "mindGardenThoughts_v1";
+
+const THEME_KEY =
+  "mindGardenTheme_v1";
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let thoughts = [];
+
+let selectedFeeling = "😐";
+
+let editingId = null;
+
+let currentFilter = "all";
+
+
+/* =====================================================
+   LOAD DATA
+===================================================== */
+
+function loadData() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(STORAGE_KEY);
+
+    thoughts =
+      saved
+        ? JSON.parse(saved)
+        : [];
+
+  } catch (error) {
+
+    console.error(
+      "ไม่สามารถโหลดข้อมูลได้",
+      error
+    );
+
+    thoughts = [];
+  }
+
+}
+
+
+/* =====================================================
+   SAVE DATA
+===================================================== */
+
+function saveData() {
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(thoughts)
+  );
+
+}
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    loadData();
+
+    loadTheme();
+
+    setupNavigation();
+
+    setupForm();
+
+    setupFeelingButtons();
+
+    setupHistory();
+
+    setupSleepScreen();
+
+    renderAll();
+
+    console.log(
+      "🌙 ไว้พรุ่งนี้ค่อยคิด พร้อมใช้งานแล้ว"
+    );
+
+  }
+);
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+function setupNavigation() {
+
+  const buttons =
+    document.querySelectorAll(".nav-btn");
+
+  buttons.forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        const page =
+          button.dataset.page;
+
+        switchPage(page);
+
+      }
+    );
+
+  });
+
+
+  document
+    .getElementById("goHistoryBtn")
+    .addEventListener(
+      "click",
+      () => switchPage("history")
+    );
+
+}
+
+
+function switchPage(pageName) {
+
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.page === pageName
+      );
+
+    });
+
+
+  document
+    .querySelectorAll(".page")
+    .forEach(page => {
+
+      page.classList.remove("active");
+
+    });
+
+
+  const target =
+    document.getElementById(
+      pageName + "Page"
+    );
+
+  if (target) {
+
+    target.classList.add("active");
+
+  }
+
+
+  if (pageName === "garden") {
+
+    renderGarden();
+
+  }
+
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+function setupForm() {
+
+  const input =
+    document.getElementById(
+      "thoughtInput"
+    );
+
+  const saveBtn =
+    document.getElementById(
+      "saveThoughtBtn"
+    );
+
+  const cancelBtn =
+    document.getElementById(
+      "cancelEditBtn"
+    );
+
+
+  input.addEventListener(
+    "input",
+    updateCharacterCount
+  );
+
+
+  saveBtn.addEventListener(
+    "click",
+    saveThought
+  );
+
+
+  cancelBtn.addEventListener(
+    "click",
+    cancelEdit
+  );
+
+}
+
+
+function updateCharacterCount() {
+
+  const input =
+    document.getElementById(
+      "thoughtInput"
+    );
+
+  const counter =
+    document.getElementById(
+      "charCount"
+    );
+
+  counter.textContent =
+    ${input.value.length} / 500;
+
+}
+
+
+/* =====================================================
+   FEELING
+===================================================== */
+
+function setupFeelingButtons() {
+
+  const buttons =
+    document.querySelectorAll(
+      ".feeling-btn"
+    );
+
+
+  buttons.forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        buttons.forEach(
+          b => b.classList.remove("selected")
+        );
+
+        button.classList.add("selected");
+
+        selectedFeeling =
+          button.dataset.feeling;
+
+      }
+    );
+
+  });
+
+
+  buttons[2].classList.add("selected");
+
+}
+
+
+/* =====================================================
+   SAVE / EDIT
+===================================================== */
+
+function saveThought() {
+
+  const input =
+    document.getElementById(
+      "thoughtInput"
+    );
+
+  const category =
+    document.getElementById(
+      "categorySelect"
+    ).value;
+
+
+  const text =
+    input.value.trim();
+
+
+  if (!text) {
+
+    showToast(
+      "✏️ ลองเขียนความคิดก่อนนะ"
+    );
+
+    input.focus();
+
+    return;
+  }
+
+
+  if (editingId) {
+
+    const index =
+      thoughts.findIndex(
+        item => item.id === editingId
+      );
+
+
+    if (index !== -1) {
+
+      thoughts[index].text =
+        text;
+
+      thoughts[index].feeling =
+        selectedFeeling;
+
+      thoughts[index].category =
+        category;
+
+      thoughts[index].updatedAt =
+        new Date().toISOString();
+
+      showToast(
+        "✏️ แก้ไขเรียบร้อยแล้ว"
+      );
+
+    }
+
+    editingId = null;
+
+  } else {
+
+    const newThought = {
+
+      id:
+        Date.now().toString(),
+
+      text:
+        text,
+
+      feeling:
+        selectedFeeling,
+
+      category:
+        category,
+
+      status:
+        "active",
+
+      createdAt:
+        new Date().toISOString(),
+
+      updatedAt:
+        new Date().toISOString()
+
+    };
+
+
+    thoughts.unshift(
+      newThought
+    );
+
+
+    showToast(
+      "💭 วางความคิดลงแล้ว"
+    );
+
+  }
+
+
+  saveData();
+
+  resetForm();
+
+  renderAll();
+
+}
+
+
+/* =====================================================
+   EDIT
+===================================================== */
+
+function editThought(id) {
+
+  const thought =
+    thoughts.find(
+      item => item.id === id
+    );
+
+  if (!thought) return;
+
+
+  editingId = id;
+
+
+  document.getElementById(
+    "thoughtInput"
+  ).value =
+    thought.text;
+
+
+  document.getElementById(
+    "categorySelect"
+  ).value =
+    thought.category;
+
+
+  selectedFeeling =
+    thought.feeling;
+
+
+  document
+    .querySelectorAll(".feeling-btn")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "selected",
+        button.dataset.feeling ===
+          selectedFeeling
+      );
+
+    });
+
+
+  document
+    .getElementById(
+      "cancelEditBtn"
+    )
+    .classList.remove("hidden");
+
+
+  document
+    .getElementById(
+      "saveThoughtBtn"
+    )
+    .textContent =
+      "✏️ บันทึกการแก้ไข";
+
+
+  updateCharacterCount();
+
+
+  switchPage("home");
+
+
+  document
+    .getElementById(
+      "thoughtInput"
+    )
+    .focus();
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+/* =====================================================
+   CANCEL EDIT
+===================================================== */
+
+function cancelEdit() {
+
+  editingId = null;
+
+  resetForm();
+
+}
+
+
+function resetForm() {
+
+  document.getElementById(
+    "thoughtInput"
+  ).value = "";
+
+
+  document.getElementById(
+    "charCount"
+  ).textContent =
+    "0 / 500";
+
+
+  document.getElementById(
+    "cancelEditBtn"
+  ).classList.add("hidden");
+
+
+  document.getElementById(
+    "saveThoughtBtn"
+  ).textContent =
+    "💾 วางความคิดไว้";
+
+
+  selectedFeeling = "😐";
+
+
+  document
+    .querySelectorAll(".feeling-btn")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "selected",
+        button.dataset.feeling === "😐"
+      );
+
+    });
+
+}
+
+
+/* =====================================================
+   DELETE
+===================================================== */
+
+function deleteThought(id) {
+
+  const thought =
+    thoughts.find(
+      item => item.id === id
+    );
+
+  if (!thought) return;
+
+
+  const confirmed =
+    confirm(
+      "ต้องการลบความคิดนี้ใช่ไหม?"
+    );
+
+
+  if (!confirmed) return;
+
+
+  thoughts =
+    thoughts.filter(
+      item => item.id !== id
+    );
+
+
+  saveData();
+
+  renderAll();
+
+  showToast(
+    "🗑️ ลบเรียบร้อยแล้ว"
+  );
+
+}
+
+
+/* =====================================================
+   MOVE TO TOMORROW
+===================================================== */
+
+function moveToTomorrow(id) {
+
+  const thought =
+    thoughts.find(
+      item => item.id === id
+    );
+
+  if (!thought) return;
+
+
+  if (
+    thought.status === "tomorrow"
+  ) return;
+
+
+  thought.status =
+    "tomorrow";
+
+
+  thought.movedAt =
+    new Date().toISOString();
+
+
+  saveData();
+
+  renderAll();
+
+  showToast(
+    "📦 ย้ายไปกล่องพรุ่งนี้แล้ว"
+  );
+
+}
+
+
+/* =====================================================
+   RELEASE / COMPLETE
+===================================================== */
+
+function releaseThought(id) {
+
+  const thought =
+    thoughts.find(
+      item => item.id === id
+    );
+
+  if (!thought) return;
+
+
+  const previousGrowth =
+    getGrowthCount();
+
+
+  thought.status =
+    "completed";
+
+  thought.released =
+    true;
+
+  thought.completedAt =
+    new Date().toISOString();
+
+
+  saveData();
+
+  renderAll();
+
+
+  const newGrowth =
+    getGrowthCount();
+
+
+  if (
+    newGrowth > previousGrowth
+  ) {
+
+    celebrateGrowth();
+
+    showToast(
+      "🌱 เมล็ดพันธุ์เติบโตขึ้นแล้ว!"
+    );
+
+  } else {
+
+    showToast(
+      "✨ ปล่อยเรื่องนี้ลงแล้ว"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   COMPLETE TOMORROW THOUGHT
+===================================================== */
+
+function completeThought(id) {
+
+  const thought =
+    thoughts.find(
+      item => item.id === id
+    );
+
+  if (!thought) return;
+
+
+  const previousGrowth =
+    getGrowthCount();
+
+
+  thought.status =
+    "completed";
+
+  thought.completed =
+    true;
+
+  thought.completedAt =
+    new Date().toISOString();
+
+
+  saveData();
+
+  renderAll();
+
+
+  const newGrowth =
+    getGrowthCount();
+
+
+  if (
+    newGrowth > previousGrowth
+  ) {
+
+    celebrateGrowth();
+
+    showToast(
+      "🌱 เมล็ดพันธุ์เติบโตขึ้นแล้ว!"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   RETURN FROM TOMORROW
+===================================================== */
+
+function returnToActive(id) {
+
+  const thought =
+    thoughts.find(
+      item => item.id === id
+    );
+
+  if (!thought) return;
+
+
+  thought.status =
+    "active";
+
+
+  saveData();
+
+  renderAll();
+
+  showToast(
+    "💭 นำกลับมาแล้ว"
+  );
+
+}
+
+
+/* =====================================================
+   GROWTH COUNT
+===================================================== */
+
+function getGrowthCount() {
+
+  return thoughts.filter(
+    thought =>
+      thought.status === "completed" ||
+      thought.completed === true ||
+      thought.released === true
+  ).length;
+
+}
+
+
+/* =====================================================
+   RENDER ALL
+===================================================== */
+
+function renderAll() {
+
+  renderSummary();
+
+  renderRecent();
+
+  renderHistory();
+
+  renderTomorrow();
+
+  renderGarden();
+
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+function renderSummary() {
+
+  const total =
+    thoughts.length;
+
+
+  const tomorrow =
+    thoughts.filter(
+      item =>
+        item.status === "tomorrow"
+    ).length;
+
+
+  const completed =
+    thoughts.filter(
+      item =>
+        item.status === "completed" ||
+        item.completed === true ||
+        item.released === true
+    ).length;
+
+
+  document.getElementById(
+    "totalThoughts"
+  ).textContent =
+    total;
+
+
+  document.getElementById(
+    "tomorrowCount"
+  ).textContent =
+    tomorrow;
+
+
+  document.getElementById(
+    "completedCount"
+  ).textContent =
+    completed;
+
+
+  document.getElementById(
+    "tomorrowPageCount"
+  ).textContent =
+    ${tomorrow} เรื่อง;
+
+}
+
+
+/* =====================================================
+   RECENT
+===================================================== */
+
+function renderRecent() {
+
+  const container =
+    document.getElementById(
+      "recentList"
+    );
+
+
+  const recent =
+    thoughts.slice(0, 5);
+
+
+  if (!recent.length) {
+
+    container.innerHTML =
+      emptyHTML(
+        "💭",
+        "ยังไม่มีความคิด",
+        "เขียนสิ่งที่อยู่ในหัวลงมาตรงนี้ได้เลย"
+      );
+
+    return;
+  }
+
+
+  container.innerHTML =
+    recent
+      .map(
+        thoughtHTML
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   HISTORY
+===================================================== */
+
+function setupHistory() {
+
+  const search =
+    document.getElementById(
+      "searchInput"
+    );
+
+
+  search.addEventListener(
+    "input",
+    renderHistory
+  );
+
+
+  document
+    .querySelectorAll(".filter-btn")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          document
+            .querySelectorAll(
+              ".filter-btn"
+            )
+            .forEach(
+              b =>
+                b.classList.remove(
+                  "active"
+                )
+            );
+
+
+          button.classList.add(
+            "active"
+          );
+
+
+          currentFilter =
+            button.dataset.filter;
+
+
+          renderHistory();
+
+        }
+      );
+
+    });
+
+}
+
+
+function renderHistory() {
+
+  const container =
+    document.getElementById(
+      "historyList"
+    );
+
+
+  const search =
+    document.getElementById(
+      "searchInput"
+    ).value
+      .trim()
+      .toLowerCase();
+
+
+  let filtered =
+    [...thoughts];
+
+
+  if (search) {
+
+    filtered =
+      filtered.filter(
+        thought =>
+
+          thought.text
+            .toLowerCase()
+            .includes(search)
+
+          ||
+
+          thought.category
+            .toLowerCase()
+            .includes(search)
+      );
+
+  }
+
+
+  if (
+    currentFilter ===
+    "active"
+  ) {
+
+    filtered =
+      filtered.filter(
+        thought =>
+          thought.status ===
+          "active"
+      );
+
+  }
+
+
+  if (
+    currentFilter ===
+    "tomorrow"
+  ) {
+
+    filtered =
+      filtered.filter(
+        thought =>
+          thought.status ===
+          "tomorrow"
+      );
+
+  }
+
+
+  if (
+    currentFilter ===
+    "completed"
+  ) {
+
+    filtered =
+      filtered.filter(
+        thought =>
+          thought.status ===
+            "completed" ||
+
+          thought.completed === true ||
+
+          thought.released === true
+      );
+
+  }
+
+
+  if (!filtered.length) {
+
+    container.innerHTML =
+      emptyHTML(
+        "🔎",
+        "ไม่พบความคิด",
+        "ลองค้นหาด้วยคำอื่นดูนะ"
+      );
+
+    return;
+  }
+
+
+  container.innerHTML =
+    filtered
+      .map(
+        thoughtHTML
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   TOMORROW
+===================================================== */
+
+function renderTomorrow() {
+
+  const container =
+    document.getElementById(
+      "tomorrowList"
+    );
+
+
+  const items =
+    thoughts.filter(
+      thought =>
+        thought.status ===
+        "tomorrow"
+    );
+
+
+  if (!items.length) {
+
+    container.innerHTML =
+      emptyHTML(
+        "📦",
+        "กล่องพรุ่งนี้ยังว่าง",
+        "ถ้ามีเรื่องที่คืนนี้ยังแก้ไม่ได้ เอามาพักไว้ตรงนี้ได้"
+      );
+
+    return;
+  }
+
+
+  container.innerHTML =
+    items
+      .map(
+        thoughtHTML
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   THOUGHT HTML
+===================================================== */
+
+function thoughtHTML(thought) {
+
+  const status =
+    thought.status || "active";
+
+
+  let statusHTML = "";
+
+
+  if (status === "active") {
+
+    statusHTML =
+      `
+      <span class="status-tag status-active">
+        💭 ยังไม่ได้จัดการ
+      </span>
+      `;
+
+  }
+
+
+  if (status === "tomorrow") {
+
+    statusHTML =
+      `
+      <span class="status-tag status-tomorrow">
+        📦 กล่องพรุ่งนี้
+      </span>
+      `;
+
+  }
+
+
+  if (status === "completed") {
+
+    statusHTML =
+      `
+      <span class="status-tag status-completed">
+        ✨ จัดการแล้ว
+      </span>
+      `;
+
+  }
+
+
+  let actions = "";
+
+
+  if (status === "active") {
+
+    actions +=
+      `
+      <button
+        class="action-btn"
+        onclick="moveToTomorrow('${thought.id}')"
+      >
+        📦 พรุ่งนี้ค่อยคิด
+      </button>
+
+      <button
+        class="action-btn"
+        onclick="releaseThought('${thought.id}')"
+      >
+        ✨ ปล่อยเรื่องนี้
+      </button>
+      `;
+
+  }
+
+
+  if (status === "tomorrow") {
+
+    actions +=
+      `
+      <button
+        class="action-btn"
+        onclick="returnToActive('${thought.id}')"
+      >
+        ↩️ นำกลับมา
+      </button>
+
+      <button
+        class="action-btn"
+        onclick="completeThought('${thought.id}')"
+      >
+        ✅ จัดการแล้ว
+      </button>
+      `;
+
+  }
+
+
+  actions +=
+    `
+    <button
+      class="action-btn"
+      onclick="editThought('${thought.id}')"
+    >
+      ✏️ แก้ไข
+    </button>
+
+    <button
+      class="action-btn danger"
+      onclick="deleteThought('${thought.id}')"
+    >
+      🗑️ ลบ
+    </button>
+    `;
+
+
+  return `
+    <article class="thought-item">
+
+      <div class="thought-top">
+
+        <span class="thought-feeling">
+          ${escapeHTML(thought.feeling)}
+        </span>
+
+        <span class="thought-date">
+          ${formatDate(thought.createdAt)}
+        </span>
+
+      </div>
+
+
+      <div class="thought-text">
+        ${escapeHTML(thought.text)}
+      </div>
+
+
+      <div>
+
+        <span class="category-tag">
+          ${escapeHTML(thought.category)}
+        </span>
+
+        ${statusHTML}
+
+      </div>
+
+
+      <div class="thought-actions">
+        ${actions}
+      </div>
+
+    </article>
+  `;
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+function emptyHTML(
+  icon,
+  title,
+  message
+) {
+
+  return `
+    <div class="empty">
+
+      <div class="empty-icon">
+        ${icon}
+      </div>
+
+      <strong>
+        ${title}
+      </strong>
+
+      <p>
+        ${message}
+      </p>
+
+    </div>
+  `;
+
+}
+
+
+/* =====================================================
+   DATE
+===================================================== */
+
+function formatDate(dateString) {
+
+  const date =
+    new Date(dateString);
+
+
+  return date.toLocaleString(
+    "th-TH",
+    {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+
+      hour: "2-digit",
+      minute: "2-digit"
+    }
+  );
+
+}
+
+
+/* =====================================================
+   🌱 GARDEN
+===================================================== */
+
+function renderGarden() {
+
+  const plant =
+    document.getElementById(
+      "plant"
+    );
+
+
+  const plantName =
+    document.getElementById(
+      "plantName"
+    );
+
+
+  const plantMessage =
+    document.getElementById(
+      "plantMessage"
+    );
+
+
+  const plantLevel =
+    document.getElementById(
+      "plantLevel"
+    );
+
+
+  const progress =
+    document.getElementById(
+      "growthProgress"
+    );
+
+
+  const growthText =
+    document.getElementById(
+      "growthText"
+    );
+
+
+  if (!plant) return;
+
+
+  const total =
+    getGrowthCount();
+
+
+  let level = 1;
+
+  let name = "เมล็ดพันธุ์";
+
+  let emoji = "🌰";
+
+  let message =
+    "เริ่มต้นจากเมล็ดเล็ก ๆ กันนะ 🌱";
+
+  let current = 0;
+
+  let needed = 1;
+
+
+  /* =====================
+     LEVEL 6
+  ====================== */
+
+  if (total >= 15) {
+
+    level = 6;
+
+    name =
+      "🌸 ต้นไม้ผลิบาน";
+
+    emoji =
+      "🌸🌳";
+
+    message =
+      "ว้าวว เธอดูแลใจตัวเองเก่งมากแล้ว 💗";
+
+    current = 15;
+
+    needed = 15;
+
+  }
+
+
+  /* =====================
+     LEVEL 5
+  ====================== */
+
+  else if (total >= 10) {
+
+    level = 5;
+
+    name =
+      "🌳 ต้นไม้ใหญ่";
+
+    emoji =
+      "🌳";
+
+    message =
+      "ต้นไม้ของเธอแข็งแรงขึ้นมากแล้ว!";
+
+    current =
+      total - 10;
+
+    needed = 5;
+
+  }
+
+
+  /* =====================
+     LEVEL 4
+  ====================== */
+
+  else if (total >= 6) {
+
+    level = 4;
+
+    name =
+      "🌿 ต้นไม้";
+
+    emoji =
+      "🌿";
+
+    message =
+      "เริ่มเติบโตเป็นต้นไม้แล้วนะ ✨";
+
+    current =
+      total - 6;
+
+    needed = 4;
+
+  }
+
+
+  /* =====================
+     LEVEL 3
+  ====================== */
+
+  else if (total >= 3) {
+
+    level = 3;
+
+    name =
+      "🪴 ต้นอ่อน";
+
+    emoji =
+      "🪴";
+
+    message =
+      "มีใบแล้ววว ดูแลต่อไปนะ 🌱";
+
+    current =
+      total - 3;
+
+    needed = 3;
+
+  }
+
+
+  /* =====================
+     LEVEL 2
+  ====================== */
+
+  else if (total >= 1) {
+
+    level = 2;
+
+    name =
+      "🌱 เมล็ดเริ่มงอก";
+
+    emoji =
+      "🌱";
+
+    message =
+      "เย้! เมล็ดเริ่มงอกแล้ว 💚";
+
+    current =
+      total - 1;
+
+    needed = 2;
+
+  }
+
+
+  /* =====================
+     LEVEL 1
+  ====================== */
+
+  else {
+
+    level = 1;
+
+    name =
+      "🌰 เมล็ดพันธุ์";
+
+    emoji =
+      "🌰";
+
+    message =
+      "เริ่มต้นจากเมล็ดเล็ก ๆ กันนะ 🌱";
+
+    current = 0;
+
+    needed = 1;
+
+  }
+
+
+  plant.textContent =
+    emoji;
+
+
+  plantName.textContent =
+    name;
+
+
+  plantMessage.textContent =
+    message;
+
+
+  plantLevel.textContent =
+    ระดับ ${level};
+
+
+  let percentage;
+
+
+  if (level === 6) {
+
+    percentage = 100;
+
+  } else {
+
+    percentage =
+      Math.min(
+        (current / needed) * 100,
+        100
+      );
+
+  }
+
+
+  progress.style.width =
+    ${percentage}%;
+
+
+  if (level === 6) {
+
+    growthText.textContent =
+      "🌸 เติบโตเต็มที่แล้ว!";
+
+  } else {
+
+    growthText.textContent =
+      ${current} / ${needed} ครั้ง;
+
+  }
+
+}
+
+
+/* =====================================================
+   🌱 GROW ANIMATION
+===================================================== */
+
+function celebrateGrowth() {
+
+  const plant =
+    document.getElementById(
+      "plant"
+    );
+
+
+  const sparkles =
+    document.getElementById(
+      "sparkles"
+    );
+
+
+  if (!plant) return;
+
+
+  plant.classList.remove(
+    "grow"
+  );
+
+  sparkles.classList.remove(
+    "show"
+  );
+
+
+  /* ทำให้ animation เริ่มใหม่ */
+
+  void plant.offsetWidth;
+
+
+  plant.classList.add(
+    "grow"
+  );
+
+  sparkles.classList.add(
+    "show"
+  );
+
+
+  setTimeout(
+    () => {
+
+      plant.classList.remove(
+        "grow"
+      );
+
+      sparkles.classList.remove(
+        "show"
+      );
+
+    },
+    1400
+  );
+
+}
+
+
+/* =====================================================
+   🌙 SLEEP SCREEN
+===================================================== */
+
+function setupSleepScreen() {
+
+  const sleepBtn =
+    document.getElementById(
+      "sleepBtn"
+    );
+
+
+  const closeBtn =
+    document.getElementById(
+      "closeSleepBtn"
+    );
+
+
+  sleepBtn.addEventListener(
+    "click",
+    () => {
+
+      document
+        .getElementById(
+          "sleepOverlay"
+        )
+        .classList.add("show");
+
+    }
+  );
+
+
+  closeBtn.addEventListener(
+    "click",
+    () => {
+
+      document
+        .getElementById(
+          "sleepOverlay"
+        )
+        .classList.remove("show");
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   🌙 DARK MODE
+===================================================== */
+
+function loadTheme() {
+
+  const theme =
+    localStorage.getItem(
+      THEME_KEY
+    );
+
+
+  if (theme === "dark") {
+
+    document.body.classList.add(
+      "dark"
+    );
+
+    document.getElementById(
+      "themeBtn"
+    ).textContent =
+      "☀️";
+
+  }
+
+}
+
+
+document
+  .getElementById("themeBtn")
+  .addEventListener(
+    "click",
+    toggleTheme
+  );
+
+
+function toggleTheme() {
+
+  document.body.classList.toggle(
+    "dark"
+  );
+
+
+  const isDark =
+    document.body.classList.contains(
+      "dark"
+    );
+
+
+  localStorage.setItem(
+    THEME_KEY,
+    isDark
+      ? "dark"
+      : "light"
+  );
+
+
+  document.getElementById(
+    "themeBtn"
+  ).textContent =
+    isDark
+      ? "☀️"
+      : "🌙";
+
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+let toastTimer;
+
+
+function showToast(message) {
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+
+  toast.textContent =
+    message;
+
+
+  toast.classList.add(
+    "show"
+  );
+
+
+  clearTimeout(
+    toastTimer
+  );
+
+
+  toastTimer =
+    setTimeout(
+      () => {
+
+        toast.classList.remove(
+          "show"
+        );
+
+      },
+      2200
+    );
+
+}
+
+
+/* =====================================================
+   SECURITY
+===================================================== */
+
+function escapeHTML(text) {
+
+  return String(text)
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+/* =====================================================
+   CONSOLE
+===================================================== */
+
+console.log(
+  "🌱 ระบบเมล็ดพันธุ์พร้อมใช้งาน"
+);
+
+console.log(
+  "💾 ระบบบันทึก LocalStorage พร้อมใช้งาน"
+);
+
+console.log(
+  "📚 ระบบประวัติพร้อมใช้งาน"
+);
+
+console.log(
+  "📦 ระบบกล่องพรุ่งนี้พร้อมใช้งาน"
+);
+
+console.log(
+  "🌙 ระบบก่อนนอนพร้อมใช้งาน/* =====================================================
+   🌙 ไว้พรุ่งนี้ค่อยคิด
+   FULL JAVASCRIPT
+===================================================== */
+
+
+/* =====================================================
+   STORAGE
+===================================================== */
+
+const STORAGE_KEY =
+  "mindGardenThoughts_v1";
+
+const THEME_KEY =
+  "mindGardenTheme_v1";
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let thoughts = [];
+
+let selectedFeeling = "😐";
+
+let editingId = null;
+
+let currentFilter = "all";
+
+
+/* =====================================================
+   LOAD DATA
+===================================================== */
+
+function loadData() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(STORAGE_KEY);
+
+    thoughts =
+      saved
+        ? JSON.parse(saved)
+        : [];
+
+  } catch (error) {
+
+    console.error(
+      "ไม่สามารถโหลดข้อมูลได้",
+      error
+    );
+
+    thoughts = [];
+  }
+
+}
+
+
+/* =====================================================
+   SAVE DATA
+===================================================== */
+
+function saveData() {
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(thoughts)
+  );
+
+}
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    loadData();
+
+    loadTheme();
+
+    setupNavigation();
+
+    setupForm();
+
+    setupFeelingButtons();
+
+    setupHistory();
+
+    setupSleepScreen();
+
+    renderAll();
+
+    console.log(
+      "🌙 ไว้พรุ่งนี้ค่อยคิด พร้อมใช้งานแล้ว"
+    );
+
+  }
+);
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+function setupNavigation() {
+
+  const buttons =
+    document.querySelectorAll(".nav-btn");
+
+  buttons.forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        const page =
+          button.dataset.page;
+
+        switchPage(page);
+
+      }
+    );
+
+  });
+
+
+  document
+    .getElementById("goHistoryBtn")
+    .addEventListener(
+      "click",
+      () => switchPage("history")
+    );
+
+}
+
+
+function switchPage(pageName) {
+
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.page === pageName
+      );
+
+    });
+
+
+  document
+    .querySelectorAll(".page")
+    .forEach(page => {
+
+      page.classList.remove("active");
+
+    });
+
+
+  const target =
+    document.getElementById(
+      pageName + "Page"
+    );
+
+  if (target) {
+
+    target.classList.add("active");
+
+  }
+
+
+  if (pageName === "garden") {
+
+    renderGarden();
+
+  }
+
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+function setupForm() {
+
+  const input =
+    document.getElementById(
+      "thoughtInput"
+    );
+
+  const saveBtn =
+    document.getElementById(
+      "saveThoughtBtn"
+    );
+
+  const cancelBtn =
+    document.getElementById(
+      "cancelEditBtn"
+    );
+
+
+  input.addEventListener(
+    "input",
+    updateCharacterCount
+  );
+
+
+  saveBtn.addEventListener(
+    "click",
+    saveThought
+  );
+
+
+  cancelBtn.addEventListener(
+    "click",
+    cancelEdit
+  );
+
+}
+
+
+function updateCharacterCount() {
+
+  const input =
+    document.getElementById(
+      "thoughtInput"
+    );
+
+  const counter =
+    document.getElementById(
+      "charCount"
+    );
+
+  counter.textContent =
+    ${input.value.length} / 500;
+
+}
+
+
+/* =====================================================
+   FEELING
+===================================================== */
+
+function setupFeelingButtons() {
+
+  const buttons =
+    document.querySelectorAll(
+      ".feeling-btn"
+    );
+
+
+  buttons.forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        buttons.forEach(
+          b => b.classList.remove("selected")
+        );
+
+        button.classList.add("selected");
+
+        selectedFeeling =
+          button.dataset.feeling;
+
+      }
+    );
+
+  });
+
+
+  buttons[2].classList.add("selected");
+
+}
+
+
+/* =====================================================
+   SAVE / EDIT
+===================================================== */
+
+function saveThought() {
+
+  const input =
+    document.getElementById(
+      "thoughtInput"
+    );
+
+  const category =
+    document.getElementById(
+      "categorySelect"
+    ).value;
+
+
+  const text =
+    input.value.trim();
+
+
+  if (!text) {
+
+    showToast(
+      "✏️ ลองเขียนความคิดก่อนนะ"
+    );
+
+    input.focus();
+
+    return;
+  }
+
+
+  if (editingId) {
+
+    const index =
+      thoughts.findIndex(
+        item => item.id === editingId
+      );
+
+
+    if (index !== -1) {
+
+      thoughts[index].text =
+        text;
+
+      thoughts[index].feeling =
+        selectedFeeling;
+
+      thoughts[index].category =
+        category;
+
+      thoughts[index].updatedAt =
+        new Date().toISOString();
+
+      showToast(
+        "✏️ แก้ไขเรียบร้อยแล้ว"
+      );
+
+    }
+
+    editingId = null;
+
+  } else {
+
+    const newThought = {
+
+      id:
+        Date.now().toString(),
+
+      text:
+        text,
+
+      feeling:
+        selectedFeeling,
+
+      category:
+        category,
+
+      status:
+        "active",
+
+      createdAt:
+        new Date().toISOString(),
+
+      updatedAt:
+        new Date().toISOString()
+
+    };
+
+
+    thoughts.unshift(
+      newThought
+    );
+
+
+    showToast(
+      "💭 วางความคิดลงแล้ว"
+    );
+
+  }
+
+
+  saveData();
+
+  resetForm();
+
+  renderAll();
+
+}
+
+
+/* =====================================================
+   EDIT
+===================================================== */
+
+function editThought(id) {
+
+  const thought =
+    thoughts.find(
+      item => item.id === id
+    );
+
+  if (!thought) return;
+
+
+  editingId = id;
+
+
+  document.getElementById(
+    "thoughtInput"
+  ).value =
+    thought.text;
+
+
+  document.getElementById(
+    "categorySelect"
+  ).value =
+    thought.category;
+
+
+  selectedFeeling =
+    thought.feeling;
+
+
+  document
+    .querySelectorAll(".feeling-btn")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "selected",
+        button.dataset.feeling ===
+          selectedFeeling
+      );
+
+    });
+
+
+  document
+    .getElementById(
+      "cancelEditBtn"
+    )
+    .classList.remove("hidden");
+
+
+  document
+    .getElementById(
+      "saveThoughtBtn"
+    )
+    .textContent =
+      "✏️ บันทึกการแก้ไข";
+
+
+  updateCharacterCount();
+
+
+  switchPage("home");
+
+
+  document
+    .getElementById(
+      "thoughtInput"
+    )
+    .focus();
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+/* =====================================================
+   CANCEL EDIT
+===================================================== */
+
+function cancelEdit() {
+
+  editingId = null;
+
+  resetForm();
+
+}
+
+
+function resetForm() {
+
+  document.getElementById(
+    "thoughtInput"
+  ).value = "";
+
+
+  document.getElementById(
+    "charCount"
+  ).textContent =
+    "0 / 500";
+
+
+  document.getElementById(
+    "cancelEditBtn"
+  ).classList.add("hidden");
+
+
+  document.getElementById(
+    "saveThoughtBtn"
+  ).textContent =
+    "💾 วางความคิดไว้";
+
+
+  selectedFeeling = "😐";
+
+
+  document
+    .querySelectorAll(".feeling-btn")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "selected",
+        button.dataset.feeling === "😐"
+      );
+
+    });
+
+}
+
+
+/* =====================================================
+   DELETE
+===================================================== */
+
+function deleteThought(id) {
+
+  const thought =
+    thoughts.find(
+      item => item.id === id
+    );
+
+  if (!thought) return;
+
+
+  const confirmed =
+    confirm(
+      "ต้องการลบความคิดนี้ใช่ไหม?"
+    );
+
+
+  if (!confirmed) return;
+
+
+  thoughts =
+    thoughts.filter(
+      item => item.id !== id
+    );
+
+
+  saveData();
+
+  renderAll();
+
+  showToast(
+    "🗑️ ลบเรียบร้อยแล้ว"
+  );
+
+}
+
+
+/* =====================================================
+   MOVE TO TOMORROW
+===================================================== */
+
+function moveToTomorrow(id) {
+  const thought = thoughts.find(item => item.id === id);
+  if (!thought) return;
+  thought.status = "tomorrow";
+  saveData();
+  renderAll();
+  showToast("🌙 ย้ายไปคิดพรุ่งนี้แล้วนะ พักผ่อนได้เลย");
+}
+  </script>
+</body>
+</html>

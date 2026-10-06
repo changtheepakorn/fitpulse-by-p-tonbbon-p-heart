@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SFM Skibidi Cyber Masterclass - 90 Days Ultimate Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Prompt:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-core: #05050a;
+      --bg-panel: rgba(13, 15, 28, 0.95);
+      --primary: #00f0ff;
+      --secondary: #7000ff;
+      --accent: #ff0055;
+      --success: #00ff66;
+      --text-main: #e2e8f0;
+      --text-sub: #94a3b8;
+      --border-neon: rgba(0, 240, 255, 0.4);
+      --glow: 0 0 20px rgba(0, 240, 255, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+
+    body {
+      background-color: var(--bg-core);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(255, 0, 85, 0.15) 0%, transparent 40%);
+      color: var(--text-main);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1280px; margin: 0 auto; }
+
+    header {
+      background: var(--bg-panel);
+      backdrop-filter: blur(12px);
+      padding: 16px 24px;
+      border-radius: 16px;
+      border: 1px solid var(--border-neon);
+      box-shadow: var(--glow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .user-profile-mini { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .avatar-frame {
+      width: 50px; height: 50px; border-radius: 50%;
+      border: 2px solid var(--primary);
+      overflow: hidden; background: #000;
+      box-shadow: 0 0 10px var(--primary);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .brand h2 { 
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px; 
+      font-weight: 900; 
+      color: #fff;
+      text-shadow: 0 0 10px var(--primary);
+    }
+    .user-info { font-size: 13px; color: var(--text-sub); }
+    .user-info span { color: var(--primary); font-weight: 700; font-family: 'Orbitron'; }
+
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    .btn {
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Orbitron', sans-serif;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 10px rgba(112, 0, 255, 0.4);
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px var(--primary); filter: brightness(1.2); }
+    .btn-success { background: linear-gradient(135deg, #059669, var(--success)); }
+    .btn-warning { background: linear-gradient(135deg, #d97706, #f59e0b); }
+    .btn-danger { background: linear-gradient(135deg, #990000, var(--accent)); }
+
+    /* Music Player Widget ใน Header */
+    .music-widget {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+    .music-widget select, .music-widget input {
+      background: #111; color: #fff; border: 1px solid var(--border-neon);
+      padding: 4px 6px; border-radius: 4px; font-size: 11px; outline: none;
+    }
+    .music-widget input { width: 130px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+    .card-box {
+      background: var(--bg-panel);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border-neon);
+      box-shadow: var(--glow);
+    }
+
+    .video-box {
+      position: relative;
+      padding-top: 56.25%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--border-neon);
+    }
+    .video-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+    .video-info h3 { font-size: 16px; font-weight: 700; margin-top: 14px; color: #fff; }
+    .video-info p { font-size: 13px; color: var(--text-sub); margin-top: 4px; line-height: 1.5; }
+
+    .submit-section {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .submit-section input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-neon);
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .playlist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .playlist-title { font-size: 15px; font-weight: 700; color: #fff; font-family: 'Orbitron'; }
+    .timeline-badge { font-size: 11px; color: var(--primary); background: rgba(0,240,255,0.1); padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border-neon); }
+
+    .playlist {
+      max-height: 450px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+    }
+    .playlist::-webkit-scrollbar { width: 5px; }
+    .playlist::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
+
+    .lesson-item {
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.02);
+      transition: all 0.3s;
+    }
+    .lesson-item:hover { background: rgba(0, 240, 255, 0.05); border-color: var(--border-neon); }
+    .lesson-item.active { background: rgba(0, 240, 255, 0.15); border-color: var(--primary); box-shadow: 0 0 12px rgba(0,240,255,0.2); }
+    .lesson-title { font-size: 13px; font-weight: 600; color: #fff; }
+    .lesson-sub { font-size: 11px; color: var(--text-sub); margin-top: 3px; display: flex; justify-content: space-between; }
+
+    /* Modal พื้นฐาน<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SFM Skibidi Cyber Masterclass - 90 Days Ultimate Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Prompt:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-core: #05050a;
+      --bg-panel: rgba(13, 15, 28, 0.95);
+      --primary: #00f0ff;
+      --secondary: #7000ff;
+      --accent: #ff0055;
+      --success: #00ff66;
+      --text-main: #e2e8f0;
+      --text-sub: #94a3b8;
+      --border-neon: rgba(0, 240, 255, 0.4);
+      --glow: 0 0 20px rgba(0, 240, 255, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+
+    body {
+      background-color: var(--bg-core);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(255, 0, 85, 0.15) 0%, transparent 40%);
+      color: var(--text-main);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1280px; margin: 0 auto; }
+
+    header {
+      background: var(--bg-panel);
+      backdrop-filter: blur(12px);
+      padding: 16px 24px;
+      border-radius: 16px;
+      border: 1px solid var(--border-neon);
+      box-shadow: var(--glow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .user-profile-mini { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .avatar-frame {
+      width: 50px; height: 50px; border-radius: 50%;
+      border: 2px solid var(--primary);
+      overflow: hidden; background: #000;
+      box-shadow: 0 0 10px var(--primary);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .brand h2 { 
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px; 
+      font-weight: 900; 
+      color: #fff;
+      text-shadow: 0 0 10px var(--primary);
+    }
+    .user-info { font-size: 13px; color: var(--text-sub); }
+    .user-info span { color: var(--primary); font-weight: 700; font-family: 'Orbitron'; }
+
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    .btn {
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Orbitron', sans-serif;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 10px rgba(112, 0, 255, 0.4);
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px var(--primary); filter: brightness(1.2); }
+    .btn-success { background: linear-gradient(135deg, #059669, var(--success)); }
+    .btn-warning { background: linear-gradient(135deg, #d97706, #f59e0b); }
+    .btn-danger { background: linear-gradient(135deg, #990000, var(--accent)); }
+
+    /* Music Player Widget ใน Header */
+    .music-widget {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+    .music-widget select, .music-widget input {
+      background: #111; color: #fff; border: 1px solid var(--border-neon);
+      padding: 4px 6px; border-radius: 4px; font-size: 11px; outline: none;
+    }
+    .music-widget input { width: 130px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+    .card-box {
+      background: var(--bg-panel);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border-neon);
+      box-shadow: var(--glow);
+    }
+
+    .video-box {
+      position: relative;
+      padding-top: 56.25%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--border-neon);
+    }
+    .video-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+    .video-info h3 { font-size: 16px; font-weight: 700; margin-top: 14px; color: #fff; }
+    .video-info p { font-size: 13px; color: var(--text-sub); margin-top: 4px; line-height: 1.5; }
+
+    .submit-section {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .submit-section input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-neon);
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .playlist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .playlist-title { font-size: 15px; font-weight: 700; color: #fff; font-family: 'Orbitron'; }
+    .timeline-badge { font-size: 11px; color: var(--primary); background: rgba(0,240,255,0.1); padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border-neon); }
+
+    .playlist {
+      max-height: 450px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+    }
+    .playlist::-webkit-scrollbar { width: 5px; }
+    .playlist::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
+
+    .lesson-item {
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.02);
+      transition: all 0.3s;
+    }
+    .lesson-item:hover { background: rgba(0, 240, 255, 0.05); border-color: var(--border-neon); }
+    .lesson-item.active { background: rgba(0, 240, 255, 0.15); border-color: var(--primary); box-shadow: 0 0 12px rgba(0,240,255,0.2); }
+    .lesson-title { font-size: 13px; font-weight: 600; color: #fff; }
+    .lesson-sub { font-size: 11px; color: var(--text-sub); margin-top: 3px; display: flex; justify-content: space-between; }
+
+    /* Modal พื้นฐาน */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(5, 5, 10, 0.85);
+      backdrop-filter: blur(8px);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .modal-content {
+      background: #0d0f1c;
+      border: 1px solid var(--primary);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+      padding: 24px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 750px;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .close-btn {
+      position: absolute;
+      top: 16px; right: 16px;
+      cursor: pointer;
+      font-size: 16px;
+      background: rgba(255,255,255,0.05);
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .close-btn:hover { background: var(--accent); }
+    .modal-title { font-size: 18px; font-weight: 700; color: #fff; font-family: 'Orbitron'; margin-bottom: 4px; }
+    .modal-desc { font-size: 12px; color: var(--text-sub); margin-bottom: 16px; }
+
+    /* Rarity Styles */
+    .rarity-common { border-color: #64748b !important; background: rgba(100, 116, 139, 0.05) !important; }
+    .rarity-rare { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.08) !important; }
+    .rarity-epic { border-color: #a855f7 !important; background: rgba(168, 85, 247, 0.08) !important; }
+    .rarity-legendary { border-color: #eab308 !important; background: rgba(234, 179, 8, 0.1) !important; }
+    .rarity-god { 
+      border-color: #ff0055 !important; 
+      background: linear-gradient(135deg, rgba(255,0,85,0.15), rgba(255,215,0,0.15)) !important; 
+      animation: godGlow 2s infinite alternate;
+    }
+    @keyframes godGlow {
+      0% { box-shadow: 0 0 10px rgba(255,0,85,0.4); }
+      100% { box-shadow: 0 0 25px rgba(255,215,0,0.7); }
+    }
+
+    .inventory-grid, .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .item-card {
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 10px;
+      text-align: center;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      position: relative;
+    }
+    .item-img {
+      width: 48px; height: 48px;
+      object-fit: contain;
+      margin: 0 auto 6px auto;
+      display: block;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.2));
+    }
+    .item-name { font-size: 11px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .item-count { font-size: 10px; color: var(--text-sub); }
+    .item-badge {
+      position: absolute; top: 4px; right: 4px;
+      font-size: 7px; padding: 2px 4px; border-radius: 4px;
+      font-family: 'Orbitron'; font-weight: 700; text-transform: uppercase;
+    }
+
+    .bp-tier-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; padding-right: 4px; }
+    .bp-tier-card {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .bp-info h4 { font-size: 13px; color: #fff; font-family: 'Orbitron'; }
+    .bp-info p { font-size: 11px; color: var(--text-sub); }
+    .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+    .lesson-card {
+      background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
+      padding: 16px; transition: all 0.3s ease; cursor: pointer;
+    }
+    .lesson-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: var(--glow); }
+    .lesson-card.active { border-color: var(--primary); background: rgba(0, 240, 255, 0.05); }
+    .lesson-day { font-family: 'Orbitron'; font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 6px; }
+    .lesson-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .lesson-desc { font-size: 12px; color: var(--text-sub); line-height: 1.5; }
+    .tag-skibidi { display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(112,0,255,0.3); border: 1px solid var(--secondary); font-size: 10px; color: #d8b4fe; margin-top: 10px; font-family: 'Orbitron'; }
+    
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px;
+    }
+    .modal-card {
+      background: var(--bg-panel); border: 1px solid var(--primary); box-shadow: var(--glow);
+      border-radius: 20px; max-width: 600px; width: 100%; padding: 24px; color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Top Navigation Bar to Portal -->
+<div id="student-portal-floating-bar" style="position:fixed; top:12px; left:12px; z-index:99999; display:flex; gap:8px;">
+  <a href="index.html" style="background:rgba(15, 23, 42, 0.9); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); backdrop-filter:blur(10px); padding:8px 14px; border-radius:12px; font-family:'Kanit', sans-serif; font-size:12px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:transform 0.15s ease;">
+    <span>◀</span>
+    <span>กลับหน้ารวมผลงานนักเรียน</span>
+  </a>
+</div>
+
+
+  <div class="container">
+    <!-- HEADER -->
+    <header>
+      <div class="user-profile-mini">
+        <div class="avatar-frame">
+          <span style="font-size: 26px;">🤖</span>
+        </div>
+        <div class="brand">
+          <h2>SKIBIDI <span style="color:var(--primary);">CYBER SFM</span></h2>
+          <div class="user-info">MASTERCLASS • <span>90 DAYS EDITION</span></div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="music-widget" style="display:flex; align-items:center; gap:8px; padding:6px 14px; border-radius:10px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1);">
+          <span style="font-size:14px;">🎵 BGM:</span>
+          <span style="font-size:12px; color:var(--primary); font-family:'Orbitron';">CYBERPUNK BEATS</span>
+          <button onclick="toggleAudio()" class="btn btn-warning" style="padding:4px 10px; font-size:10px;" id="audioBtn">▶ PLAY</button>
+        </div>
+        <button class="btn btn-success" onclick="claimDailyReward()">⭐ CLAIM PASS</button>
+      </div>
+    </header>
+
+    <!-- HERO DASHBOARD BANNER -->
+    <div style="background: linear-gradient(135deg, rgba(112,0,255,0.3), rgba(0,240,255,0.1)); border: 1px solid var(--border-neon); border-radius: 18px; padding: 24px; margin-bottom: 24px; box-shadow: var(--glow);">
+      <span style="background:var(--accent); color:#fff; font-size:10px; font-family:'Orbitron'; font-weight:800; padding:3px 10px; border-radius:6px; letter-spacing:1px;">COURSE ROADMAP</span>
+      <h1 style="font-family:'Orbitron'; font-size:26px; color:#fff; margin:10px 0 6px;">หลักสูตรสร้างแอนิเมชัน 3D ระดับโปร (SFM Skibidi 90 วัน)</h1>
+      <p style="color:var(--text-sub); font-size:13px; max-width:700px; line-height:1.6;">
+        เรียนรู้การจัดแสง (Lighting), การเคลื่อนไหวของมุมกล้อง (Cinematic Camera), และการ Rigging ตัวละคร Skibidi Toilet & Cameraman สู่ผลงานแอนิเมชันระดับล้านวิว!
+      </p>
+    </div>
+
+    <!-- MAIN TWO COLUMNS: LESSONS (LEFT) & BATTLE PASS (RIGHT) -->
+    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
+      
+      <!-- LEFT: 90 DAYS LESSONS -->
+      <div>
+        <h3 style="font-family:'Orbitron'; color:var(--primary); font-size:16px; display:flex; align-items:center; gap:8px;">
+          <span>🎬</span> บทเรียนแอนิเมชันประจำวัน (90 DAYS)
+        </h3>
+        
+        <div class="lesson-grid" id="lessonGrid">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- RIGHT: SKIBIDI CYBER PASS -->
+      <div>
+        <div style="background:var(--bg-panel); border:1px solid var(--border-neon); border-radius:18px; padding:20px; box-shadow:var(--glow);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h3 style="font-family:'Orbitron'; color:#fff; font-size:14px;">CYBER PASS TIER</h3>
+            <span style="font-family:'Orbitron'; color:var(--accent); font-size:12px; font-weight:bold;" id="tierLevel">TIER 1</span>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.05); height:10px; border-radius:5px; overflow:hidden; margin-bottom:16px;">
+            <div id="tierProgress" style="background:linear-gradient(90deg, var(--secondary), var(--primary)); width:25%; height:100%;"></div>
+          </div>
+
+          <div class="bp-tier-list">
+            <div class="bp-tier-card">
+              <div class="bp-info">
+                <h4>TIER 1: CAMERAMAN RIG</h4>
+                <p>โมเดล 3D ตากล้องพื้นฐาน</p>
+              </div>
+              <span style="color:var(--success); font-size:12px; font-family:'Orbitron';">UNLOCKED</span>
+            </div>
+            <div class="bp-tier-card">
+              <div class="bp-info">
+                <h4>TIER 2: NEON CITY MAP</h4>
+                <p>ฉากเมืองไซเบอร์พังค์ 4K</p>
+              </div>
+              <span style="color:var(--text-sub); font-size:11px; font-family:'Orbitron';">REQ LV.5</span>
+            </div>
+            <div class="bp-tier-card">
+              <div class="bp-info">
+                <h4>TIER 3: TITAN SPEAKERMAN</h4>
+                <p>โมเดลบอสไททันลำโพงยักษ์</p>
+              </div>
+              <span style="color:var(--text-sub); font-size:11px; font-family:'Orbitron';">REQ LV.10</span>
+            </div>
+            <div class="bp-tier-card">
+              <div class="bp-info">
+                <h4>TIER 4: G-TOILET LASER FX</h4>
+                <p>เอฟเฟกต์เลเซอร์ลำแสงสุดอลังการ</p>
+              </div>
+              <span style="color:var(--text-sub); font-size:11px; font-family:'Orbitron';">REQ LV.20</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LESSON DETAIL MODAL -->
+  <div id="lessonModal" class="modal-overlay" style="display:none;" onclick="closeLessonModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <span class="lesson-day" id="modalDay">DAY 1</span>
+        <button onclick="closeLessonModal()" style="background:none; border:none; color:var(--text-sub); font-size:18px; cursor:pointer;">✕</button>
+      </div>
+      <h2 style="font-size:20px; color:#fff; margin-bottom:12px;" id="modalTitle">ติดตั้ง Source Filmmaker & โมเดลแรก</h2>
+      <div style="background:#000; border-radius:12px; height:180px; display:flex; align-items:center; justify-content:center; color:var(--primary); font-family:'Orbitron'; margin-bottom:16px; border:1px solid rgba(255,255,255,0.1);">
+        🎥 3D VIEWPORT SIMULATOR
+      </div>
+      <p style="color:var(--text-sub); font-size:13px; line-height:1.6; margin-bottom:20px;" id="modalDesc">
+        เรียนรู้วิธีการ Import โมเดล และการตั้งค่าปุ่มคีย์ลัดในโปรแกรม SFM
+      </p>
+      <button class="btn" style="width:100%; justify-content:center;" onclick="markLessonComplete()">
+        ✅ เรียนจบเนื้อหานี้ (+50 CYBER EXP)
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const lessons = [
+      { day: "DAY 01", title: "ติดตั้ง Source Filmmaker & โมเดลแรก", desc: "เตรียมเครื่องคอมพิวเตอร์ ดาวน์โหลดโปรแกรม SFM และติดตั้งโมเดล Cameraman", tag: "BEGINNER" },
+      { day: "DAY 02", title: "การบังคับมุมกล้อง Cinematic Camera", desc: "เรียนรู้เทคนิค Focal Length, Field of View (FOV) และการใช้ Depth of Field (DOF)", tag: "CAMERA" },
+      { day: "DAY 03", title: "หลักการอนิเมชัน 12 ประการใน 3D", desc: "Timing & Spacing, Squash & Stretch และการสร้างแรงกระแทกหมัดต่อยสมจริง", tag: "ANIMATION" },
+      { day: "DAY 04", title: "การจัดแสง 3-Point Lighting ไซเบอร์", desc: "การใส่ Key Light, Fill Light, และ Rim Light โทนสีฟ้า-ม่วงสไตล์นีออน", tag: "LIGHTING" },
+      { day: "DAY 05", title: "ฉากแอ็กชันปะทะ Skibidi Toilet", desc: "จัดท่วงท่าต่อสู้ จัดคีย์เฟรมหมุนตัว และการขยับศีรษะให้ได้จังหวะดนตรี", tag: "ACTION" },
+      { day: "DAY 06", title: "Particle Effects & ลำแสงเลเซอร์", desc: "ใส่เอฟเฟกต์ประกายไฟ ควันระเบิด และลำแสงเลเซอร์ของ Titan Cameraman", tag: "VFX" },
+      { day: "DAY 07", title: "การ Export วิดีโอ 4K 60FPS ลง YouTube", desc: "ตั้งค่า Bitrate และ Render Pipeline ให้ภาพคมชัดระดับสูงสุด ไม่แตก", tag: "RENDER" }
+    ];
+
+    function renderLessons() {
+      const grid = document.getElementById('lessonGrid');
+      grid.innerHTML = lessons.map((l, idx) => `
+        <div class="lesson-card" onclick="openLesson(${idx})">
+          <div class="lesson-day">${l.day}</div>
+          <div class="lesson-title">${l.title}</div>
+          <div class="lesson-desc">${l.desc}</div>
+          <span class="tag-skibidi">${l.tag}</span>
+        </div>
+      `).join('');
+    }
+
+    let currentOpenLesson = 0;
+    function openLesson(idx) {
+      currentOpenLesson = idx;
+      const l = lessons[idx];
+      document.getElementById('modalDay').innerText = l.day;
+      document.getElementById('modalTitle').innerText = l.title;
+      document.getElementById('modalDesc').innerText = l.desc;
+      document.getElementById('lessonModal').style.display = "flex";
+    }
+
+    function closeLessonModal(e) {
+      document.getElementById('lessonModal').style.display = "none";
+    }
+
+    let userExp = 120;
+    function markLessonComplete() {
+      userExp += 50;
+      alert("🎉 สำเร็จบทเรียน " + lessons[currentOpenLesson].day + "! ได้รับ +50 CYBER EXP");
+      closeLessonModal();
+      updateTier();
+    }
+
+    function claimDailyReward() {
+      userExp += 30;
+      alert("🎁 ได้รับ Daily Cyber Pass Bonus +30 EXP!");
+      updateTier();
+    }
+
+    function updateTier() {
+      const tier = Math.floor(userExp / 100) + 1;
+      const pct = (userExp % 100);
+      document.getElementById('tierLevel').innerText = "TIER " + tier;
+      document.getElementById('tierProgress').style.width = pct + "%";
+    }
+
+    let audioPlaying = false;
+    let audioCtx = null;
+    function toggleAudio() {
+      const btn = document.getElementById('audioBtn');
+      if (!audioPlaying) {
+        audioPlaying = true;
+        btn.innerText = "⏸ PAUSE";
+        btn.classList.remove('btn-warning');
+        btn.classList.add('btn-danger');
+      } else {
+        audioPlaying = false;
+        btn.innerText = "▶ PLAY";
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-warning');
+      }
+    }
+
+    window.onload = function() {
+      renderLessons();
+      updateTier();
+    };
+  </script>
+</body>
+</html>
