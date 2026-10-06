@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEEP footprint: Dilemma & Mirror Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #0b0f17;
+      --card-bg: #161f2e;
+      --panel-bg: #111827;
+      --border-color: #233148;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-cyan: #06b6d4;
+      --accent-red: #f43f5e;
+      --accent-gold: #f59e0b;
+      --accent-green: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Prompt', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 850px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .header {
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      color: var(--accent-cyan);
+      font-size: 2.2rem;
+      letter-spacing: 3px;
+    }
+    .header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .rules-trigger {
+      position: absolute;
+      right: 0;
+      top: 0;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .rules-trigger:hover {
+      background: var(--accent-cyan);
+      color: #000;
+      border-color: var(--accent-cyan);
+    }
+
+    /* Track / Stats Bar */
+    .status-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      background: rgba(0,0,0,0.3);
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+    .stat-box { text-align: center; }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .stat-val { font-size: 1.4rem; font-weight: 700; color: #fff; margin-top: 2px; }
+    .stat-val.rights { color: var(--accent-cyan); }
+    .stat-val.privacy { color: var(--accent-green); }
+
+    /* Case Card Display */
+    .case-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .case-banner {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .case-tag {
+      background: var(--accent-red);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+    .case-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .case-body { padding: 20px; }
+    .event-history {
+      background: rgba(0,0,0,0.2);
+      border-left: 3px solid var(--accent-gold);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+    }
+    .reflection-question {
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 16px;
+      border-radius: 12px;
+      color: #a5f3fc;
+      font-size: 0.95rem;
+      font-weight: 500;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* Actions / Choices */
+    .choices-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 600px) { .choices-grid { grid-template-columns: 1fr; } }
+
+    .choice-btn {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      color: var(--text-main);
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Prompt', sans-serif;
+    }
+    .choice-btn:hover {
+      border-color: var(--accent-cyan);
+      background: #24334a;
+      transform: translateY(-2px);
+    }
+    .choice-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+    .choice-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+
+    /* Dialogue & Vote Section */
+    .vote-panel {
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .vote-title { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; }
+    .vote-btns { display: flex; justify-content: center; gap: 12px; }
+    .vote-btn {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: none;
+      font-weight: 600;
+      font-family: 'Prompt', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .vote-yes { background: var(--accent-green); color: #000; }
+    .vote-no { background: var(--accent-red); color: #fff; }
+    .vote-btn:hover { opacity: 0.85; }
+
+    /* Modal Styling */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 24px;
+      color: var(--text-main);
+    }
+    .modal-header {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+    .close-btn {
+      background: var(--accent-cyan);
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar to Portal -->
+<div id="student-portal-floating-bar" style="position:fixed; top:12px; left:12px; z-index:99999; display:flex; gap:8px;">
+  <a href="index.html" style="background:rgba(15, 23, 42, 0.9); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); backdrop-filter:blur(10px); padding:8px 14px; border-radius:12px; font-family:'Kanit', sans-serif; font-size:12px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:transform 0.15s ease;">
+    <span>◀</span>
+    <span>กลับหน้ารวมผลงานนักเรียน</span>
+  </a>
+</div>
+
+
+<div class="game-container">
+  <div class="header">
+    <button class="rules-trigger" onclick="toggleRules(true)">📖 กติกา & วิสัยทัศน์</button>
+    <h1>DEEP FOOTPRINT</h1>
+    <p>DILEMMA & MIRROR EDITION: เกมสะท้อนสังคมและสิทธิส่วนบุคคล</p>
+  </div>
+
+  <div id="play-area">
+    <!-- Status Track -->
+    <div class="status-bar">
+      <div class="stat-box"><div class="stat-label">เคสเหตุการณ์</div><div class="stat-val" id="case-num">1 / 5</div></div>
+      <div class="stat-box"><div class="stat-label">Rights Power (พลังสิทธิ์)</div><div class="stat-val rights" id="rights-val">10</div></div>
+      <div class="stat-box"><div class="stat-label">Privacy Score</div><div class="stat-val privacy" id="privacy-val">100</div></div>
+      <div class="stat-box"><div class="stat-label">Digital Wealth</div><div class="stat-val" id="coins-val">50</div></div>
+    </div>
+
+    <!-- Case Card -->
+    <div class="case-card">
+      <div class="case-banner">
+        <div class="case-title" id="card-title">กำลังโหลดเหตุการณ์...</div>
+        <div class="case-tag" id="card-tag">BASED ON TRUE EVENT</div>
+      </div>
+      <div class="case-body">
+        <div class="event-history" id="card-history">
+          <!-- True event detail injected here -->
+        </div>
+        <div class="reflection-question" id="card-question">
+          <!-- Reflection Question injected here -->
+        </div>
+
+        <div class="choices-grid" id="choices-container">
+          <!-- Choices injected here -->
+        </div>
+
+        <!-- Dialogue Vote -->
+        <div class="vote-panel">
+          <div class="vote-title">💬 คำถามอภิปรายร่วมกันบนโต๊ะ: "การตัดสินใจครั้งนี้ควรได้รับการสนับสนุนจากสังคมหรือไม่?"</div>
+          <div class="vote-btns">
+            <button class="vote-btn vote-yes" onclick="castVote(true)">👍 โหวตสนับสนุน (+Rights Power)</button>
+            <button class="vote-btn vote-no" onclick="castVote(false)">👎 คัดค้าน / ยอมจำนน</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Screen -->
+  <div id="result-screen" style="display:none; text-align:center; padding:40px 20px;">
+    <h2 id="win-title" style="font-size:2.2rem; color:var(--accent-cyan); margin-bottom:12px;">SUMMARY</h2>
+    <p id="win-desc" style="color:var(--text-muted); line-height:1.6; margin-bottom:24px;"></p>
+    <button class="close-btn" onclick="location.reload()">🔄 เริ่มการสะท้อนตัวตนใหม่อีกครั้ง</button>
+  </div>
+</div>
+
+<!-- Modal Rules -->
+<div class="modal-overlay" id="rules-modal">
+  <div class="modal-content">
+    <div class="modal-header">📖 กติกา DEEP footprint: Dilemma Edition</div>
+    <p style="font-size:0.9rem; line-height:1.6; color:#cbd5e1; margin-bottom:12px;">
+      เกมนี้ไม่ได้ออกแบบมาเพื่อให้หา "คนชนะที่รวยที่สุด" แต่เน้นการ *สะท้อนเงาของตัวเราและสังคม* เมื่อต้องเผชิญหน้ากับเหตุการณ์ละเมิดสิทธิ์ในชีวิตจริง
+    </p>
+    <ul style="margin-left:20px; font-size:0.85rem; color:var(--text-muted); line-height:1.8;">
+      <li><b>Rights Power (พลังสิทธิ์):</b> สะสมผ่านการยืนหยัดเรียกร้องสิทธิ์ และการอภิปรายโหวตสนับสนุนจากผู้เล่นบนโต๊ะ</li>
+      <li><b>Privacy Score:</b> ความเป็นส่วนตัวที่เหลืออยู่ หากปล่อยให้ลดลงจนเหลือ 0 จะกลายเป็นประชากรที่ถูกสอดส่องสมบูรณ์แบบ</li>
+      <li><b>เป้าหมายร่วม:</b> หากทั้งโต๊ะช่วยกันทำคะแนน Rights Power สะสมถึง 60 คะแนน สังคมจะเกิดการตื่นรู้ (Social Awakening) และทุกคนชนะร่วมกัน!</li>
+    </ul>
+    <button class="close-btn" onclick="toggleRules(false)">เข้าใจแล้ว ลุยเลย</button>
+  </div>
+</div>
+
+<script>
+  const cases = [
+    {
+      title: "1. แอปสวัสดิการแลกสแกนใบหน้า",
+      tag: "Biometric vs Rights",
+      history: "📜 <b>เหตุการณ์จริง:</b> โครงการช่วยเหลือจากรัฐบาลเปิดให้ลงทะเบียนรับสิทธิประโยชน์ แต่บังคับให้ทุกคนต้องสแกนใบหน้าและยินยอมเปิดเผยข้อมูลบัญชีธนาคารทั้งหมด หากไม่ยินยอม จะถูกตัดสิทธิ์จากเงินเยียวยา",
+      question: "❓ <b>คำถามพาทบทวนสิทธิ์:</b> \"ความยากจนและความจำเป็น ถูกใช้เป็นเงื่อนไขในการบีบให้เราต้องยินยอมสละสิทธิ์ความเป็นส่วนตัวใช่หรือไม่?\"",
+      choices: [
+        { title: "A. ยอมสแกนเพื่อรับสิทธิ์", desc: "รับความสะดวกสบายทันที (+40 Coins, -30 Privacy)", rights: -5, privacy: -30, coins: 40 },
+        { title: "B. รวมกลุ่มยื่นร้องเรียน PDPA", desc: "เรียกร้องทางเลือกอื่นที่ไม่ต้องสละสิทธิ์ (+15 Rights, -10 Coins)", rights: 15, privacy: 5, coins: -10 }
+      ]
+    },
+    {
+      title: "2. กล้อง AI สอดส่องจำหน้าผิด",
+      tag: "Surveillance Error",
+      history: "📜 <b>เหตุการณ์จริง:</b> ระบบกล้อง CCTV ติดตั้งระบบ AI จดจำใบหน้าในพื้นที่สาธารณะ แต่ระบบทำงานผิดพลาด จำหน้าคุณสลับกับผู้ต้องหาคดีความมั่นคง ทำให้คุณถูกเจ้าหน้าที่กักตัวและสแกนประวัติโดยไม่มีความผิด",
+      question: "❓ <b>คำถามพาทบทวนสิทธิ์:</b> \"เมื่อเราเดินบนถนนสาธารณะ เรายังสมควรได้รับ 'สิทธิ์ที่จะไม่ถูกจับตาดู' (Right to be Left Alone) อยู่หรือไม่?\"",
+      choices: [
+        { title: "A. ยอมให้ตรวจเพื่อตัดปัญหา", desc: "ไม่โต้แย้งเพื่อความปลอดภัยส่วนตัว (-10 Rights, +0 Privacy)", rights: -10, privacy: 0, coins: 0 },
+        { title: "B. อ้างสิทธิ์ตามกฎหมายปฏิเสธการบันทึก", desc: "ยืนยันให้ลบประวัติที่บันทึกผิดพลาด (+20 Rights, -10 Coins)", rights: 20, privacy: 10, coins: -10 }
+      ]
+    },
+    {
+      title: "3. ประวัติสุขภาพหลุดตลาดมืด",
+      tag: "Data Breach Crisis",
+      history: "📜 <b>เหตุการณ์จริง:</b> ฐานข้อมูลโรงพยาบาลถูกแฮก ข้อมูลโรคประจำตัวและเลขบัตรประชาชนของผู้ใช้บริการนับล้านรายถูกนำไปวางขายในเว็บบอร์ดมืด เพื่อใช้สแปมประกันภัยและแบล็กเมล",
+      question: "❓ <b>คำถามพาทบทวนสิทธิ์:</b> \"เมื่อข้อมูลหลุดเพราะความประมาทของหน่วยงาน ทำไมภาระในการระวังตัวถึงตกอยู่กับประชาชนเพียงฝ่ายเดียว?\"",
+      choices: [
+        { title: "A. จ่ายเงินซื้อบริการคุ้มครองข้อมูลเอง", desc: "ป้องกันตัวเองด้วยทุนส่วนตัว (-30 Coins, +0 Privacy)", rights: 0, privacy: 0, coins: -30 },
+        { title: "B. ยื่นฟ้องร้องดำเนินคดีแบบกลุ่ม (Class Action)", desc: "สร้างบรรทัดฐานรับผิดชอบต่อสังคม (+25 Rights, -15 Coins)", rights: 25, privacy: 5, coins: -15 }
+      ]
+    },
+    {
+      title: "4. การเซนเซอร์และสอดส่องโซเชียล",
+      tag: "Free Speech vs Control",
+      history: "📜 <b>เหตุการณ์จริง:</b> แพลตฟอร์มโซเชียลมีเดียใช้ AI ตรวจจับและลบโพสต์วิพากษ์วิจารณ์นโยบายรัฐบาล โดยอ้างเหตุผลด้านความมั่นคง พร้อมส่งข้อมูลตำแหน่งของผู้โพสต์ให้หน่วยงานตรวจสอบ",
+      question: "❓ <b>คำถามพาทบทวนสิทธิ์:</b> \"เส้นแบ่งระหว่าง 'ความมั่นคงของรัฐ' กับ 'เสรีภาพในการแสดงออก' ควรหยุดลงที่ตรงไหน?\"",
+      choices: [
+        { title: "A. เซนเซอร์ตัวเองและหยุดโพสต์", desc: "เลี่ยงความเสี่ยงถูกเพ่งเล็ง (-15 Rights, +0 Privacy)", rights: -15, privacy: 0, coins: 0 },
+        { title: "B. ย้ายไปใช้แพลตฟอร์มกระจายศูนย์ (Decentralized)", desc: "ยืนหยัดเสรีภาพสื่อสาร (+20 Rights, -20 Privacy)", rights: 20, privacy: -20, coins: 0 }
+      ]
+    },
+    {
+      title: "5. Deepfake และอัตลักษณ์สวมรอย",
+      tag: "Generative AI Abuse",
+      history: "📜 <b>เหตุการณ์จริง:</b> รูปภาพสาธารณะของคุณถูกนำไปเทรน Generative AI เพื่อสร้างคลิปวิดีโอ Deepfake ปลอมแปลงเสียงและหน้าตาเพื่อนำไปหลอกลวงผู้อื่น",
+      question: "❓ <b>คำถามพาทบทวนสิทธิ์:</b> \"ในยุคที่ใบหน้าและเสียงของเราถูกคัดลอกได้ด้วย AI ใครคือเจ้าของอัตลักษณ์ที่แท้จริง?\"",
+      choices: [
+        { title: "A. ลบรูปภาพออกจากระบบดิจิทัลทั้งหมด", desc: "ซ่อนตัวและละทิ้งตัวตนออนไลน์ (-20 Digital Wealth)", rights: 0, privacy: 20, coins: -20 },
+        { title: "B. ผลักดันกฎหมาย 'Right to be Forgotten'", desc: "เรียกร้องสิทธิ์ในการสั่งลบข้อมูลอัตลักษณ์ (+30 Rights)", rights: 30, privacy: 10, coins: -10 }
+      ]
+    }
+  ];
+
+  let currentCaseIndex = 0;
+  let gameState = {
+    rightsPower: 10,
+    privacyScore: 100,
+    coins: 50
+  };
+
+  function updateUI() {
+    document.getElementById('case-num').innerText = `${currentCaseIndex + 1} / ${cases.length}`;
+    document.getElementById('rights-val').innerText = gameState.rightsPower;
+    document.getElementById('privacy-val').innerText = gameState.privacyScore;
+    document.getElementById('coins-val').innerText = gameState.coins;
+  }
+
+  function loadCase() {
+    const c = cases[currentCaseIndex];
+    document.getElementById('card-title').innerText = c.title;
+    document.getElementById('card-tag').innerText = c.tag;
+    document.getElementById('card-history').innerHTML = c.history;
+    document.getElementById('card-question').innerHTML = c.question;
+
+    const container = document.getElementById('choices-container');
+    container.innerHTML = '';
+
+    c.choices.forEach((choice, idx) => {
+      container.innerHTML += `
+        <button class="choice-btn" onclick="makeChoice(${idx})">
+          <div class="choice-title">${choice.title}</div>
+          <div class="choice-desc">${choice.desc}</div>
+        </button>
+      `;
+    });
+  }
+
+  function makeChoice(idx) {
+    const choice = cases[currentCaseIndex].choices[idx];
+    gameState.rightsPower += choice.rights;
+    gameState.privacyScore = Math.max(0, gameState.privacyScore + choice.privacy);
+    gameState.coins += choice.coins;
+
+    nextCase();
+  }
+
+  function castVote(isSupported) {
+    if (isSupported) {
+      gameState.rightsPower += 10;
+      alert("✅ ผู้เล่นบนโต๊ะโหวตสนับสนุน! ทั้งกลุ่มได้รับพลังสิทธิ์สะสม (Rights Power +10)");
+    } else {
+      alert("👎 สังคมยังไม่พร้อมโต้แย้ง การตัดสินใจครั้งนี้ไม่ได้รับพลังสนับสนุนเพิ่ม");
+    }
+    updateUI();
+  }
+
+  function nextCase() {
+    currentCaseIndex++;
+    if (currentCaseIndex >= cases.length) {
+      showSummary();
+    } else {
+      updateUI();
+      loadCase();
+    }
+  }
+
+  function showSummary() {
+    document.getElementById('play-area').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+
+    const winTitle = document.getElementById('win-title');
+    const winDesc = document.getElementById('win-desc');
+
+    if (gameState.rightsPower >= 60) {
+      winTitle.innerText = "🏆 SOCIAL AWAKENING: ชนะร่วมกัน!";
+      winTitle.style.color = "var(--accent-cyan)";
+      winDesc.innerText = `คุณและผู้เล่นทุกคนช่วยกันสะสมคะแนน Rights Power ได้สูงถึง ${gameState.rightsPower} คะแนน! การยืนหยัดเรียกร้องและสร้างบทสนทนา ทำให้สังคมตระหนักรู้ เกิดการแก้ไขกฎหมายคุ้มครองสิทธิส่วนบุคคลเพื่อทุกคน!`;
+    } else if (gameState.privacyScore >= 80) {
+      winTitle.innerText = "🛡️ SILENT SURVIVOR: เอาตัวรอดในร่มเงา";
+      winTitle.style.color = "var(--accent-green)";
+      winDesc.innerText = `คุณรักษา Privacy Score ไว้ได้สูงถึง ${gameState.privacyScore} คะแนน แม้สังคมจะไม่เปลี่ยน แต่คุณเอาตัวรอดและคุ้มครองตัวตนได้อย่างสมบูรณ์แบบ`;
+    } else {
+      winTitle.innerText = "👁️ SURVEILLED SOCIETY: พ่ายแพ้ต่อระบบสอดส่อง";
+      winTitle.style.color = "var(--accent-red)";
+      winDesc.innerText = `ความตื่นรู้ในสังคมไม่มากพอ คะแนน Rights Power เหลือเพียง ${gameState.rightsPower} ทำให้การละเมิดสิทธิ์กลายเป็นเรื่องปกติ และทุกคนต้องยอมจำนนอยู่ใต้ระบบการสอดส่อง`;
+    }
+  }
+
+  function toggleRules(show) {
+    document.getElementById('rules-modal').style.display = show ? 'flex' : 'none';
+  }
+
+  // Start Game
+  updateUI();
+  loadCase();
+</script>
+
+</body>
+</html>

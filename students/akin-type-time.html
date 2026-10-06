@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Type / Time</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; padding: 24px;
+      background: #f7f4e8; color: #252b3d;
+      font-family: system-ui, sans-serif;
+    }
+    main { max-width: 760px; margin: 0 auto; }
+    header, .top, .stats, .bottom {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    header { border-bottom: 1px solid #dedbcf; padding-bottom: 16px; }
+    h1 { margin: 38px 0 8px; text-align: center; font-size: clamp(42px, 9vw, 72px); }
+    .intro { margin: 0 0 28px; text-align: center; color: #626978; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .pill, .mode, .start, input {
+      border: 1px solid #d8d5c8; border-radius: 14px;
+    }
+    .pill { padding: 9px 13px; background: #fffdf5; }
+    .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .mode { padding: 14px; background: transparent; text-align: left; }
+    .mode[aria-pressed="true"] {
+      background: #c5dc4d; border-color: #252b3d;
+      box-shadow: 0 3px 0 #252b3d;
+    }
+    .mode small { display: block; margin-top: 5px; color: #626978; }
+    .panel {
+      margin-top: 18px; padding: 22px; border: 1px solid #dedbcf;
+      border-radius: 24px; background: #fffdf5;
+    }
+    .top { padding-bottom: 14px; border-bottom: 1px solid #e8e5da; color: #626978; }
+    .stats { margin: 20px 0; }
+    .stat { flex: 1; padding: 12px; border-radius: 12px; background: #f1efdf; }
+    .stat small { display: block; color: #777b83; }
+    .stat strong { display: block; margin-top: 4px; font-size: 22px; }
+    .timer-label { display: flex; justify-content: space-between; color: #626978; font-size: 13px; }
+    .track { height: 8px; margin: 8px 0 22px; border-radius: 8px; background: #e6e2d0; overflow: hidden; }
+    #bar { height: 100%; width: 100%; background: #89a83d; transition: width .08s linear; }
+    .word-area {
+      min-height: 190px; padding: 22px; display: grid; place-content: center;
+      text-align: center; border: 1px dashed #c9c6b8; border-radius: 18px;
+      background: #f8f6e9;
+    }
+    #word { min-height: 55px; font-size: clamp(36px, 9vw, 58px); letter-spacing: 3px; }
+    .match { color: #789537; }
+    .wrong { color: #db7058; text-decoration: underline; }
+    input { width: min(100%, 360px); margin: 12px auto 0; padding: 12px; text-align: center; background: white; }
+    input:focus { outline: 3px solid #c5dc4d; }
+    .bottom { margin-top: 18px; flex-wrap: wrap; }
+    .start { padding: 13px 22px; background: #c5dc4d; font-weight: 700; }
+    @media (max-width: 520px) {
+      body { padding: 16px; }
+      .panel { padding: 16px; }
+      .mode { padding: 11px 8px; font-size: 14px; }
+      .stats { gap: 7px; }
+      .stat { padding: 9px; }
+      header { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar to Portal -->
+<div id="student-portal-floating-bar" style="position:fixed; top:12px; left:12px; z-index:99999; display:flex; gap:8px;">
+  <a href="index.html" style="background:rgba(15, 23, 42, 0.9); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); backdrop-filter:blur(10px); padding:8px 14px; border-radius:12px; font-family:'Kanit', sans-serif; font-size:12px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:transform 0.15s ease;">
+    <span>◀</span>
+    <span>กลับหน้ารวมผลงานนักเรียน</span>
+  </a>
+</div>
+
+  <main>
+    <header>
+      <strong>TYPE / TIME</strong>
+      <div>
+        <button class="pill" id="musicButton" type="button"
+          aria-label="Mute piano music" aria-pressed="true">♫ Music</button>
+        <span class="pill">Personal best: <strong id="best">0</strong></span>
+      </div>
+    </header>
+
+    <h1>Beat the clock.</h1>
+    <p class="intro">Type each word before the seven-second timer runs out.</p>
+
+    <section class="modes" aria-label="Choose difficulty">
+      <button class="mode" data-mode="Easy" aria-pressed="true">
+        <strong>Easy</strong><small>3–5 letters</small>
+      </button>
+      <button class="mode" data-mode="Medium" aria-pressed="false">
+        <strong>Medium</strong><small>6–8 letters</small>
+      </button>
+      <button class="mode" data-mode="Hard" aria-pressed="false">
+        <strong>Hard</strong><small>9–13 letters</small>
+      </button>
+    </section>
+
+    <section class="panel">
+      <div class="top">
+        <span id="status" aria-live="polite">Ready when you are</span>
+        <span>7 seconds per word</span>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><small>Score</small><strong id="score">0</strong></div>
+        <div class="stat"><small>Streak</small><strong id="streak">0</strong></div>
+        <div class="stat"><small>Correct / missed</small><strong><span id="correct">0</span> / <span id="missed">0</span></strong></div>
+      </div>
+
+      <div class="timer-label"><span>Time remaining</span><span id="time">7.0s</span></div>
+      <div class="track"><div id="bar"></div></div>
+
+      <div class="word-area">
+        <div id="word">Ready, steady?</div>
+        <label for="entry">Type the displayed word</label>
+        <input id="entry" autocomplete="off" autocapitalize="off"
+          spellcheck="false" placeholder="Press Start to play" disabled>
+        <p id="hint">Three missed words end the game.</p>
+      </div>
+
+      <div class="bottom">
+        <span id="lives">3 misses left</span>
+        <button class="start" id="startButton" type="button">Start the clock</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Word lists are grouped by difficulty.
+    const words = {
+      Easy: ["lamp", "bread", "smile", "cloud", "river", "stone", "plant", "chair"],
+      Medium: ["puzzle", "window", "bright", "journey", "whisper", "capture", "curious"],
+      Hard: ["adventure", "waterfall", "blueprint", "strawberry", "daydreaming", "celebration"]
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const game = {
+      mode: "Easy", word: "", typed: "", score: 0,
+      streak: 0, correct: 0, missed: 0, running: false
+    };
+
+    let deadline = 0;
+    let timerId = null;
+    let previousWord = "";
+    let musicEnabled = true;
+    let audioContext = null;
+    let musicTimer = null;
+    let nextNoteAt = 0;
+    let pianoStep = 0;
+
+    const chords = [
+      [48, 55, 60, 64, 67], [45, 52, 57, 60, 64],
+      [41, 48, 53, 57, 60], [43, 50, 55, 59, 62]
+    ];
+    const arpeggio = [0, 2, 1, 3, 2, 1, 2, 4];
+    const melody = [
+      72, null, 76, null, 79, null, 76, null,
+      74, null, 77, null, 81, null, 77, null,
+      72, null, 76, null, 79, 81, 79, null,
+      74, null, 77, null, 76, null, 72, null
+    ];
+
+    function chooseWord() {
+      const choices = words[game.mode].filter(word => word !== previousWord);
+      const word = choices[Math.floor(Math.random() * choices.length)];
+      previousWord = word;
+      return word;
+    }
+
+    // Create a soft piano-like note from a fundamental tone and harmonics.
+    function playPianoNote(midi, startAt, duration, volume) {
+      const frequency = 440 * Math.pow(2, (midi - 69) / 12);
+      const envelope = audioContext.createGain();
+      envelope.gain.setValueAtTime(0.0001, startAt);
+      envelope.gain.exponentialRampToValueAtTime(volume, startAt + 0.01);
+      envelope.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
+      envelope.connect(audioContext.destination);
+
+      [[1, 1], [2, 0.28], [3, 0.1]].forEach(([harmonic, level]) => {
+        const oscillator = audioContext.createOscillator();
+        const partial = audioContext.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency * harmonic;
+        partial.gain.value = level;
+        oscillator.connect(partial);
+        partial.connect(envelope);
+        oscillator.start(startAt);
+        oscillator.stop(startAt + duration + 0.04);
+      });
+    }
+
+    function startMusic() {
+      if (!window.AudioContext) return;
+      audioContext = audioContext || new AudioContext();
+      audioContext.resume();
+      if (musicTimer) return;
+
+      pianoStep = 0;
+      nextNoteAt = audioContext.currentTime + 0.08;
+      musicTimer = setInterval(() => {
+        if (audioContext.state !== "running") return;
+        while (nextNoteAt < audioContext.currentTime + 0.55) {
+          const step = pianoStep % melody.length;
+          const chord = chords[Math.floor(step / 8) % chords.length];
+          playPianoNote(chord[arpeggio[step % 8]], nextNoteAt, 0.68, 0.045);
+          if (step % 4 === 0) playPianoNote(chord[0] - 12, nextNoteAt, 1.05, 0.055);
+          if (melody[step] !== null) playPianoNote(melody[step], nextNoteAt, 0.9, 0.038);
+          nextNoteAt += 0.38;
+          pianoStep++;
+        }
+      }, 100);
+    }
+
+    function stopMusic() {
+      clearInterval(musicTimer);
+      musicTimer = null;
+      if (audioContext) audioContext.suspend();
+    }
+
+    function render() {
+      $("score").textContent = game.score;
+      $("streak").textContent = game.streak;
+      $("correct").textContent = game.correct;
+      $("missed").textContent = game.missed;
+      $("lives").textContent = (3 - game.missed) + " misses left";
+      $("entry").value = game.typed;
+      $("entry").disabled = !game.running;
+      $("startButton").textContent = game.running ? "Restart" : game.missed >= 3 ? "Play again" : "Start the clock";
+
+      if (game.running) {
+        $("word").innerHTML = [...game.word].map((letter, index) => {
+          const typed = game.typed[index];
+          const style = typed === undefined ? "" : typed === letter ? "match" : "wrong";
+          return `<span class="${style}">${letter}</span>`;
+        }).join("");
+      } else {
+        $("word").textContent = game.missed >= 3
+          ? `Game over — score: ${game.score}` : "Ready, steady?";
+      }
+    }
+
+    function nextWord(wasCorrect) {
+      if (!game.running) return;
+      if (wasCorrect) {
+        game.correct++;
+        game.score++;
+        game.streak++;
+        $("status").textContent = "Correct! Next word.";
+      } else {
+        game.missed++;
+        game.streak = 0;
+        $("status").textContent = "Time's up. Next word.";
+      }
+
+      if (game.score > Number(localStorage.getItem("typing-best") || 0)) {
+        localStorage.setItem("typing-best", game.score);
+        $("best").textContent = game.score;
+      }
+
+      if (game.missed >= 3) {
+        game.running = false;
+        clearInterval(timerId);
+        $("status").textContent = "Game over — final score: " + game.score;
+        render();
+        return;
+      }
+
+      game.word = chooseWord();
+      game.typed = "";
+      deadline = Date.now() + 7000;
+      render();
+      $("entry").focus();
+    }
+
+    function startGame() {
+      clearInterval(timerId);
+      game.running = true;
+      game.score = game.streak = game.correct = game.missed = 0;
+      game.word = chooseWord();
+      game.typed = "";
+      deadline = Date.now() + 7000;
+      $("status").textContent = "Round in progress";
+      if (musicEnabled) startMusic();
+      render();
+      $("entry").focus();
+
+      timerId = setInterval(() => {
+        const remaining = Math.max(0, (deadline - Date.now()) / 1000);
+        $("time").textContent = remaining.toFixed(1) + "s";
+        $("bar").style.width = (remaining / 7 * 100) + "%";
+        $("bar").style.background = remaining < 2 ? "#db7058" : "#89a83d";
+        if (remaining <= 0) nextWord(false);
+      }, 80);
+    }
+
+    $("entry").addEventListener("input", event => {
+      if (!game.running) return;
+      game.typed = event.target.value;
+      render();
+      if (game.typed === game.word) nextWord(true);
+    });
+
+    $("startButton").addEventListener("click", startGame);
+
+    document.querySelectorAll(".mode").forEach(button => {
+      button.addEventListener("click", () => {
+        clearInterval(timerId);
+        game.running = false;
+        game.mode = button.dataset.mode;
+        document.querySelectorAll(".mode").forEach(item => {
+          item.setAttribute("aria-pressed", item === button);
+        });
+        $("status").textContent = game.mode + " mode selected";
+        render();
+      });
+    });
+
+    $("musicButton").addEventListener("click", event => {
+      musicEnabled = !musicEnabled;
+      const button = event.currentTarget;
+      button.textContent = musicEnabled ? "♫ Music" : "♫ Muted";
+      button.setAttribute("aria-label", musicEnabled ? "Mute piano music" : "Play piano music");
+      button.setAttribute("aria-pressed", musicEnabled);
+      if (musicEnabled) startMusic();
+      else stopMusic();
+    });
+
+    $("best").textContent = localStorage.getItem("typing-best") || "0";
+    render();
+  </script>
+</body>
+</html>

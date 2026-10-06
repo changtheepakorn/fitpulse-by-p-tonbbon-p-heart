@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐻 วางแผนทำการบ้าน — สร้างบ้านหมี</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Comic Sans MS', 'Kodchasan', cursive, sans-serif;
+        }
+        body {
+            background-color: #FFFAF5;
+            background-image: radial-gradient(#D4B99C 1.8px, transparent 1.8px);
+            background-size: 28px 28px;
+            min-height: 100vh;
+            padding: 16px 12px 24px;
+            color: #5C4033;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .heart-decoration {
+            position: fixed;
+            font-size: 24px;
+            opacity: 0.22;
+            animation: float 7s infinite ease-in-out;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(12deg); }
+        }
+        .container {
+            max-width: 430px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        h1 {
+            font-size: 1.6rem;
+            margin-bottom: 4px;
+            color: #6F4E37;
+            font-weight: bold;
+        }
+        .subtitle {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            color: #8B5A2B;
+        }
+        /* สร้างบ้าน */
+        .house-wrap {
+            background: rgba(255,255,255,0.95);
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 3px solid #DEB887;
+            box-shadow: 
+                0 0 10px rgba(222, 184, 135, 0.3),
+                0 4px 15px rgba(139, 90, 43, 0.12);
+            text-align: center;
+        }
+        .house-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #6F4E37;
+            margin-bottom: 10px;
+        }
+        .house-stage {
+            font-size: 4rem;
+            line-height: 1;
+            margin: 8px 0;
+            transition: all 0.5s ease;
+        }
+        .house-step-text {
+            font-size: 0.95rem;
+            color: #8B5A2B;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .house-progress-bar {
+            height: 12px;
+            background: rgba(212,185,156,0.4);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 4px 0 8px;
+        }
+        .house-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #F4A460, #DEB887);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .step-list {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #8B5A2B;
+            gap: 2px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+        .step-list span { opacity: 0.35; }
+        .step-list span.done { opacity: 1; font-weight: bold; }
+
+        /* กรอบเรืองแสง */
+        .glow-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 3px solid #DEB887;
+            box-shadow: 
+                0 0 12px rgba(222, 184, 135, 0.35),
+                0 4px 15px rgba(139, 90, 43, 0.12);
+            transition: all 0.3s ease;
+        }
+        .glow-card:hover {
+            box-shadow: 
+                0 0 20px rgba(222, 184, 135, 0.5),
+                0 6px 20px rgba(139, 90, 43, 0.15);
+        }
+        h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #6F4E37;
+            font-weight: bold;
+        }
+        .time-item {
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #F8F2EB, #F5EEE4);
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            border-left: 5px solid #B8860B;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .time-bold { font-weight: bold; color: #8B4513; font-size: 1rem; }
+
+        /* ภารกิจกรอกเอง */
+        .mission-box {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #F8F2EB, #F5EEE4);
+            border-radius: 14px;
+            transition: 0.3s;
+        }
+        .mission-box.done {
+            opacity: 0.7;
+            background: linear-gradient(90deg, #E8F5E9, #E0F2E2);
+        }
+        .mission-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .mission-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #6F4E37;
+            white-space: nowrap;
+        }
+        .mission-input {
+            flex: 1;
+            min-width: 90px;
+            padding: 8px 10px;
+            border: 2px solid #D4B99C;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            background: #fff;
+            color: #5C4033;
+            outline: none;
+        }
+        .mission-input:focus {
+            border-color: #B8860B;
+            box-shadow: 0 0 0 3px rgba(184,134,11,0.15);
+        }
+        .input-time { max-width: 90px; }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            background: #DEB887;
+            color: #5C4033;
+            white-space: nowrap;
+        }
+        .btn-small:disabled { opacity: 0.5; cursor: default; }
+        .mission-text-show {
+            width: 100%;
+            padding: 6px 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .mission-box.done .mission-text-show { text-decoration: line-through; }
+        
+        /* ช่องพิเศษ */
+        .note-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px 12px;
+            border: 2px solid #D4B99C;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            background: #fff;
+            color: #5C4033;
+            outline: none;
+            resize: vertical;
+            line-height: 1.6;
+            margin-top: 6px;
+        }
+        .note-textarea:focus {
+            border-color: #B8860B;
+            box-shadow: 0 0 0 3px rgba(184,134,11,0.15);
+        }
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #D4B99C, transparent);
+            margin: 16px 0;
+        }
+
+        /* กล่องของขวัญ */
+        .gift-box-area { text-align: center; padding: 10px 5px; }
+        .gift-btn {
+            font-size: 4rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: transform 0.3s ease;
+        }
+        .gift-btn:not(:disabled):hover { transform: scale(1.15) rotate(5deg); }
+        .gift-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+        .gift-result {
+            margin-top: 12px;
+            padding: 16px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 18px;
+            border: 2px dashed #DAA520;
+            display: none;
+            animation: popIn 0.4s ease;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .emoji-show { font-size: 3rem; margin: 8px 0; }
+        .emoji-name { font-weight: bold; font-size: 1.1rem; color: #B8860B; margin-bottom: 4px; }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+        .btn-do { 
+            background: linear-gradient(135deg, #DEB887, #D2B48C); 
+            color: #5C4033; 
+            box-shadow: 0 2px 6px rgba(139,90,43,0.15);
+        }
+        .btn-do:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
+        .btn-reset {
+            background: rgba(212, 185, 156, 0.4);
+            color: #6F4E37;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 24px;
+            background: rgba(212,185,156,0.4);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #F4A460, #DEB887);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            line-height: 24px;
+            color: #5C4033;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .speech-box {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150px);
+            background: #fff;
+            color: #6F4E37;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(139, 90, 43, 0.15);
+            z-index: 999;
+            transition: 0.4s ease;
+            text-align: center;
+            max-width: 90%;
+            font-size: 0.95rem;
+            border: 3px solid #DEB887;
+            line-height: 1.5;
+        }
+        .speech-box::after {
+            content: '🐻';
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+        }
+        .speech-box.show { transform: translateX(-50%) translateY(0); }
+
+        .score-text { font-size: 1.1rem; font-weight: bold; color: #6F4E37; }
+        .music-control { text-align: center; margin-bottom: 12px; }
+        .music-btn {
+            padding: 10px 20px;
+            background: rgba(222, 184, 135, 0.5);
+            border: 2px solid #D4B99C;
+            border-radius: 20px;
+            color: #6F4E37;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .bear-zone { text-align: center; margin-top: 12px; padding: 10px; }
+        .bear-full { font-size: 5rem; position: relative; display: inline-block; }
+        .bear-hold {
+            position: absolute;
+            top: 8px;
+            right: -18px;
+            font-size: 2.2rem;
+            transform: rotate(15deg);
+            animation: bounce 1s infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: rotate(15deg) translateY(0); }
+            to { transform: rotate(15deg) translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar to Portal -->
+<div id="student-portal-floating-bar" style="position:fixed; top:12px; left:12px; z-index:99999; display:flex; gap:8px;">
+  <a href="index.html" style="background:rgba(15, 23, 42, 0.9); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); backdrop-filter:blur(10px); padding:8px 14px; border-radius:12px; font-family:'Kanit', sans-serif; font-size:12px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:transform 0.15s ease;">
+    <span>◀</span>
+    <span>กลับหน้ารวมผลงานนักเรียน</span>
+  </a>
+</div>
+
+    <div class="heart-decoration" style="top:10%;left:5%;">🤎</div>
+    <div class="heart-decoration" style="top:25%;right:7%;">💕</div>
+    <div class="heart-decoration" style="top:45%;left:3%;">🧸</div>
+    <div class="heart-decoration" style="top:65%;right:5%;">✨</div>
+
+    <div class="speech-box" id="speechBox">เขียนแผน วิชา+เวลา แล้วก็บันทึกได้เลยนะ 🐻📝⏰</div>
+
+    <div class="container">
+        <header>
+            <h1>🐻 วางแผนทำการบ้าน 🐻</h1>
+            <p class="subtitle">วางแผน → ลงมือทำ → สร้างบ้านให้หมีเสร็จ!</p>
+        </header>
+
+        <div class="music-control">
+            <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵 เปิดเพลง Left</button>
+        </div>
+
+        <!-- สร้างบ้าน 6 ขั้น -->
+        <div class="house-wrap">
+            <div class="house-title">🏠 สร้างบ้านให้หมี</div>
+            <div class="house-stage" id="houseStage">🟫</div>
+            <div class="house-step-text" id="houseStepText">ขั้นที่ 1: ปูพื้นดิน</div>
+            <div class="house-progress-bar"><div class="house-progress-fill" id="houseProgressFill"></div></div>
+            <div class="step-list">
+                <span id="s1" class="done">ดิน</span>
+                <span id="s2">ผนัง</span>
+                <span id="s3">หลังคา</span>
+                <span id="s4">ตกแต่ง</span>
+                <span id="s5">สวน</span>
+                <span id="s6">รั้ว</span>
+            </div>
+        </div>
+
+        <div class="glow-card">
+            <h2>⏰ เวลาแจ้งเตือนประจำวัน</h2>
+            <div id="timeList"></div>
+        </div>
+
+        <div class="glow-card">
+            <h2>📋 แผนทำการบ้านวันนี้</h2>
+            <div id="missionList"></div>
+            <button class="btn btn-reset" onclick="saveAllNotes()">💾 บันทึกทั้งหมด</button>
+        </div>
+
+        <div class="glow-card">
+            <h2>💭 ความรู้สึกหลังทำการบ้าน</h2>
+            <textarea class="note-textarea" id="feelingNote" placeholder="เขียนสิ่งที่รู้สึก... เหนื่อยไหม สนุกไหม ภูมิใจไหม อยากบอกอะไรกับตัวเอง..."></textarea>
+        </div>
+
+        <div class="glow-card">
+            <h2>📅 สิ่งที่จะทำพรุ่งนี้</h2>
+            <textarea class="note-textarea" id="tomorrowNote" placeholder="พรุ่งนี้จะทำอะไรบ้าง... มีงานอะไรต้องเตรียม... อยากพัฒนาอะไรเพิ่ม..."></textarea>
+        </div>
+
+        <div class="glow-card">
+            <div class="score-text">⭐ ความก้าวหน้า: <span id="doneCount">0</span> / <span id="totalMission">5</span> ข้อ</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressBar">0%</div></div>
+
+            <h2>🎁 กล่องของขวัญ</h2>
+            <div class="gift-box-area">
+                <button class="gift-btn" id="giftBtn" onclick="openGift()" disabled>🎁</button>
+                <p style="font-size:0.9rem; opacity:0.8;">บันทึกครบ + ทำเสร็จทุกข้อ ถึงจะเปิดได้นะ!</p>
+                <div class="gift-result" id="giftResult">
+                    <p>🎉 คุณได้รับรางวัล:</p>
+                    <div class="emoji-show" id="emojiResult">✨</div>
+                    <div class="emoji-name" id="emojiName">ชื่อของขวัญ</div>
+                    <p style="margin-top:8px; font-size:0.95rem; line-height:1.6;" id="emojiDesc">คำอธิบาย</p>
+                </div>
+            </div>
+
+            <button class="btn btn-reset" onclick="resetMission()">🔄 เริ่มวันใหม่</button>
+            <button class="btn btn-reset" onclick="resetAll()">♻️ เริ่มทั้งหมดใหม่</button>
+        </div>
+
+        <div class="bear-zone">
+            <div class="bear-full">🧸<div class="bear-hold" id="bearHold">🤲</div></div>
+            <p style="margin-top:4px; font-size:0.85rem; color:#8B5A2B;">หมีรอฟังเรื่องราวของคุณอยู่นะ 🐻💛</p>
+        </div>
+    </div>
+
+    <!-- เพลง Left - ช้าๆ นุ่มนวล ไม่ใช่เสียงหุ่นยนต์ -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3" type="audio/mpeg">
+        เบราว์เซอร์ไม่รองรับไฟล์เสียง
+    
+
+    <script>
+        // ขั้นสร้างบ้าน
+        const houseStages = [
+            { emoji: '🟫', text: 'ขั้นที่ 1: ปูพื้นดิน', progress: 0 },
+            { emoji: '🏠', text: 'ขั้นที่ 2: สร้างผนังบ้าน', progress: 17 },
+            { emoji: '🏡', text: 'ขั้นที่ 3: ปิดหลังคาเรียบร้อย', progress: 34 },
+            { emoji: '🏡✨', text: 'ขั้นที่ 4: ตกแต่งภายในสวยงาม', progress: 51 },
+            { emoji: '🏡🌷', text: 'ขั้นที่ 5: ปลูกสวนรอบบ้าน', progress: 68 },
+            { emoji: '🏡🌻🌿🚧', text: 'ขั้นที่ 6: ติดรั้วเสร็จเรียบร้อย!', progress: 100 }
+        ];
+
+        const bearMessages = [
+            'บันทึกเรียบร้อยแล้วจ้า! ทำได้ดีมาก 🐻💛',
+            'รู้แล้วว่าจะทำอะไรตอนไหน วางแผนเก่งมาก 🧸⏰',
+            'เขียนแผนดีมากเลย สู้ๆ นะ 🤎💪',
+            'ใกล้ครบแล้วจ้า เพิ่มอีกนิดเดียว 🐻',
+            'ทำได้ครบถ้วนสมบูรณ์! ภูมิใจในตัวเองหน่อยนะ 🐻✨'
+        ];
+
+        const remindTimes = [
+            { t: '17:30', txt: '🐻 เตรียมพร้อม — เตรียมสมุดและปากกา' },
+            { t: '18:00', txt: '📢 ได้เวลาตามแผนแล้ว เริ่มทำได้เลย!' },
+            { t: '18:45', txt: '⏳ เช็คความก้าวหน้าเล็กน้อยนะ' },
+            { t: '19:00', txt: '✅ ตรวจสอบว่าทำครบตามแผนไหม' },
+            { t: '19:30', txt: '🎉 จบแล้ว! วันนี้ทำได้ดีมาก' }
+        ];
+
+        // ภารกิจ 5 ช่อง
+        const missionList = [
+            { id: 'm1', name: '', time: '', done: false },
+            { id: 'm2', name: '', time: '', done: false },
+            { id: 'm3', name: '', time: '', done: false },
+            { id: 'm4', name: '', time: '', done: false },
+            { id: 'm5', name: '', time: '', done: false }
+        ];
+
+        // รางวัลอีโมจิพร้อมความหมาย
+        const emojiPrizes = [
+            { emoji: '🌟', name: 'ดาวนำทาง', desc: 'คุณวางแผนได้ดีและตั้งใจจริงๆ วันนี้ทำได้ยอดเยี่ยมมาก! คุณคือดาวที่ส่องแสงนำทางตัวเองเสมอครับ ⭐' },
+            { emoji: '💎', name: 'เพชรความพยายาม', desc: 'การวางแผนดี + ลงมือทำจริง คือความมีค่าที่สุดเลยนะ! ยิ่งขัดยิ่งเปล่งประกาย สู้ต่อไปนะ 💎' },
+            { emoji: '🌈', name: 'สายรุ้งแห่งความภาคภูมิใจ', desc: 'ทุกความสำเร็จเริ่มจากการวางแผนดีๆ เหมือนที่คุณทำอยู่นี่แหละครับ! ผ่านความพยายามแล้วจะเห็นสีสันสวยงามเสมอ 🌈' },
+            { emoji: '🦋', name: 'ผีเสื้อแห่งการเติบโต', desc: 'รู้จักจัดเวลาและจัดการงานได้ดีขึ้นทุกวัน คุณเก่งขึ้นเรื่อยๆ นะ! ทุกความพยายามทำให้คุณสวยงามและเติบโต 🦋' },
+            { emoji: '🏆', name: 'ถ้วยรางวัลแห่งความเพียร', desc: 'ทำตามแผนครบถ้วนสมบูรณ์! นี่คือชัยชนะที่ยิ่งใหญ่ที่สุด — ชนะใจตัวเองได้แล้ว 🏆' },
+            { emoji: '🍀', name: 'ใบโคลเวอร์แห่งความโชคดี', desc: 'ความขยันคือความโชคดีที่ยิ่งใหญ่ที่สุด! คุณกำลังสร้างความโชคดีให้ตัวเองด้วยการลงมือทำครับ 🍀' },
+            { emoji: '✨', name: 'แสงวิเศษแห่งความมุ่งมั่น', desc: 'ความพยายามไม่เคยโกหกใคร สิ่งที่คุณทำวันนี้ จะเป็นผลดีให้คุณในวันหน้าแน่นอนครับ ✨' },
+            { emoji: '💪', name: 'พลังใจเต็มร้อย', desc: 'คุณมีวินัยและตั้งใจจริงๆ นี่คือพลังที่ยิ่งใหญ่ที่สุดแล้ว! รักษาความดีนี้ไว้นะ 💪' },
+            { emoji: '🌙', name: 'แสงจันทร์แห่งความสงบ', desc: 'ทำเสร็จแล้วก็พักผ่อนให้เพียงพอด้วยนะ คุณทำดีที่สุดแล้ว วันนี้เก่งมาก 🌙💤' },
+            { emoji: '💛', name: 'หัวใจที่อ่อนโยน', desc: 'อย่าลืมรักตัวเองด้วยนะ เหนื่อยก็พัก หนักก็วางลง คุณมีค่าเสมอ ไม่ใช่แค่ตอนทำได้ดี 💛' }
+        ];
+
+        let saveData = { 
+            missions: JSON.parse(JSON.stringify(missionList)), 
+            feeling: '',
+            tomorrow: '',
+            lastDate: '', 
+            alreadyOpened: false 
+        };
+        let musicPlaying = false;
+
+        window.onload = function() {
+            loadData();
+            renderTime();
+            renderMission();
+            updateProgress();
+            updateHouse();
+            document.getElementById('bgMusic').volume = 0.25;
+        };
+
+        function toggleMusic() {
+            const music = document.getElementById('bgMusic');
+            const btn = document.getElementById('musicBtn');
+            if (!musicPlaying) {
+                music.play().catch(() => {
+                    showSpeech('ถ้ากดเปิดเพลงไม่ได้ ให้กดที่หน้าจอก่อนนะ แล้วกดอีกครั้ง 🐻');
+                });
+                btn.innerText = '🔇 ปิดเพลง';
+                musicPlaying = true;
+            } else {
+                music.pause();
+                btn.innerText = '🎵 เปิดเพลง Left';
+                musicPlaying = false;
+            }
+        }
+
+        function showSpeech(text) {
+            const box = document.getElementById('speechBox');
+            box.innerText = text;
+            box.classList.add('show');
+            clearTimeout(window._speechTimer);
+            window._speechTimer = setTimeout(() => box.classList.remove('show'), 3500);
+        }
+
+        function randomBearMessage() {
+            return bearMessages[Math.floor(Math.random() * bearMessages.length)];
+        }
+
+        // บันทึกข้อความทั้งหมด
+        function saveAllNotes() {
+            saveData.feeling = document.getElementById('feelingNote').value;
+            saveData.tomorrow = document.getElementById('tomorrowNote').value;
+            saveToStorage();
+            showSpeech('บันทึกเรียบร้อยแล้วจ้า! 🐻💾');
+        }
+
+        // ล้างทุกอย่างกลับเป็นค่าเริ่มต้น
+        function resetAllData() {
+            saveData.missions = JSON.parse(JSON.stringify(missionList));
+            saveData.feeling = '';
+            saveData.tomorrow = '';
+            saveData.alreadyOpened = false;
+            document.getElementById('feelingNote').value = '';
+            document.getElementById('tomorrowNote').value = '';
+            document.getElementById('bearHold').innerText = '🤲';
+            document.getElementById('giftResult').style.display = 'none';
+            const gb = document.getElementById('giftBtn');
+            gb.disabled = true;
+            gb.style.opacity = '';
+            // รีเซ็ตบ้านกลับขั้นแรก
+            document.getElementById('houseStage').innerText = '🟫';
+            document.getElementById('houseStepText').innerText = 'ขั้นที่ 1: ปูพื้นดิน';
+            document.getElementById('houseProgressFill').style.width = '0%';
+            for(let i=1; i<=6; i++) {
+                document.getElementById('s'+i).classList.remove('done');
+                if(i===1) document.getElementById('s'+i).classList.add('done');
+            }
+            renderMission();
+            updateProgress();
+        }
+
+        function renderTime() {
+            const box = document.getElementById('timeList');
+            box.innerHTML = remindTimes.map(item => `
+                <div class="time-item">
+                    <span class="time-bold">${item.t}</span>
+                    <span>${item.txt}</span>
+                </div>`).join('');
+        }
+
+        // แสดงช่องกรอกภารกิจ
+        function renderMission() {
+            const box = document.getElementById('missionList');
+            box.innerHTML = saveData.missions.map((m, idx) => {
+                const num = idx + 1;
+                return `
+                    <div class="mission-box ${m.done ? 'done' : ''}" id="box-${m.id}">
+                        <div class="mission-row">
+                            <span class="mission-label">ข้อ ${num}:</span>
+                            <input type="text" class="mission-input" id="name-${m.id}" 
+                                placeholder="ชื่อวิชา" value="${m.name}"
+                                oninput="saveMissionTemp('${m.id}')">
+                            <input type="text" class="mission-input input-time" id="time-${m.id}" 
+                                placeholder="เวลา" value="${m.time}"
+                                oninput="saveMissionTemp('${m.id}')">
+                            <button class="btn-small" onclick="saveMissionItem('${m.id}')">บันทึก</button>
+                        </div>
+                        <div class="mission-text-show" id="show-${m.id}">
+                            ${m.name || m.time ? 
+                               `📚 ${m.name || 'ยังไม่ระบุวิชา'} ⏰ เวลา ${m.time || 'ยังไม่ระบุเวลา'}` 
+                                : 'กรอกชื่อวิชาและเวลา แล้วกดบันทึก'}
+                        </div>
+                        <div style="text-align:right; margin-top:6px;">
+                            <button class="btn btn-do" onclick="doMission('${m.id}')" 
+                                ${m.done ? 'disabled' : ''}
+                                ${!m.name ? 'disabled' : ''}>
+                                ${m.done ? '✅ เสร็จแล้ว' : '✓ ทำเสร็จ'}
+                            </button>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function saveMissionTemp(id) {
+            const name = document.getElementById('name-'+id).value.trim();
+            const time = document.getElementById('time-'+id).value.trim();
+            const idx = saveData.missions.findIndex(m => m.id === id);
+            if(idx !== -1) {
+                saveData.missions[idx].name = name;
+                saveData.missions[idx].time = time;
+                document.getElementById('show-'+id).innerHTML = 
+                    name || time ? 
+                   `📚 ${name || 'ยังไม่ระบุวิชา'} ⏰ เวลา ${time || 'ยังไม่ระบุเวลา'}` :
+                    'กรอกชื่อวิชาและเวลา แล้วกดบันทึก';
+                document.querySelector(`#box-${id} .btn-do`).disabled = !name;
+            }
+        }
+
+        function saveMissionItem(id) {
+            saveMissionTemp(id);
+            saveToStorage();
+            showSpeech(randomBearMessage());
+        }
+
+        function doMission(id) {
+            const idx = saveData.missions.findIndex(m => m.id === id);
+            if(idx !== -1 && saveData.missions[idx].name && !saveData.missions[idx].done) {
+                saveData.missions[idx].done = true;
+                showSpeech('เก่งมากเลยจ้า! ทำเสร็จแล้วนะ 🐻💪');
+                renderMission();
+                updateProgress();
+                updateHouse();
+                saveToStorage();
+            }
+        }
+
+        function updateHouse() {
+            const doneNum = saveData.missions.filter(m => m.done).length;
+            let idx = doneNum >= 5 ? 5 : doneNum;
+            const st = houseStages[idx];
+            document.getElementById('houseStage').innerText = st.emoji;
+            document.getElementById('houseStepText').innerText = st.text;
+            document.getElementById('houseProgressFill').style.width = st.progress + '%';
+            for(let i=1; i<=6; i++) document.getElementById('s'+i).classList.remove('done');
+            for(let i=1; i<=idx+1; i++) document.getElementById('s'+i).classList.add('done');
+            if(idx === 5) showSpeech('🎉 บ้านเสร็จสมบูรณ์แล้ว! วันนี้ทำได้ดีที่สุดเลย 🐻🏡💖');
+        }
+
+        function updateProgress() {
+            const doneNum = saveData.missions.filter(m => m.done).length;
+            const totalNum = saveData.missions.length;
+            document.getElementById('doneCount').innerText = doneNum;
+            document.getElementById('totalMission').innerText = totalNum;
+            const pct = totalNum > 0 ? Math.round(doneNum / totalNum * 100) : 0;
+            const pb = document.getElementById('progressBar');
+            pb.style.width = pct + '%';
+            pb.innerText = pct + '%';
+            const gb = document.getElementById('giftBtn');
+            const allFilled = saveData.missions.every(m => m.name.trim() !== '');
+            if(doneNum === totalNum && allFilled && !saveData.alreadyOpened){
+                gb.disabled = false;
+                gb.style.opacity = '';
+                showSpeech('🎉 ครบทุกอย่างแล้ว! มาเปิดกล่องของขวัญกันเถอะ 🐻🎁');
+            } else {
+                gb.disabled = true;
+                if(saveData.alreadyOpened) gb.style.opacity = '0.35';
+            }
+        }
+
+        function openGift() {
+            const prize = emojiPrizes[Math.floor(Math.random() * emojiPrizes.length)];
+            document.getElementById('emojiResult').innerText = prize.emoji;
+            document.getElementById('emojiName').innerText = prize.name;
+            document.getElementById('emojiDesc').innerText = prize.desc;
+            document.getElementById('giftResult').style.display = 'block';
+            document.getElementById('bearHold').innerText = prize.emoji;
+            saveData.alreadyOpened = true;
+            document.getElementById('giftBtn').disabled = true;
+            document.getElementById('giftBtn').style.opacity = '0.35';
+            saveToStorage();
+            showSpeech(`🎊 ได้รับ: ${prize.emoji} ${prize.name} เลยจ้า! 🐻🐻`);
+        }
+
+        // เริ่มวันใหม่
+        function resetMission() {
+            if(confirm('🐻 เริ่มวันใหม่ไหมคะ? แผนเก่าจะหายไป เตรียมเขียนใหม่ได้เลยนะจ๊ะ')){
+                saveData.missions = JSON.parse(JSON.stringify(missionList));
+                saveData.alreadyOpened = false;
+                saveData.lastDate = new Date().toDateString();
+                saveData.feeling = '';
+                saveData.tomorrow = '';
+                document.getElementById('feelingNote').value = '';
+                document.getElementById('tomorrowNote').value = '';
+                resetAllData();
+                saveToStorage();
+                showSpeech('พร้อมเริ่มวันใหม่แล้วจ้า! บอกหมีได้เลยว่าจะทำอะไร 🐻📝⏰');
+            }
+        }
+
+        // เริ่มใหม่ทั้งหมด
+        function resetAll() {
+            if(confirm('⚠️ แน่ใจไหมคะ? จะล้างทุกอย่างหมดเลย เริ่มต้นเหมือนเพิ่งสร้างไฟล์ครั้งแรกนะคะ')){
+                try{ localStorage.removeItem('homeworkBearGame'); }catch(e){}
+                saveData = { 
+                    missions: JSON.parse(JSON.stringify(missionList)), 
+                    feeling: '',
+                    tomorrow: '',
+                    lastDate: '', 
+                    alreadyOpened: false 
+                };
+                resetAllData();
+                saveData.lastDate = new Date().toDateString();
+                saveToStorage();
+                showSpeech('เริ่มต้นใหม่สะอาดหมดจดแล้วจ้า! 🐻✨');
+            }
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem('homeworkBearGame', JSON.stringify(saveData));
+            } catch(e) {}
+        }
+
+        function loadData() {
+            try {
+                const stored = localStorage.getItem('homeworkBearGame');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    saveData = Object.assign(saveData, parsed);
+                    if (saveData.feeling && document.getElementById('feelingNote')) {
+                        document.getElementById('feelingNote').value = saveData.feeling;
+                    }
+                    if (saveData.tomorrow && document.getElementById('tomorrowNote')) {
+                        document.getElementById('tomorrowNote').value = saveData.tomorrow;
+                    }
+                }
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>

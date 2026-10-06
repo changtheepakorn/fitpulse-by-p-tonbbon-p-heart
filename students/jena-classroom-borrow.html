@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏫 ระบบยืม-คืนของใช้ในห้องเรียน</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Comic Sans MS", "Chakra Petch", "Mitr", cursive, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #E8D5FF 0%, #FFE7F0 50%, #D4F1F9 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {max-width: 850px; margin: 0 auto;}
+
+        .class-header {
+            background: rgba(255,255,255,0.94);
+            border-radius: 20px;
+            padding: 22px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 4px solid #C4B5FD;
+            box-shadow: 0 6px 16px rgba(107,70,193,0.12);
+        }
+        .class-header h1 {
+            color: #5B21B6;
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+            font-size: 1.7rem;
+        }
+        .class-input {
+            padding: 14px 24px;
+            border-radius: 14px;
+            border: 3px solid #A78BFA;
+            font-size: 1.1rem;
+            text-align: center;
+            width: 300px;
+            background: #F5F3FF;
+            font-weight: bold;
+        }
+
+        .form-box {
+            background: rgba(255,255,255,0.94);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 18px rgba(107,70,193,0.12);
+            border: 3px solid #D6BCFA;
+        }
+        .form-box h2 {color: #7C3AED; margin-bottom: 15px; font-size: 1.15rem;}
+        select, input, button {
+            padding: 12px 15px;
+            margin: 6px 4px;
+            border-radius: 14px;
+            border: 2px solid #C4B5FD;
+            font-size: 1rem;
+        }
+        button {
+            background: linear-gradient(135deg, #F0ABFC, #A78BFA);
+            color: #4C1D95;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s;
+        }
+        button:hover {transform: scale(1.05);}
+        button:active {transform: scale(0.98);}
+        .btn-delete {
+            background: linear-gradient(135deg, #FECDD3, #FCA5A5);
+            color: #991B1B;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+        }
+
+        .item-card {
+            background: rgba(255,255,255,0.94);
+            border-radius: 18px;
+            padding: 20px;
+            margin: 12px 0;
+            border-left: 6px solid #34D399;
+            box-shadow: 3px 4px 12px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+        }
+        .item-card.borrowed {border-left-color: #FB7185; background: #FFF1F2;}
+        .card-actions {margin-top: 12px; text-align: right; padding-top: 8px; border-top: 1px dashed #E5E7EB;}
+
+        .line-1 {
+            font-size: 1rem; font-weight: bold; color: #E11D48;
+            background: #FECDD3; display: inline-block;
+            padding: 6px 16px; border-radius: 25px; margin-bottom: 10px;
+        }
+        .line-2 {
+            font-size: 1.25rem; font-weight: bold; color: #4C1D95; margin-bottom: 6px;
+        }
+        .qty-tag {
+            display: inline-block; background: #BBF7D0; color: #166534;
+            padding: 3px 10px; border-radius: 12px; margin: 0 6px; font-size: 0.9rem;
+        }
+        .qty-borrow {background: #FECDD3; color: #991B1B;}
+        .qty-left {background: #DDD6FE; color: #4C1D95;}
+        .line-3 {
+            font-size: 0.9rem; color: #7C3AED; background: #EDE9FE;
+            display: inline-block; padding: 4px 12px; border-radius: 12px; margin-bottom: 8px;
+        }
+        .line-4 {
+            font-weight: bold; color: #BE123C; background: #FEE2E2;
+            display: inline-block; padding: 6px 16px; border-radius: 20px; margin-top: 4px;
+        }
+        .status-ok {color: #059669; font-weight: bold; font-size: 1rem;}
+
+        .stats-box {
+            background: rgba(255,255,255,0.94);
+            border-radius: 20px; padding: 22px; margin-top: 25px;
+            border: 3px solid #BAE6FD;
+        }
+        .stat-row {padding: 10px 0; border-bottom: 1px dashed #DDD6FE; font-size: 1rem;}
+        .up {color: #16A34A; font-weight: bold;}
+        .down {color: #DC2626; font-weight: bold;}
+        .emoji {font-size: 1.4rem; margin-right: 6px;}
+        .empty {text-align: center; color: #9CA3AF; padding: 40px 20px; font-size: 1.05rem;}
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar to Portal -->
+<div id="student-portal-floating-bar" style="position:fixed; top:12px; left:12px; z-index:99999; display:flex; gap:8px;">
+  <a href="index.html" style="background:rgba(15, 23, 42, 0.9); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); backdrop-filter:blur(10px); padding:8px 14px; border-radius:12px; font-family:'Kanit', sans-serif; font-size:12px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:transform 0.15s ease;">
+    <span>◀</span>
+    <span>กลับหน้ารวมผลงานนักเรียน</span>
+  </a>
+</div>
+
+
+<div class="container">
+    <div class="class-header">
+        <h1>🏫 ระบบยืม-คืนของใช้ในห้องเรียน 📦</h1>
+        <input type="text" id="className" class="class-input" placeholder="📌 กรุณาใส่ชื่อชั้น เช่น ม.1/1" oninput="saveData()">
+    </div>
+
+    <div class="form-box">
+        <h2>➕ เพิ่มสิ่งของเข้าระบบ</h2>
+        <select id="categorySelect">
+            <option value="">-- เลือกประเภทสิ่งของ --</option>
+            <option value="เครื่องเขียน ✏️">เครื่องเขียน ✏️</option>
+            <option value="อุปกรณ์การเรียน 📚">อุปกรณ์การเรียน 📚</option>
+            <option value="เครื่องมือวัด 📏">เครื่องมือวัด 📏</option>
+            <option value="อุปกรณ์เทคโนโลยี 💻">อุปกรณ์เทคโนโลยี 💻</option>
+            <option value="อุปกรณ์ศิลปะ 🎨">อุปกรณ์ศิลปะ 🎨</option>
+            <option value="อื่นๆ 🎁">อื่นๆ 🎁</option>
+        </select>
+        <input type="text" id="itemName" placeholder="ชื่อสิ่งของ เช่น ดินสอ">
+        <input type="number" id="itemQty" placeholder="จำนวนที่มี" min="1" style="width:110px;">
+        <button onclick="addItem()">✅ เพิ่มรายการ</button>
+    </div>
+
+    <div class="form-box">
+        <h2>🤝 บันทึกการยืม</h2>
+        <select id="borrowSelect">
+            <option value="">-- เลือกสิ่งของที่จะยืม --</option>
+        </select>
+        <input type="number" id="borrowQty" placeholder="จำนวนที่ยืม" min="1" style="width:130px;">
+        <input type="text" id="borrower" placeholder="ชื่อผู้ยืม">
+        <button onclick="borrowItem()">📤 ยืมเลย</button>
+    </div>
+
+    <div class="form-box">
+        <h2>📥 บันทึกการคืน</h2>
+        <select id="returnSelect">
+            <option value="">-- เลือกสิ่งของที่คืน --</option>
+        </select>
+        <button onclick="returnItem()">✅ ยืนยันคืนเรียบร้อย</button>
+    </div>
+
+    <h2 style="color:#6B46C1; margin:25px 0 10px;">📋 รายการของใช้</h2>
+    <div id="itemList" class="empty">📭 ยังไม่มีรายการของใช้ กดเพิ่มรายการด้านบนได้เลย!</div>
+
+    <div class="stats-box">
+        <h2>📊 สรุปประจำวัน <span id="today"></span></h2>
+        <div class="stat-row">📦 ของทั้งหมด: <span id="total">0</span> ชิ้น</div>
+        <div class="stat-row">✅ เหลือพร้อมใช้: <span id="avail">0</span> ชิ้น</div>
+        <div class="stat-row">📤 กำลังถูกยืม: <span id="borrowing">0</span> ชิ้น</div>
+        <div class="stat-row">📈 เปลี่ยนแปลงจากเมื่อวาน: <span id="change">เท่าเดิม</span></div>
+    </div>
+</div>
+
+<script>
+let items = [];
+let yesterdayStats = {totalQty: 0, borrowQty: 0};
+
+const catEmoji = {
+    'เครื่องเขียน ✏️': '✏️', 'อุปกรณ์การเรียน 📚': '📚',
+    'เครื่องมือวัด 📏': '📏', 'อุปกรณ์เทคโนโลยี 💻': '💻',
+    'อุปกรณ์ศิลปะ 🎨': '🎨', 'อื่นๆ 🎁': '🎁'
+};
+
+document.getElementById('today').textContent = new Date().toLocaleDateString('th-TH');
+
+window.onload = () => {
+    const savedClass = localStorage.getItem('className');
+    if (savedClass) document.getElementById('className').value = savedClass;
+    const savedItems = localStorage.getItem('borrowSystemItems');
+    if (savedItems) items = JSON.parse(savedItems);
+    const savedStats = localStorage.getItem('yesterdayStats');
+    if (savedStats) yesterdayStats = JSON.parse(savedStats);
+    renderAll();
+};
+
+function saveData() {
+    localStorage.setItem('className', document.getElementById('className').value);
+    localStorage.setItem('borrowSystemItems', JSON.stringify(items));
+    localStorage.setItem('yesterdayStats', JSON.stringify({
+        totalQty: items.reduce((sum, i) => sum + i.totalQty, 0),
+        borrowQty: items.reduce((sum, i) => sum + (i.borrowQty || 0), 0)
+    }));
+    renderAll();
+}
+
+function addItem() {
+    const cat = document.getElementById('categorySelect').value;
+    const name = document.getElementById('itemName').value.trim();
+    const qty = parseInt(document.getElementById('itemQty').value);
+    if (!cat) return alert('⚠️ กรุณาเลือกประเภท!');
+    if (!name) return alert('⚠️ กรุณาใส่ชื่อสิ่งของ!');
+    if (!qty || qty < 1) return alert('⚠️ กรุณาใส่จำนวนที่ถูกต้อง!');
+    
+    items.push({
+        id: Date.now(), category: cat, name, totalQty: qty,
+        emoji: catEmoji[cat] || '🎁', borrower: null, borrowQty: 0
+    });
+    
+    document.getElementById('categorySelect').value = '';
+    document.getElementById('itemName').value = '';
+    document.getElementById('itemQty').value = '';
+    alert('✅ เพิ่ม "' + name + '" เรียบร้อย!');
+    saveData();
+}
+
+function borrowItem() {
+    const id = document.getElementById('borrowSelect').value;
+    const bQty = parseInt(document.getElementById('borrowQty').value);
+    const bName = document.getElementById('borrower').value.trim();
+    if (!id) return alert('⚠️ กรุณาเลือกสิ่งของ!');
+    if (!bQty || bQty < 1) return alert('⚠️ กรุณาใส่จำนวนที่ยืม!');
+    if (!bName) return alert('⚠️ กรุณาใส่ชื่อผู้ยืม!');
+    
+    const item = items.find(i => i.id == id);
+    if (item.borrower) return alert('⚠️ "' + item.name + '" ถูกยืมไปแล้ว! รอคืนก่อนนะ');
+    if (bQty > item.totalQty) return alert('⚠️ มีเพียง ' + item.totalQty + ' ชิ้นเท่านั้น!');
+    
+    item.borrower = bName;
+    item.borrowQty = bQty;
+    document.getElementById('borrowQty').value = '';
+    document.getElementById('borrower').value = '';
+    alert('✅ "' + bName + '" ยืม "' + item.name + '" ' + bQty + ' ชิ้น เรียบร้อย!');
+    saveData();
+}
+
+function returnItem() {
+    const id = document.getElementById('returnSelect').value;
+    if (!id) return alert('⚠️ กรุณาเลือกของที่คืน!');
+    const item = items.find(i => i.id == id);
+    const prevName = item.borrower;
+    item.borrower = null;
+    item.borrowQty = 0;
+    alert('✅ "' + prevName + '" คืน "' + item.name + '" เรียบร้อย!');
+    saveData();
+}
+
+// ✅ ลบแล้วหายไปเลยจริงๆ
+function deleteItem(itemId, itemName) {
+    if (!confirm(`⚠️ ต้องการลบ "${itemName}" ใช่ไหม?\nข้อมูลจะหายไปเลย!`)) return;
+    
+    // กรองเอาออกจากรายการ — หายไปเลย
+    items = items.filter(function(i) {
+        return i.id !== itemId;
+    });
+    
+    alert(`✅ ลบ "${itemName}" เรียบร้อยแล้ว! หายไปเลยครับ`);
+    saveData();
+}
+
+function renderAll() {
+    const listDiv = document.getElementById('itemList');
+    
+    if (items.length === 0) {
+        listDiv.innerHTML = '<div class="empty">📭 ยังไม่มีรายการของใช้ กดเพิ่มรายการด้านบนได้เลย!</div>';
+    } else {
+        listDiv.innerHTML = '';
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = `item-card ${item.borrower ? 'borrowed' : ''}`;
+            const remaining = item.totalQty - (item.borrowQty || 0);
+            
+            card.innerHTML = `
+                ${item.borrower ? `<div class="line-1">👤 ผู้ยืม: ${item.borrower}</div>` : ''}
+                <div class="line-2">
+                    <span class="emoji">${item.emoji}</span>${item.name}
+                    <span class="qty-tag">รวม ${item.totalQty} ชิ้น</span>
+                    <span class="qty-tag qty-left">เหลือ ${remaining} ชิ้น</span>
+                    ${item.borrowQty ? `<span class="qty-tag qty-borrow">ยืม ${item.borrowQty} ชิ้น</span>` : ''}
+                </div>
+                <div class="line-3">📂 ${item.category}</div>
+                ${item.borrower 
+                    ? `<div class="line-4">🔴 ยังไม่คืน — ผู้ยืม: ${item.borrower}</div>`
+                    : `<div class="status-ok">✅ พร้อมใช้งาน</div>`}
+                <div class="card-actions">
+                    <button class="btn-delete" onclick="deleteItem(${item.id}, '${item.name.replace(/'/g, "\\'")}')">🗑️ ลบรายการนี้</button>
+                </div>
+            `;
+            listDiv.appendChild(card);
+        });
+    }
+    
+    let borrowOpts = '<option value="">-- เลือกสิ่งของที่จะยืม --</option>';
+    items.filter(i => !i.borrower).forEach(i => {
+        borrowOpts += `<option value="${i.id}">${i.emoji} ${i.name} (เหลือ ${i.totalQty} ชิ้น)</option>`;
+    });
+    document.getElementById('borrowSelect').innerHTML = borrowOpts;
+    
+    let returnOpts = '<option value="">-- เลือกสิ่งของที่คืน --</option>';
+    items.filter(i => i.borrower).forEach(i => {
+        returnOpts += `<option value="${i.id}">${i.emoji} ${i.name} — ยืมโดย: ${i.borrower}</option>`;
+    });
+    document.getElementById('returnSelect').innerHTML = returnOpts;
+    
+    const totalQty = items.reduce((s, i) => s + i.totalQty, 0);
+    const borrowQty = items.reduce((s, i) => s + (i.borrowQty || 0), 0);
+    document.getElementById('total').textContent = totalQty;
+    document.getElementById('avail').textContent = totalQty - borrowQty;
+    document.getElementById('borrowing').textContent = borrowQty;
+    
+    const diff = totalQty - yesterdayStats.totalQty;
+    const changeSpan = document.getElementById('change');
+    changeSpan.innerHTML = diff > 0 ? `<span class="up">+${diff} ชิ้น เพิ่มขึ้น ↑</span>` :
+                           diff < 0 ? `<span class="down">${diff} ชิ้น ลดลง ↓</span>` : 'เท่าเดิม';
+}
+</script>
+</body>
+</html>
