@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบทดสอบสไตล์อาหาร + แผนที่ร้านแนะนำ อ.หนองกี่ จ.บุรีรัมย์</title>
+    
+    <!-- CSS ของ Leaflet สำหรับแสดงผลแผนที่ -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Sukhumvit Set', 'Taviraj', sans-serif, Arial;
+        }
+        :root { --primary: #f4511e; --primary-dark: #c62828; --ink: #263238; --muted: #607d8b; --surface: #ffffff; --soft: #fff7ed; --pink: #ec407a; --purple: #7e57c2; --teal: #00897b; --yellow: #ffb300; }
+        body {
+            background: radial-gradient(circle at 8% 8%, rgba(255,193,7,.25), transparent 25%), radial-gradient(circle at 92% 12%, rgba(236,64,122,.18), transparent 24%), linear-gradient(135deg, #fff3e0 0%, #f3e5f5 48%, #e0f2f1 100%);
+            display: flex; justify-content: center; align-items: flex-start;
+            min-height: 100vh; margin: 0; padding: 28px 16px;
+        }
+        .container { background: rgba(255,255,255,.94); border: 2px solid rgba(255,255,255,.8); border-radius: 28px; box-shadow: 0 18px 50px rgba(126,87,194,.18); max-width: 860px; width: 100%; padding: 28px; overflow: hidden; }
+        .hero { text-align: center; margin: -28px -28px 24px; padding: 30px 24px 24px; background: linear-gradient(120deg, #ff7043, #ec407a 50%, #7e57c2); color: #fff; position: relative; }
+        .hero::after { content: '✦  🍜  ✦  🥗  ✦'; display: block; margin-top: 13px; font-size: 20px; letter-spacing: 9px; opacity: .9; }
+        h2 { color: #fff; margin: 0 0 8px; font-size: clamp(24px, 4vw, 34px); text-shadow: 0 2px 10px rgba(80,0,60,.2); }
+        .subtitle { color: rgba(255,255,255,.92); margin: 0; }
+        .section-title { margin: 24px 0 12px; color: var(--ink); font-size: 19px; }
+        .search-panel { background: linear-gradient(135deg, #e3f2fd, #f3e5f5); border: 2px solid #ce93d8; border-radius: 16px; padding: 16px; margin: 20px 0; }
+        .search-row { display: flex; gap: 10px; }
+        .search-wrap { position: relative; flex: 1; }
+        .search-wrap span { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 20px; }
+        #placeSearch { width: 100%; padding: 13px 42px 13px 42px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 16px; color: var(--ink); background: white; }
+        #placeSearch:focus { outline: 3px solid rgba(244,81,30,.16); border-color: var(--primary); }
+        #clearSearch { width: auto; margin: 0; padding: 0 16px; background: #e2e8f0; color: var(--ink); }
+        #clearSearch:hover { background: #cbd5e1; }
+        .search-hint, #resultCount { color: var(--muted); font-size: 14px; margin: 9px 0 0; }
+        #restaurantList { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 13px; }
+        .restaurant-card { border: 2px solid #b2dfdb; border-radius: 13px; padding: 13px; background: #fff; cursor: pointer; transition: transform .18s, box-shadow .18s, border-color .18s; }
+        .restaurant-card:hover, .restaurant-card:focus { transform: translateY(-3px); box-shadow: 0 9px 22px rgba(236,64,122,.18); border-color: #ec407a; outline: none; }
+        .restaurant-card strong { color: var(--ink); display: block; margin-bottom: 5px; }
+        .restaurant-card small { color: var(--muted); line-height: 1.45; }
+        .restaurant-card .location-status { display: block; margin-top: 7px; font-size: 12px; color: #8a5a00; }
+        .empty-state { color: var(--muted); text-align: center; padding: 20px 8px; border: 1px dashed #cbd5e1; border-radius: 12px; grid-column: 1 / -1; }
+        @media (max-width: 560px) { .container { padding: 19px; } .search-row { flex-direction: column; } #clearSearch { width: 100%; padding: 11px; } }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        select, button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #ffd180;
+            font-size: 16px;
+            background: #fffdf8;
+        }
+        button {
+            background: linear-gradient(100deg, #f4511e, #ec407a 55%, #7e57c2);
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: linear-gradient(100deg, #d84315, #d81b60 55%, #5e35b1);
+        }
+        .directory-button { background: linear-gradient(100deg, #00897b, #26a69a); margin-top: 9px; }
+        .directory-button:hover { background: linear-gradient(100deg, #00695c, #00897b); }
+        .comment-storage-note { margin: 10px 0 0; color: #6d4c41; font-size: 13px; text-align: center; }
+        .restaurant-card { position: relative; }
+        .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+        .comment-toggle { margin-top: 12px; padding: 8px 10px; background: #fff3e0; color: #6d4c41; border: 1px solid #ffcc80; font-size: 13px; }
+        .comment-toggle:hover { background: #ffe0b2; }
+        .comment-list { display: grid; gap: 7px; margin: 10px 0; }
+        .comment-item { background: rgba(255,255,255,.8); border-left: 3px solid #ec407a; padding: 7px 9px; border-radius: 7px; font-size: 13px; }
+        .comment-item strong { color: #6a1b9a; }
+        .comment-item time { color: #78909c; font-size: 11px; margin-left: 5px; }
+        .comment-form { display: grid; gap: 7px; margin-top: 9px; }
+        .comment-form input, .comment-form textarea { width: 100%; border: 1px solid #b2dfdb; border-radius: 7px; padding: 8px; font: inherit; font-size: 13px; }
+        .comment-form textarea { min-height: 58px; resize: vertical; }
+        .comment-form button { margin: 0; padding: 8px; font-size: 13px; }
+        .result-box {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            background: linear-gradient(145deg, #fff8e1, #fce4ec 55%, #ede7f6);
+            border: 2px solid #ffcc80;
+        }
+        .result-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #c62828;
+            margin-bottom: 8px;
+        }
+        .menu-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        #map {
+            height: 350px;
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 15px;
+            border: 3px solid #80cbc4;
+        }
+        /* Style สำหรับ Popup ในแผนที่ */
+        .popup-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .popup-btn {
+            display: block;
+            padding: 6px 10px;
+            color: #fff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .btn-gmap {
+            background-color: #ff5722;
+        }
+        .btn-facebook {
+            background-color: #1877f2;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar to Portal -->
+<div id="student-portal-floating-bar" style="position:fixed; top:12px; left:12px; z-index:99999; display:flex; gap:8px;">
+  <a href="index.html" style="background:rgba(15, 23, 42, 0.9); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); backdrop-filter:blur(10px); padding:8px 14px; border-radius:12px; font-family:'Kanit', sans-serif; font-size:12px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:transform 0.15s ease;">
+    <span>◀</span>
+    <span>กลับหน้ารวมผลงานนักเรียน</span>
+  </a>
+</div>
+
+
+<div class="container">
+    <div class="hero">
+        <h2>ค้นหาสไตล์อาหาร อ.หนองกี่ 🍲</h2>
+        <p class="subtitle">ตอบคำถามเพื่อดูร้านแนะนำ หรือพิมพ์ชื่อสถานที่ที่ต้องการค้นหาได้เลย</p>
+    </div>
+    
+    <form id="foodQuiz">
+        <div class="form-group">
+            <label for="category">1. วันนี้คุณอยากกินอาหารหมวดไหนเป็นพิเศษ?</label>
+            <select id="category" required>
+                <option value="">-- เลือกหมวดหมู่อาหาร --</option>
+                <option value="savory">🍲 ของคาว / อาหารจานหลัก</option>
+                <option value="noodles">🍜 ก๋วยเตี๋ยว / ก๋วยจั๊บ</option>
+                <option value="isan">🌶️ อาหารอีสาน / ส้มตำ / ลาบ</option>
+                <option value="dessert">🍰 ของหวาน / เบเกอรี่ / ไอศกรีม</option>
+                <option value="foreign">🍕 อาหารต่างประเทศ / ญี่ปุ่น / สเต๊ก</option>
+                <option value="raw">🍣 อาหารดิบ / ซาชิมิ / ซีฟู้ดสด</option>
+                <option value="mukata">🔥 หมูกระทะ / ปิ้งย่าง</option>
+                <option value="shabu">🍲 ชาบู / หม้อไฟ</option>
+                <option value="cafe">☕ คาเฟ่ / กาแฟ / เครื่องดื่ม</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="mealTime">2. มื้ออาหารที่คุณกำลังมองหา?</label>
+            <select id="mealTime" required>
+                <option value="">-- เลือกช่วงเวลา/สไตล์มื้ออาหาร --</option>
+                <option value="morning">เช้าตรู่ / รองท้องเบาๆ</option>
+                <option value="lunch">กลางวัน / จัดหนักอิ่มท้อง</option>
+                <option value="afternoon">บ่ายๆ / นั่งชิล ของหวาน ชากาแฟ</option>
+                <option value="night">ดึกๆ / โต้รุ่ง มื้อค่ำ</option>
+            </select>
+        </div>
+
+        <button type="button" onclick="calculateResult()">ดูผลลัพธ์และปักหมุดแผนที่ร้านแนะนำ</button>
+        <button type="button" class="directory-button" onclick="showAllRestaurants()">🍽️ ดูร้านทั้งหมดที่มีในหนองกี่</button>
+        <p class="comment-storage-note">💬 คอมเมนต์จะแสดงในเว็บนี้และบันทึกไว้ในเบราว์เซอร์ของเครื่องที่ใช้งาน</p>
+    </form>
+
+    <div id="resultBox" class="result-box">
+        <div class="result-title" id="foodTypeResult"></div>
+        <p id="descriptionResult"></p>
+        <strong>เมนูยอดนิยม & อร่อยที่สุดที่แนะนำ:</strong>
+        <ul class="menu-list" id="menuListResult"></ul>
+        
+        <div class="search-panel" aria-label="ค้นหาสถานที่">
+            <h3 class="section-title">ค้นหาสถานที่หรือร้านอาหาร</h3>
+            <div class="search-row">
+                <div class="search-wrap"><span aria-hidden="true">🔎</span><input id="placeSearch" type="search" autocomplete="off" placeholder="พิมพ์ชื่อร้าน ประเภทอาหาร หรือคำอธิบาย..." aria-label="พิมพ์ค้นหาสถานที่"></div>
+                <button type="button" id="clearSearch" aria-label="ล้างคำค้น">ล้าง</button>
+            </div>
+            <p class="search-hint">ค้นหาได้จากร้านแนะนำทั้งหมดในหมวดที่เลือก</p>
+            <p id="resultCount" aria-live="polite"></p>
+            <div id="restaurantList"></div>
+        </div>
+        <strong style="display:block; margin-top:15px; color:#e65100;">📍 แผนที่พิกัดร้านแนะนำ (อ.หนองกี่ จ.บุรีรัมย์):</strong>
+        <div id="map"></div>
+    </div>
+</div>
+
+<!-- JS ของ Leaflet -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let map;
+    let markersGroup;
+    let activeRestaurants = [];
+
+    // ฐานข้อมูลพิกัดร้านอาหาร เพิ่ม facebookUrl และ url (Google Maps)
+    const foodDatabase = {
+        spicy: {
+            title: "หมวด: ของคาว / อาหารจานหลัก 🍲",
+            description: "เมนูของคาวและอาหารจานหลัก อิ่มท้อง เหมาะกับมื้อกลางวันและมื้อเย็น",
+            popularMenus: [
+                "ส้มตำถาดปูปลาร้า",
+                "ต้มแซ่บกระดูกหมู",
+                "ยำแซลมอนน้ำปลาร้า"
+            ],
+            restaurants: [
+                { 
+                    name: "ก๋วยเตี๋ยวเรือแม่รำไพ 60", 
+                    lat: 14.6895401, 
+                    lng: 102.5330332, 
+                    desc: "ร้านส้มตำรสแซ่บ เมนูยำรสเด็ด", 
+                    img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80",
+                    url: "https://maps.app.goo.gl/V1SRD3jKgMBzpYb76?g_st=afm",
+                    facebookUrl: "https://www.facebook.com"
+                },
+                { 
+                    name: "144 ร้านขนมไทย ลองธรรม - Longtime Cafe", 
+                    lat: 14.6893535, 
+                    lng: 102.5344381, 
+                    desc: "ส้มตำรสจัดจ้าน บรรยากาศดี", 
+                    img: "https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=400&q=80",
+                    url: "https://maps.app.goo.gl/NKfveitvQiTyFTMD8?g_st=afm",
+                    facebookUrl: "https://www.facebook.com"
+                },
+                { 
+                    name: "ร้านต้มเลือดหมู 148", 
+                    lat: 14.6874218, 
+                    lng: 102.5298722, 
+                    desc: "เมนูยำและส้มตำรสแซ่บสะใจ", 
+                    img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=400&q=80",
+                    url: "https://maps.app.goo.gl/RVhaiGUq9FW31M6d9?g_st=afm",
+                    facebookUrl: "https://www.facebook.com"
+                }
+            ]
+        },
+        savory: {
+            title: "หมวด: อาหารคาว / อาหารจานหลัก 🍗",
+            description: "เมนูคาวจานเด็ด อิ่มท้อง รสชาติกลมกล่อม",
+            popularMenus: [
+                "ข้าวมันไก่ตอน",
+                "ผัดกระเพราถาด",
+                "ต้มยำกุ้งน้ำข้น"
+            ],
+            restaurants: [
+                { 
+                    name: "ผัดกะเพราโบราณ มณีใหญ่", 
+                    lat: 14.6872786, 
+                    lng: 102.5304359, 
+                    desc: "อาหารตามสั่งจานด่วน อร่อยคุ้มค่า", 
+                    img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
+                    url: "https://maps.app.goo.gl/qEJpVDtXiCD5zcsE6?g_st=afm",
+                    facebookUrl: "https://www.facebook.com"
+                },
+                { 
+                    name: "ร้านต้มเลือดหมู 148", 
+                    lat: 14.6874218, 
+                    lng: 102.5298722, 
+                    desc: "ข้าวผัด กระเพรา อาหารจานเดียว", 
+                    img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80",
+                    url: "https://maps.app.goo.gl/anQ7LSWYyes5wNZq6?g_st=afm",
+                    facebookUrl: "https://www.facebook.com"
+                }
+            ]
+        },
+        mild: {
+            title: "หมวด: อาหารรสเบา / สุขภาพ 🥗",
+            description: "อาหารรสชาติละมุน ย่อยง่าย ถูกใจสายสุขภาพ",
+            popularMenus: [
+                "สุกี้น้ำอกไก่",
+                "สลัดผักออร์แกนิก",
+                "แกงจืดเต้าหู้หมูสับ"
+            ],
+            restaurants: [
+                { 
+                    name: "ร้านคลีน & สุขภาพ หนองกี่", 
+                    lat: null, 
+                    lng: null, 
+                    desc: "อาหารรสเบา คลีน สดใหม่", 
+                    img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80",
+                    url: "",
+                    facebookUrl: "https://www.facebook.com"
+                }
+            ]
+        },
+        noodles: {
+            title: "หมวด: ก๋วยเตี๋ยว / ก๋วยจั๊บ 🍜",
+            description: "รวมเมนูเส้นอุ่นๆ ทั้งก๋วยเตี๋ยวน้ำ ก๋วยเตี๋ยวเรือ และก๋วยจั๊บ",
+            popularMenus: ["ก๋วยเตี๋ยวเรือน้ำตก", "ก๋วยเตี๋ยวต้มยำ", "ก๋วยจั๊บน้ำข้น"],
+            restaurants: [
+                { name: "ก๋วยเตี๋ยวเรือแม่รำไพ 60", lat: 14.6895401, lng: 102.5330332, desc: "ก๋วยเตี๋ยวเรือรสเข้มข้นในหนองกี่", img: "", url: "https://maps.app.goo.gl/V1SRD3jKgMBzpYb76?g_st=afm", facebookUrl: "https://www.facebook.com" }
+            ]
+        },
+        isan: {
+            title: "หมวด: อาหารอีสาน / ส้มตำ / ลาบ 🌶️",
+            description: "อาหารอีสานรสแซ่บ จัดจ้าน ครบทั้งส้มตำ ลาบ น้ำตก และต้มแซ่บ",
+            popularMenus: ["ส้มตำปูปลาร้า", "ลาบหมูคั่ว", "ต้มแซ่บกระดูกอ่อน"],
+            restaurants: [
+                { name: "เจ๊เพ็ญตำถาด", lat: 14.6989572, lng: 102.5458913, desc: "อาหารอีสานและตำถาดรสแซ่บ", img: "", url: "https://maps.app.goo.gl/4sDadv6CUx4HDEgDA?g_st=afm", facebookUrl: "https://www.facebook.com" }
+            ]
+        },
+        dessert: {
+            title: "หมวด: ของหวาน / เบเกอรี่ / ไอศกรีม 🍰🍨",
+            description: "เติมความหวานด้วยขนมอบ เค้ก และของหวานสำหรับทุกช่วงเวลา",
+            popularMenus: [
+                "เค้กมะพร้าวอ่อน",
+                "บิงซูผลไม้ตามฤดูกาล",
+                "วาฟเฟิลไอศกรีม"
+            ],
+            restaurants: [
+                { name: "ร้านของหวานแนะนำ หนองกี่", lat: null, lng: null, desc: "เค้ก เบเกอรี่ และของหวานเย็นๆ", img: "https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=400&q=80", url: "", facebookUrl: "https://www.facebook.com" }
+            ]
+        },
+        raw: {
+            title: "หมวด: อาหารดิบ / ซาชิมิ / ซีฟู้ดสด 🍣",
+            description: "เมนูสดใหม่ เช่น ซาชิมิ แซลมอน และซีฟู้ดที่คัดสรรมาอย่างดี",
+            popularMenus: [
+                "แซลมอนซาชิมิ",
+                "ยำแซลมอนสด",
+                "ทะเลดองซีอิ๊ว"
+            ],
+            restaurants: [
+                { name: "ร้านอาหารสดแนะนำ หนองกี่", lat: null, lng: null, desc: "ซาชิมิและซีฟู้ดสดใหม่ จัดเสิร์ฟอย่างสะอาด", img: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=400&q=80", url: "", facebookUrl: "https://www.facebook.com" }
+            ]
+        },
+        foreign: {
+            title: "หมวด: อาหารต่างประเทศ / ญี่ปุ่น / สเต๊ก 🍱🍝",
+            description: "เมนูต่างประเทศ พิซซ่า และสเต๊กอร่อยๆ",
+            popularMenus: [
+                "สปาเกตตีคาร์โบนารา",
+                "สเต๊กหมูพริกไทยดำ",
+                "พิซซ่าโฮมเมด"
+            ],
+            restaurants: [
+                { 
+                    name: "เจ๊เพ็ญตำถาด", 
+                    lat: 14.6989572, 
+                    lng: 102.5458913, 
+                    desc: "พิซซ่าโฮมเมดเตาถ่าน และสเต๊ก", 
+                    img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80",
+                    url: "https://maps.app.goo.gl/4sDadv6CUx4HDEgDA?g_st=afm",
+                    facebookUrl: "https://www.facebook.com"
+                }
+            ]
+        },
+        mukata: {
+            title: "หมวด: หมูกระทะ / ปิ้งย่าง 🔥",
+            description: "หมูกระทะและปิ้งย่างสำหรับนั่งกินเป็นกลุ่ม พร้อมบรรยากาศสบายๆ",
+            popularMenus: ["หมูกระทะชุดใหญ่", "หมูหมักนุ่ม", "ผักและซีฟู้ดรวม"],
+            restaurants: [
+                { name: "หนองกี่หมูย่างเกาหลี 2", lat: 14.6961517, lng: 102.5437772, desc: "หมูกระทะและปิ้งย่างในหนองกี่", img: "", url: "https://maps.app.goo.gl/xUYcEGb1L8Zi9N6k8?g_st=afm", facebookUrl: "https://www.facebook.com" }
+            ]
+        },
+        shabu: {
+            title: "หมวด: ชาบู / หม้อไฟ 🍲",
+            description: "เลือกชาบูและหม้อไฟได้จากเมนูนี้ — กำลังรอพิกัดร้านจริงเพื่อปักหมุดให้ตรงจุด",
+            popularMenus: ["ชาบูหมูสไลซ์", "น้ำซุปใสและน้ำดำ", "ชุดผักและของทานเล่น"],
+            restaurants: []
+        },
+        cafe: {
+            title: "หมวด: คาเฟ่ / กาแฟ / เครื่องดื่ม ☕",
+            description: "คาเฟ่นั่งชิล จิบกาแฟ เครื่องดื่ม และขนมทานเล่นในหนองกี่",
+            popularMenus: [
+                "อเมริกาโน่เย็น",
+                "เค้กมะพร้าวอ่อน",
+                "ชาเขียวมัทฉะลาเต้"
+            ],
+            restaurants: [
+                { 
+                    name: "หนองกี่หมูย่างเกาหลี 2", 
+                    lat: 14.6961517, 
+                    lng: 102.5437772, 
+                    desc: "กาแฟสด เครื่องดื่ม และขนมหวาน", 
+                    img: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=400&q=80",
+                    url: "https://maps.app.goo.gl/xUYcEGb1L8Zi9N6k8?g_st=afm",
+                    facebookUrl: "https://www.facebook.com"
+                }
+            ]
+        },
+        boiled_rice: {
+            title: "หมวด: ร้านข้าวต้มรอบดึก 🥣",
+            description: "ข้าวต้มร้อนๆ ยามค่ำคืน สบายท้อง",
+            popularMenus: [
+                "ข้าวต้มหมูสับ / ปลากะพง",
+                "ยำกุนเชียงไข่เค็ม",
+                "ผัดผักบุ้งไฟแดง"
+            ],
+            restaurants: [
+                { 
+                    name: "9 ทิวา ก๋วยเตี๋ยวไก่มะระบุฟเฟต์", 
+                    lat: 14.6960154, 
+                    lng: 102.5437568, 
+                    desc: "ข้าวต้มร้อนๆ พร้อมกับข้าวหลากหลาย", 
+                    img: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=400&q=80",
+                    url: "https://maps.app.goo.gl/wD68F353GMse5VY5A?g_st=afm",
+                    facebookUrl: "https://www.facebook.com"
+                }
+            ]
+        },
+        soy_milk: {
+            title: "หมวด: ร้านปาท่องโก๋ / น้ำเต้าหู้ 🥛🥖",
+            description: "มื้อเช้าสดใส หรือมื้อดึกสบายท้อง",
+            popularMenus: [
+                "น้ำเต้าหู้ทรงเครื่อง",
+                "ปาท่องโก๋กรอบ + สังขยา",
+                "เต้าฮวยน้ำขิง"
+            ],
+            restaurants: [
+                { 
+                    name: "ไร่ศรีทองสุข พิซซ่าเตาฟืน", 
+                    lat: 14.7593113, 
+                    lng: 102.4850950, 
+                    desc: "น้ำเต้าหู้ และปาท่องโก๋ทอดใหม่ๆ", 
+                    img: "https://images.unsplash.com/photo-1517433670267-08bbd4be890f?auto=format&fit=crop&w=400&q=80",
+                    url: "https://maps.app.goo.gl/hhjsHCiUbngRDUcE6?g_st=afm",
+                    facebookUrl: "https://www.facebook.com"
+                }
+            ]
+        }
+    };
+
+    function normalizeText(value) {
+        return String(value || '').toLocaleLowerCase('th-TH').trim();
+    }
+
+    function calculateResult() {
+        const category = document.getElementById('category').value;
+        const mealTime = document.getElementById('mealTime').value;
+        if (!category || !mealTime) { alert('กรุณากรอกข้อมูลให้ครบทุกข้อครับ'); return; }
+        const resultData = foodDatabase[category] || foodDatabase.savory;
+        document.getElementById('foodTypeResult').innerText = resultData.title;
+        document.getElementById('descriptionResult').innerText = resultData.description;
+        const menuList = document.getElementById('menuListResult');
+        menuList.innerHTML = resultData.popularMenus.map(menu => `<li>${menu}</li>`).join('');
+        document.getElementById('resultBox').style.display = 'block';
+        activeRestaurants = resultData.restaurants;
+        document.getElementById('placeSearch').value = '';
+        renderRestaurantList('');
+        document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function escapeHtml(value) {
+        return String(value || '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+    }
+
+    function commentKey(shop) {
+        return `nongki-comments:${shop.url || shop.name}`;
+    }
+
+    function readComments(shop) {
+        try { return JSON.parse(localStorage.getItem(commentKey(shop)) || '[]'); } catch (_) { return []; }
+    }
+
+    function saveComment(event) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const shop = activeRestaurants[Number(form.dataset.index)];
+        const text = form.elements.comment.value.trim();
+        if (!shop || !text) return;
+        const comments = readComments(shop);
+        comments.push({ name: form.elements.commenter.value.trim() || 'ผู้ใช้งาน', text, date: new Date().toLocaleDateString('th-TH') });
+        localStorage.setItem(commentKey(shop), JSON.stringify(comments.slice(-20)));
+        renderRestaurantList(document.getElementById('placeSearch').value);
+    }
+
+    function showAllRestaurants() {
+        const seen = new Set();
+        activeRestaurants = Object.values(foodDatabase).flatMap(data => data.restaurants).filter(shop => {
+            const key = shop.url || shop.name;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+        document.getElementById('foodTypeResult').innerText = 'ร้านอาหารและสถานที่แนะนำทั้งหมดในหนองกี่ 🍽️';
+        document.getElementById('descriptionResult').innerText = 'รวมร้านที่มีข้อมูลในเว็บไซต์ไว้ในหน้าเดียว ค้นหาชื่อร้านหรือประเภทอาหารได้ทันที';
+        document.getElementById('menuListResult').innerHTML = '<li>เลือกการ์ดร้านเพื่อดูหมุดบนแผนที่</li><li>กดอ่านคอมเมนต์เพื่อแบ่งปันประสบการณ์</li>';
+        document.getElementById('resultBox').style.display = 'block';
+        document.getElementById('placeSearch').value = '';
+        renderRestaurantList('');
+        document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderRestaurantList(query) {
+        const term = normalizeText(query);
+        const matches = activeRestaurants.filter(shop => normalizeText(`${shop.name} ${shop.desc}`).includes(term));
+        const list = document.getElementById('restaurantList');
+        document.getElementById('resultCount').textContent = `พบ ${matches.length} จาก ${activeRestaurants.length} ร้าน`;
+        if (!matches.length) {
+            list.innerHTML = '<div class="empty-state">ยังไม่มีร้านที่มีพิกัดในหมวดนี้ กรุณาเพิ่มลิงก์ Google Maps ของร้านเพื่อปักหมุดตรงจุดจริง</div>';
+        } else {
+            list.innerHTML = matches.map(shop => {
+                const shopIndex = activeRestaurants.indexOf(shop);
+                const hasVerifiedPin = Number.isFinite(shop.lat) && Number.isFinite(shop.lng);
+                const locationStatus = hasVerifiedPin ? '📍 พิกัดยืนยันจาก Google Maps' : '🕒 รอเพิ่มลิงก์ Google Maps เพื่อปักหมุด';
+                const comments = readComments(shop);
+                const commentHtml = comments.length ? comments.map(item => `<div class="comment-item"><strong>${escapeHtml(item.name || 'ผู้ใช้งาน')}</strong><time>${escapeHtml(item.date || '')}</time><div>${escapeHtml(item.text)}</div></div>`).join('') : '<small>ยังไม่มีคอมเมนต์ เป็นคนแรกที่แบ่งปันความคิดเห็นได้เลย</small>';
+                return `<article class="restaurant-card" tabindex="0" data-index="${shopIndex}"><div class="card-head"><strong>📍 ${escapeHtml(shop.name)}</strong><span aria-hidden="true">💬 ${comments.length}</span></div><small>${escapeHtml(shop.desc)}</small><small class="location-status">${locationStatus}</small><details class="comments-box"><summary class="comment-toggle">💬 อ่านคอมเมนต์ / แสดงความคิดเห็น</summary><div class="comment-list">${commentHtml}</div><form class="comment-form" data-index="${shopIndex}"><input name="commenter" maxlength="40" placeholder="ชื่อของคุณ (ไม่บังคับ)" aria-label="ชื่อผู้คอมเมนต์"><textarea name="comment" maxlength="300" required placeholder="เขียนความคิดเห็นเกี่ยวกับร้านนี้..."></textarea><button type="submit">โพสต์คอมเมนต์</button></form></details></article>`;
+            }).join('');
+            list.querySelectorAll('.restaurant-card').forEach(card => {
+                const focusMarker = () => focusShop(Number(card.dataset.index));
+                card.addEventListener('click', event => { if (!event.target.closest('.comments-box')) focusMarker(); });
+                card.addEventListener('keydown', event => { if ((event.key === 'Enter' || event.key === ' ') && !event.target.closest('.comments-box')) { event.preventDefault(); focusMarker(); } });
+            });
+            list.querySelectorAll('.comment-form').forEach(form => form.addEventListener('submit', saveComment));
+        }
+        renderMap(matches);
+    }
+
+    function focusShop(index) {
+        const shop = activeRestaurants[index];
+        if (!shop || !map || !Number.isFinite(shop.lat) || !Number.isFinite(shop.lng)) return;
+        map.setView([shop.lat, shop.lng], 16, { animate: true });
+        const marker = markersGroup.getLayers().find(item => item.shopName === shop.name);
+        if (marker) marker.openPopup();
+    }
+
+    function renderMap(restaurants) {
+        if (!map) {
+            map = L.map('map').setView([14.8600, 103.0200], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+            markersGroup = L.layerGroup().addTo(map);
+        } else markersGroup.clearLayers();
+        const bounds = [];
+        restaurants.filter(shop => Number.isFinite(shop.lat) && Number.isFinite(shop.lng)).forEach(shop => {
+            const popupContent = `<div style="max-width:200px;">${shop.img ? `<img src="${shop.img}" class="popup-img" alt="${shop.name}">` : ''}<b>${shop.name}</b><br><span style="font-size:12px; color:#555;">${shop.desc}</span><div class="btn-group">${shop.url ? `<a href="${shop.url}" target="_blank" rel="noopener" class="popup-btn btn-gmap">📍 นำทางบน Google Maps</a>` : ''}${shop.facebookUrl ? `<a href="${shop.facebookUrl}" target="_blank" rel="noopener" class="popup-btn btn-facebook">📘 ไปยังเพจ Facebook</a>` : ''}</div></div>`;
+            const marker = L.marker([shop.lat, shop.lng]).bindPopup(popupContent);
+            marker.shopName = shop.name;
+            markersGroup.addLayer(marker);
+            bounds.push([shop.lat, shop.lng]);
+        });
+        if (bounds.length > 0) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
+        setTimeout(() => map.invalidateSize(), 200);
+    }
+
+    document.getElementById('placeSearch').addEventListener('input', event => renderRestaurantList(event.target.value));
+    document.getElementById('clearSearch').addEventListener('click', () => { const input = document.getElementById('placeSearch'); input.value = ''; input.focus(); renderRestaurantList(''); });
+    document.getElementById('foodQuiz').addEventListener('submit', event => { event.preventDefault(); calculateResult(); });
+</script>
+
+</body>
+</html>
