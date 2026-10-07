@@ -10,42 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
-    :root, [data-theme="dark"] {
-      --bg-dark: #070b14;
-      --bg-gradient-1: rgba(6, 182, 212, 0.18);
-      --bg-gradient-2: rgba(245, 158, 11, 0.18);
-      --bg-gradient-3: rgba(236, 72, 153, 0.12);
-      --bg-gradient-4: rgba(139, 92, 246, 0.16);
-      --nav-bg: rgba(15, 23, 42, 0.85);
-      --card-bg: rgba(15, 23, 42, 0.8);
-      --card-master-bg: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.75));
-      --card-border: rgba(255, 255, 255, 0.1);
-      --card-hover-border: rgba(56, 189, 248, 0.5);
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --text-title: #ffffff;
-      --card-icon-bg: rgba(255, 255, 255, 0.05);
-      --feature-list-bg: rgba(0, 0, 0, 0.35);
-      --feature-list-border: rgba(255, 255, 255, 0.05);
-      --feature-list-text: #cbd5e1;
-      --tag-bg: rgba(255, 255, 255, 0.06);
-      --tag-border: rgba(255, 255, 255, 0.1);
-      --tag-text: #cbd5e1;
-      --section-header-border: rgba(255, 255, 255, 0.08);
-      --section-badge-bg: rgba(255, 255, 255, 0.08);
-      --toggle-bg: rgba(255, 255, 255, 0.08);
-      --toggle-border: rgba(255, 255, 255, 0.2);
-      --toggle-text: #f8fafc;
-      --hero-title-grad: linear-gradient(135deg, #ffffff 40%, #cbd5e1 100%);
-      --hero-badge-bg: rgba(6, 182, 212, 0.12);
-      --hero-badge-border: rgba(6, 182, 212, 0.35);
-      --hero-badge-color: #38bdf8;
-      --sub-btn-bg: rgba(255, 255, 255, 0.08);
-      --sub-btn-color: #ffffff;
-      --box-shadow-card: 0 16px 36px rgba(0, 0, 0, 0.5);
-    }
-
-    [data-theme="light"] {
+    :root, [data-theme="light"] {
       --bg-dark: #f8fafc;
       --bg-gradient-1: rgba(6, 182, 212, 0.15);
       --bg-gradient-2: rgba(245, 158, 11, 0.15);
@@ -78,6 +43,41 @@
       --sub-btn-bg: rgba(15, 23, 42, 0.05);
       --sub-btn-color: #0f172a;
       --box-shadow-card: 0 16px 36px rgba(148, 163, 184, 0.25);
+    }
+
+    [data-theme="dark"] {
+      --bg-dark: #070b14;
+      --bg-gradient-1: rgba(6, 182, 212, 0.18);
+      --bg-gradient-2: rgba(245, 158, 11, 0.18);
+      --bg-gradient-3: rgba(236, 72, 153, 0.12);
+      --bg-gradient-4: rgba(139, 92, 246, 0.16);
+      --nav-bg: rgba(15, 23, 42, 0.85);
+      --card-bg: rgba(15, 23, 42, 0.8);
+      --card-master-bg: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.75));
+      --card-border: rgba(255, 255, 255, 0.1);
+      --card-hover-border: rgba(56, 189, 248, 0.5);
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --text-title: #ffffff;
+      --card-icon-bg: rgba(255, 255, 255, 0.05);
+      --feature-list-bg: rgba(0, 0, 0, 0.35);
+      --feature-list-border: rgba(255, 255, 255, 0.05);
+      --feature-list-text: #cbd5e1;
+      --tag-bg: rgba(255, 255, 255, 0.06);
+      --tag-border: rgba(255, 255, 255, 0.1);
+      --tag-text: #cbd5e1;
+      --section-header-border: rgba(255, 255, 255, 0.08);
+      --section-badge-bg: rgba(255, 255, 255, 0.08);
+      --toggle-bg: rgba(255, 255, 255, 0.08);
+      --toggle-border: rgba(255, 255, 255, 0.2);
+      --toggle-text: #f8fafc;
+      --hero-title-grad: linear-gradient(135deg, #ffffff 40%, #cbd5e1 100%);
+      --hero-badge-bg: rgba(6, 182, 212, 0.12);
+      --hero-badge-border: rgba(6, 182, 212, 0.35);
+      --hero-badge-color: #38bdf8;
+      --sub-btn-bg: rgba(255, 255, 255, 0.08);
+      --sub-btn-color: #ffffff;
+      --box-shadow-card: 0 16px 36px rgba(0, 0, 0, 0.5);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
@@ -519,7 +519,7 @@
   </style>
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('pbl_theme') || 'dark';
+      const savedTheme = localStorage.getItem('pbl_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
   </script>
@@ -537,8 +537,8 @@
     </div>
     <div class="nav-actions">
       <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">
-        <span id="themeToggleIcon">🌙</span>
-        <span id="themeToggleText">โหมดมืด</span>
+        <span id="themeToggleIcon">☀️</span>
+        <span id="themeToggleText">โหมดสว่าง</span>
       </button>
       <a href="../index.html" class="nav-btn nav-btn-fit">
         <span>⚡</span> เว็บ fitจัง
@@ -962,13 +962,13 @@
     }
 
     // Initialize Theme
-    const savedTheme = localStorage.getItem('pbl_theme') || 'dark';
+    const savedTheme = localStorage.getItem('pbl_theme') || 'light';
     applyThemeUI(savedTheme);
 
     if (themeBtn) {
       themeBtn.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
         localStorage.setItem('pbl_theme', nextTheme);
         applyThemeUI(nextTheme);
       });
