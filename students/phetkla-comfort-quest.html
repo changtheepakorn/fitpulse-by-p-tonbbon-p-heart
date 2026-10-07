@@ -601,44 +601,44 @@
         const chosen = types[Math.floor(Math.random() * types.length)];
 
         if (chosen === "math_poly") {
-            const a = Math.floor(Math.random() * 😎 + 2;
+            const a = Math.floor(Math.random() * 8) + 2;
             const ans = a * a - 2;
             return {
                 cat: "📐 คณิตศาสตร์ (ม.4 ยาก - Dynamic)",
-                q: ถ้า x + 1/x = ${a} แล้วค่าของ x² + 1/x² เท่ากับเท่าใด?,
-                opts: [`${ans}`, ${a*a}, ${ans + 4}, `${ans - 2}`],
+                q: `ถ้า x + 1/x = ${a} แล้วค่าของ x² + 1/x² เท่ากับเท่าใด?`,
+                opts: [`${ans}`, `${a*a}`, `${ans + 4}`, `${ans - 2}`],
                 ans: 0,
-                exp:💡 **อธิบายเหตุผล:** (x + 1/x)² = ${a}² จะได้ x² + 2 + 1/x² = ${a*a} ดังนั้น x² + 1/x² = **${ans}**`
+                exp: `💡 **อธิบายเหตุผล:** (x + 1/x)² = ${a}² จะได้ x² + 2 + 1/x² = ${a*a} ดังนั้น x² + 1/x² = **${ans}**`
             };
         } else if (chosen === "math_pythagoras") {
             const k = Math.floor(Math.random() * 5) + 1;
             const a = 3 * k, b = 4 * k, c = 5 * k;
             return {
                 cat: "📐 คณิตศาสตร์ (ม.4 ยาก - Dynamic)",
-                q: สามเหลี่ยมมุมฉากมีด้านยาว ${a} และ ${b} เซนติเมตร ด้านตรงข้ามมุมฉากยาวกี่เซนติเมตร?,
-                opts: [`${c} ซม.`, ${c + 2} ซม., ${c - 1} ซม., `${a + b} ซม.`],
+                q: `สามเหลี่ยมมุมฉากมีด้านยาว ${a} และ ${b} เซนติเมตร ด้านตรงข้ามมุมฉากยาวกี่เซนติเมตร?`,
+                opts: [`${c} ซม.`, `${c + 2} ซม.`, `${c - 1} ซม.`, `${a + b} ซม.`],
                 ans: 0,
-                exp:💡 **อธิบายเหตุผล:** c² = ${a}² + ${b}² = ${a*a + b*b} ดังนั้น c = **${c} ซม.**`
+                exp: `💡 **อธิบายเหตุผล:** c² = ${a}² + ${b}² = ${a*a + b*b} ดังนั้น c = **${c} ซม.**`
             };
         } else if (chosen === "phys_speed") {
             const v = (Math.floor(Math.random() * 5) + 1) * 10;
             const h = (v * v) / 20;
             return {
                 cat: "⚡ ฟิสิกส์ (ม.4 ยาก - Dynamic)",
-                q: โยนวัตถุขึ้นด้วยความเร็วต้น ${v} m/s วัตถุจะขึ้นได้สูงสุดกี่เมตร? (g = 10 m/s²),
-                opts: [`${h} เมตร`, ${h * 2} เมตร, ${h / 2} เมตร, `${h + 10} เมตร`],
+                q: `โยนวัตถุขึ้นด้วยความเร็วต้น ${v} m/s วัตถุจะขึ้นได้สูงสุดกี่เมตร? (g = 10 m/s²)`,
+                opts: [`${h} เมตร`, `${h * 2} เมตร`, `${h / 2} เมตร`, `${h + 10} เมตร`],
                 ans: 0,
-                exp:💡 **อธิบายเหตุผล:** h = v² / 2g = ${v*v} / 20 = **${h} เมตร**`
+                exp: `💡 **อธิบายเหตุผล:** h = v² / 2g = ${v*v} / 20 = **${h} เมตร**`
             };
         } else {
             const g = (Math.floor(Math.random() * 5) + 1) * 18;
             const mol = g / 18;
             return {
                 cat: "🧪 เคมี (ม.4 ยาก - Dynamic)",
-                q: น้ำ (H2O) มวล ${g} กรัม คิดเป็นกี่โมล? (MW = 18 g/mol),
-                opts: [`${mol} โมล`, ${mol * 2} โมล, ${mol + 1} โมล, `${mol / 2} โมล`],
+                q: `น้ำ (H2O) มวล ${g} กรัม คิดเป็นกี่โมล? (MW = 18 g/mol)`,
+                opts: [`${mol} โมล`, `${mol * 2} โมล`, `${mol + 1} โมล`, `${mol / 2} โมล`],
                 ans: 0,
-                exp:💡 **อธิบายเหตุผล:** n = g / MW = ${g} / 18 = **${mol} โมล**`
+                exp: `💡 **อธิบายเหตุผล:** n = g / MW = ${g} / 18 = **${mol} โมล**`
             };
         }
     }
@@ -672,7 +672,7 @@
         tbody.innerHTML = "";
         leaderboard.forEach(p => {
             const tr = document.createElement('tr');
-            tr.innerHTML = <td>${p.name}</td><td>${p.rank}</td><td>${p.exp}</td><td>⭐ ${p.stars}</td>;
+            tr.innerHTML = `<td>${p.name}</td><td>${p.rank}</td><td>${p.exp}</td><td>⭐ ${p.stars}</td>`;
             tbody.appendChild(tr);
         });
     }
@@ -704,7 +704,7 @@
     function loadGameData() {
         const savedBg = localStorage.getItem('zoneQuestBg');
         if (savedBg) {
-            document.body.style.backgroundImage = url('${savedBg}');
+            document.body.style.backgroundImage = `url('${savedBg}')`;
         }
 
         const savedLeaderboard = localStorage.getItem('zoneQuestLeaderboard');
